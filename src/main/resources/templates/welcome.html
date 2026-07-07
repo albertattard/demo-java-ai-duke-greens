@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Duke Greens</title>
+    <link rel="stylesheet" th:href="@{/css/application.css}">
+</head>
+<body>
+<main>
+    <section aria-labelledby="welcome-heading" class="welcome-panel">
+        <p class="eyebrow">Conversational green supermarket</p>
+        <h1 id="welcome-heading">Duke Greens</h1>
+        <p>Tell us what you would like to cook, and we will help plan your meals and groceries.</p>
+
+        <label for="meal-request">Describe the meals you want</label>
+        <textarea id="meal-request" name="mealRequest" placeholder="For example: three quick vegetarian dinners for one person." rows="5"></textarea>
+    </section>
+</main>
+</body>
+</html>

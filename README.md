@@ -29,6 +29,20 @@ any live model calls):
 ./mvnw package
 ```
 
+## Browser-test setup
+
+The end-to-end test suite uses Playwright-managed Chromium rather than a
+system-installed browser. After Maven has downloaded the project dependencies,
+install its required Chromium binary once for the current user:
+
+```shell
+./mvnw exec:java -e -Dexec.classpathScope=test -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install chromium"
+```
+
+The binary is cached outside the repository. Re-run this command after updating
+the Playwright dependency. It downloads a few hundred megabytes and requires
+network access.
+
 Start the local application:
 
 ```shell

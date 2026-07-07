@@ -2,7 +2,7 @@
 
 ## Status
 
-Draft for implementation planning.
+Accepted.
 
 ## Goal
 

@@ -5,3 +5,4 @@ This directory records consequential technical decisions and their rationale. Ea
 ## Contents
 
 - [`ADR-0001-adopt-the-initial-technical-stack.md`](ADR-0001-adopt-the-initial-technical-stack.md) selects the MVP application, UI, data, AI, testing, and deployment stack.
+- [`ADR-0002-seed-the-h2-catalogue-with-sql-and-access-it-through-jdbc.md`](ADR-0002-seed-the-h2-catalogue-with-sql-and-access-it-through-jdbc.md) chooses SQL initialization and JDBC for the fixed initial catalogue.

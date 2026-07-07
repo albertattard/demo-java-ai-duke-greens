@@ -25,6 +25,7 @@
 
 ## Git commits
 
+- Commit only one coherent, reviewable change at a time. Do not bulk-commit unrelated changes, including pre-existing work in the working tree.
 - Write commits with a short, imperative subject and, when useful, a longer body separated by a blank line.
 - Make the subject describe the change's intent, not merely the files or mechanics visible in the diff.
 - Use the body to explain the motivation, constraints, and consequences that are not evident from the diff.
@@ -32,6 +33,7 @@
 
 ## Documentation
 
+- Before completing work or creating a commit, review documentation affected by code or documentation changes and verify that it remains valid, accurate, and current. If it may be stale, contradictory, or invalid, stop and ask the user for direction; do not silently proceed or update it on assumption.
 - Keep documentation organised by purpose beneath `docs/`; use the closest relevant directory rather than placing unrelated documents together.
 - Use `docs/product/` for product vision, user journeys, and product decisions; use `docs/adr/`, `docs/specs/`, and `docs/tasks/` when their first respective artifacts are needed.
 - Add a focused `README.md` when creating a documentation directory so its purpose and contents remain discoverable.

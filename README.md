@@ -10,3 +10,29 @@ The first implementation is text-based. Future iterations may add push-to-talk i
 - [`docs/`](docs/README.md) contains product and engineering documentation.
 
 The project vision and MVP boundaries are in [`docs/product/vision.md`](docs/product/vision.md).
+
+## Run locally
+
+Duke Greens requires Java 25. The Maven Wrapper downloads the required Maven
+distribution automatically on its first run.
+
+Compile the application:
+
+```shell
+./mvnw compile
+```
+
+Run the unit-test and package build (this requires neither an OpenAI API key nor
+any live model calls):
+
+```shell
+./mvnw package
+```
+
+Start the local application:
+
+```shell
+./mvnw spring-boot:run
+```
+
+Stop it with `Ctrl+C`.

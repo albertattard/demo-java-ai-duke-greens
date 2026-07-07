@@ -2,7 +2,7 @@
 
 ## Status
 
-Ready.
+Completed.
 
 ## Sources of truth
 
@@ -42,6 +42,12 @@ This task has no direct visitor-visible value. It is necessary enabling work: wi
 - Run `./mvnw package`.
 - Start the application using the documented local command and confirm it remains running without configuration errors.
 - Review the README against the executed commands.
+
+## Implementation notes
+
+- Completed on 2026-07-07 with Java 25.0.3 and Spring Boot 4.1.0.
+- `./mvnw package` and direct `mvn package` passed with one context-load test and no OpenAI API key or live model call.
+- `./mvnw spring-boot:run` started the application successfully on port 8080 and was shut down cleanly.
 
 ## Delivery workflow exception
 

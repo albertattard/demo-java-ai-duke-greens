@@ -4,4 +4,4 @@ This directory contains implementation-ready descriptions of observable product 
 
 ## Contents
 
-- [`mvp-conversational-shopping-flow.md`](mvp-conversational-shopping-flow.md) defines the first end-to-end Duke Greens experience.
+- [`SPEC-0001-mvp-conversational-shopping-flow.md`](SPEC-0001-mvp-conversational-shopping-flow.md) defines the first end-to-end Duke Greens experience.

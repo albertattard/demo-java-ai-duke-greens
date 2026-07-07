@@ -23,6 +23,16 @@
 - Run relevant verification before handing work over and report what was verified.
 - Document decisions that are hard to reverse or would otherwise be surprising to future contributors.
 
+## Delivery workflow
+
+- Before starting work, verify that the working tree has no modified or untracked files. If it is not clean, stop and ask the user how to proceed.
+- Before changing an existing implementation, verify that the project compiles and its tests pass. If no build or test harness exists, report that the baseline cannot yet be verified; do not represent it as passing.
+- Create or update the relevant specification before implementing a behaviour change. Specifications are the source of truth: code that conflicts with an accepted specification is wrong.
+- Create an implementation-ready task for the work, normally linked to its specification, before starting implementation.
+- Deliver in small vertical slices. Identify the smallest meaningful task, start with an end-to-end test for its main flow, verify that it fails, then implement only enough to make it pass.
+- Repeat that test-first vertical-slice cycle until the relevant acceptance criteria are met. Then review and refactor where warranted, and rerun the relevant verification.
+- Call out tasks that do not provide direct visitor value. Such enabling work may still proceed when it is necessary, but its value and scope must be explicit.
+
 ## Git commits
 
 - Commit only one coherent, reviewable change at a time. Do not bulk-commit unrelated changes, including pre-existing work in the working tree.

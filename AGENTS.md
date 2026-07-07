@@ -35,10 +35,4 @@
 - Keep documentation organised by purpose beneath `docs/`; use the closest relevant directory rather than placing unrelated documents together.
 - Use `docs/product/` for product vision, user journeys, and product decisions; use `docs/adr/`, `docs/specs/`, and `docs/tasks/` when their first respective artifacts are needed.
 - Add a focused `README.md` when creating a documentation directory so its purpose and contents remain discoverable.
-
-## Git commits
-
-- Write commits with a short, imperative subject and, when useful, a longer body separated by a blank line.
-- Make the subject describe the change’s intent, not merely the files or mechanics visible in the diff.
-- Use the body to explain the motivation, constraints, and consequences that are not evident from the diff.
-- Keep commit messages specific enough to be understandable when scanning Git history.
+- Write architecture decision records using Michael Nygard's template: Title, Status, Context, Decision, and Consequences.

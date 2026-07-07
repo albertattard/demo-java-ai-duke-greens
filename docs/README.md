@@ -6,8 +6,8 @@ This directory groups project documentation by purpose. Create a new category on
 
 - [`product/`](product/README.md) contains product vision, user journeys, and product decisions.
 - [`specs/`](specs/README.md) contains implementation-ready feature specifications.
+- [`adr/`](adr/README.md) contains architecture decision records.
 
 ## Planned categories
 
-- `adr/` will contain architecture decision records for consequential technical choices.
 - `tasks/` will contain Markdown-based delivery tasks and work tracking.

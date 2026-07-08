@@ -91,3 +91,30 @@ textarea {
     resize: vertical;
     width: 100%;
 }
+
+button {
+    background: #285a3a;
+    border: 0;
+    border-radius: 0.5rem;
+    color: #ffffff;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+}
+
+.validation-message, .meal-request-error {
+    color: #8a1f11;
+    font-weight: 700;
+}
+
+.meal-ideas, .meal-request-error {
+    margin-top: 2rem;
+}
+
+.meal-suggestion {
+    border-top: 1px solid #cadfc4;
+    margin-top: 1rem;
+    padding-top: 1rem;
+}

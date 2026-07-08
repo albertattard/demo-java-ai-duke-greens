@@ -1,12 +1,13 @@
 package demo;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
+import org.springframework.context.annotation.Import;
 
-@SpringBootTest
+@JdbcTest
+@Import(JdbcProductCatalogue.class)
 class JdbcProductCatalogueTest {
 
     @Autowired
@@ -30,5 +31,4 @@ class JdbcProductCatalogueTest {
                         "red-peppers-500g",
                         "baby-spinach-200g");
     }
-
 }

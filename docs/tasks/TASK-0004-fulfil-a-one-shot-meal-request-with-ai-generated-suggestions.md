@@ -2,7 +2,7 @@
 
 ## Status
 
-Ready.
+Completed.
 
 ## Sources of truth
 
@@ -32,6 +32,7 @@ Direct. A visitor receives practical meal ideas tailored to their written reques
 - Validate the model response before presentation. For a timeout, provider failure, malformed response, no suggestions, or more than seven suggestions, show an accessible friendly error without partial suggestions or provider error details.
 - Provide `Try again` as a distinct visitor action that resubmits the same request, and `Reset` to clear the failed request and return to the initial input state. Do not retry automatically.
 - Use a deterministic fake at the model-facing boundary for automated tests. Normal Maven verification must not require an API key or a live model call.
+- Provide an opt-in Maven profile that makes one live OpenAI request against the configured model and verifies that it produces a complete, structured meal suggestion. The profile must remain inactive during normal Maven verification.
 
 ## Out of scope
 
@@ -53,14 +54,21 @@ Direct. A visitor receives practical meal ideas tailored to their written reques
 9. `Try again` is a visitor action that resubmits the same request; `Reset` returns the visitor to the initial input state. Neither action occurs automatically.
 10. Automated tests cover requests for one, seven, and more than seven meals, plus malformed, empty, and over-seven model responses, using a deterministic fake model boundary; a browser end-to-end test proves the main request-to-suggestions flow.
 11. `./mvnw package` and `./mvnw verify` pass without an OpenAI API key or live model call.
+12. `./mvnw verify --activate-profiles openai-integration` runs a tagged live-provider integration test when an OpenAI API key is available from the local external configuration.
 
 ## Verification
 
 - Before implementation, add and run the focused end-to-end test for a submitted request and its suggestions; record its failure in this task's implementation notes or the implementation commit body.
 - Run the focused unit and browser tests after implementation.
 - Run `./mvnw package` and `./mvnw verify`.
+- With a configured local OpenAI API key, run `./mvnw verify --activate-profiles openai-integration` and confirm the live structured-output request succeeds.
 - Review the root README and affected documentation for any new session or local-run behaviour.
 
 ## Implementation notes
 
-To be completed during implementation.
+- The initial end-to-end test was added before implementation and failed because the landing page did not yet provide a submission action.
+- Spring AI 2.0.0 is used because it supports the repository's Spring Boot 4.1 baseline; the previously available 1.1.2 release does not.
+- The OpenAI generator is active outside the `test` profile and receives its key from external Spring configuration supplied at launch. Automated tests activate the `test` profile and inject a deterministic Mockito `MealSuggestionGenerator` boundary, so verification neither reads local configuration nor invokes a live model.
+- The `openai-integration` Maven profile sets the external configuration import and runs only the tagged live-provider test. It is intentionally opt-in because it requires credentials, network access, and incurs API cost.
+- `./mvnw verify --activate-profiles openai-integration` completed successfully with the locally configured OpenAI API key, including one live structured-output request.
+- The committed application configuration contains no user-home import. A local run and the opt-in Maven profile each supply the same import explicitly before Spring Boot starts.

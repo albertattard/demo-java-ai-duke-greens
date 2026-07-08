@@ -1,6 +1,7 @@
 package demo.functional;
 
 import com.microsoft.playwright.Page;
+import demo.WelcomePage;
 
 public final class DukeGreens {
 

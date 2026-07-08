@@ -13,8 +13,36 @@
         <h1 id="welcome-heading">Duke Greens</h1>
         <p>Tell us what you would like to cook, and we will help plan your meals and groceries.</p>
 
-        <label for="meal-request">Describe the meals you want</label>
-        <textarea id="meal-request" name="mealRequest" placeholder="For example: three quick vegetarian dinners for one person." rows="5"></textarea>
+        <form method="post" th:action="@{/meal-request}" th:if="${suggestions == null and failed != true}">
+            <label for="meal-request">Describe the meals you want</label>
+            <textarea id="meal-request" name="mealRequest" placeholder="For example: three quick vegetarian dinners for one person." rows="5" th:text="${mealRequest}"></textarea>
+            <p aria-live="polite" class="validation-message" th:if="${validationMessage}" th:text="${validationMessage}"></p>
+            <button type="submit">Get meal ideas</button>
+        </form>
+        <section aria-labelledby="meal-ideas-heading" class="meal-ideas" th:if="${suggestions != null and !suggestions.isEmpty()}">
+            <h2 id="meal-ideas-heading">Meal ideas</h2>
+            <p>These are meal ideas, not product, price, stock, basket, or order commitments.</p>
+            <article class="meal-suggestion" data-testid="meal-suggestion" th:each="suggestion : ${suggestions}">
+                <h3 th:text="${suggestion.name}">Meal name</h3>
+                <p th:text="${suggestion.preparationMinutes + ' minutes'}">30 minutes</p>
+                <p th:text="${suggestion.explanation}">Why it fits</p>
+                <p th:text="${'Serves ' + suggestion.servings}">Serves 1</p>
+                <h4>Ingredients</h4>
+                <ul>
+                    <li th:each="ingredient : ${suggestion.ingredients}"
+                        th:text="${ingredient.name + ': ' + ingredient.quantity + ' ' + ingredient.unit}">Ingredient: 1 unit</li>
+                </ul>
+            </article>
+        </section>
+        <section aria-labelledby="meal-request-error-heading" class="meal-request-error" role="alert" th:if="${failed}">
+            <h2 id="meal-request-error-heading">We could not create meal ideas</h2>
+            <p>Please try your request again or reset and start over.</p>
+            <form method="post" th:action="@{/meal-request}">
+                <input name="mealRequest" th:value="${mealRequest}" type="hidden">
+                <button type="submit">Try again</button>
+            </form>
+            <a href="/">Reset</a>
+        </section>
     </section>
 
     <section aria-labelledby="products-heading" class="products-panel">

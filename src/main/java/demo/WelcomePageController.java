@@ -3,6 +3,8 @@ package demo;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import module java.base;
 
@@ -10,27 +12,45 @@ import module java.base;
 class WelcomePageController {
 
     private final ProductCatalogue productCatalogue;
+    private final MealSuggestionService mealSuggestionService;
 
-    WelcomePageController(final ProductCatalogue productCatalogue) {
+    WelcomePageController(
+            final ProductCatalogue productCatalogue,
+            final MealSuggestionService mealSuggestionService) {
         this.productCatalogue = productCatalogue;
+        this.mealSuggestionService = mealSuggestionService;
     }
 
     @GetMapping("/")
     String showWelcomePage(final Model model) {
-        model.addAttribute("products", productCatalogue.allProducts().stream()
-                .map(product -> new ProductCard(
-                        product.name(),
-                        product.packageQuantity() + " " + product.packageUnit(),
-                        formatPrice(product.price(), product.currency())))
-                .toList());
+        model.addAttribute("products", allProducts());
         return "welcome";
     }
 
-    private static String formatPrice(final BigDecimal price, final Currency currency) {
-        final NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.GERMANY);
-        formatter.setCurrency(currency);
-        return formatter.format(price);
+    @PostMapping("/meal-request")
+    String submitMealRequest(
+            @RequestParam(required = false) final String mealRequest,
+            final Model model) {
+        final MealRequestResult result = mealSuggestionService.submit(mealRequest);
+        model.addAttribute("products", allProducts());
+
+        switch (result) {
+            case MealSuggestions(final List<MealSuggestion> suggestions) ->
+                model.addAttribute("suggestions", suggestions);
+            case InvalidRequest(final String message) ->
+                model.addAttribute("validationMessage", message);
+            case FailedRequest(final String request) -> {
+                model.addAttribute("mealRequest", request);
+                model.addAttribute("failed", true);
+            }
+        }
+
+        return "welcome";
     }
 
-    record ProductCard(String name, String packageDetail, String formattedPrice) {}
+    private List<ProductCard> allProducts() {
+        return productCatalogue.allProducts().stream()
+                .map(ProductCard::of)
+                .toList();
+    }
 }

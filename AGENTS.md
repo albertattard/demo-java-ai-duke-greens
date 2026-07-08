@@ -26,14 +26,14 @@
 
 ## Delivery workflow
 
-- Before starting work, verify that the working tree has no modified or untracked files. If it is not clean, stop and ask the user how to proceed.
+- Before mutating implementation, documentation, configuration, or tests, verify that the working tree has no modified or untracked files. If it is not clean, stop and ask the user how to proceed. Read-only inspection may proceed, but must report existing changes and must not alter them without direction.
 - Before changing an existing implementation, verify that the project compiles and its tests pass. If no build or test harness exists, report that the baseline cannot yet be verified; do not represent it as passing.
-- Create or update the relevant specification before implementing a behaviour change. Specifications are the source of truth: code that conflicts with an accepted specification is wrong. A specification is `Draft` while it is being prepared and `Accepted` before implementation begins. If a task or implementation relies on a draft or otherwise stale specification, stop and ask the user how to proceed.
+- Create or update the relevant specification before implementing a behaviour change. Specifications are the source of truth: code that conflicts with an accepted specification is wrong. A specification is `Draft` while it is being prepared and `Accepted` before implementation begins. Only the user may transition a specification to `Accepted`. A draft specification may be refined, but implementation must not begin or continue until the relevant specification is accepted. If implementation relies on a draft or otherwise stale specification, stop and ask the user how to proceed.
 - Create an implementation-ready task for the work, normally linked to its specification, before starting implementation.
 - Deliver in small vertical slices. Identify the smallest meaningful task, start with an end-to-end test for its main flow, verify that it fails, then implement only enough to make it pass.
 - Repeat that test-first vertical-slice cycle until the relevant acceptance criteria are met. Then review and refactor where warranted, and rerun the relevant verification.
 - Call out tasks that do not provide direct visitor value. Such enabling work may still proceed when it is necessary, but its value and scope must be explicit.
-- Use these task statuses: `Ready` for work that is specified and eligible to begin; `In progress` while implementation or verification is underway; `Review` when all required implementation and verification are complete and the task awaits user review; `Blocked` when progress cannot continue because a required external decision, access, dependency, or user input is missing; and `Completed` only after the user explicitly says the task is complete. A blocked task must record the blocker and what is needed to resume, and returns to `In progress` when resolved. Do not use `Blocked` merely because implementation or verification has failed; diagnose and address that work while the task remains `In progress`. Agents must not transition a task from `Review` to `Completed` on their own.
+- Use these task statuses: `Draft` while the task is being prepared or has unanswered design questions; `Ready` for work that is specified and eligible to begin; `In progress` while implementation or verification is underway; `Review` when all required implementation and verification are complete and the task awaits user review; `Blocked` when progress cannot continue because a required external decision, access, dependency, or user input is missing; and `Completed` only after the user explicitly says the task is complete. A blocked task must record the blocker and what is needed to resume, and returns to `In progress` when resolved. Do not use `Blocked` merely because implementation or verification has failed; diagnose and address that work while the task remains `In progress`. Agents must not transition a task from `Review` to `Completed` on their own.
 
 ## Git commits
 
@@ -45,7 +45,7 @@
 
 ## Documentation
 
-- Before completing work or creating a commit, review documentation affected by code or documentation changes and verify that it remains valid, accurate, and current. If it may be stale, contradictory, or invalid, stop and ask the user for direction; do not silently proceed or update it on assumption.
+- Before completing work or creating a commit, review documentation affected by code or documentation changes and verify that it remains valid, accurate, and current. If accuracy depends on an unresolved decision, stop and ask the user for direction; do not silently proceed or update it on assumption. When documentation maintenance is explicitly requested, update it within the requested scope.
 - Keep documentation organised by purpose beneath `docs/`; use the closest relevant directory rather than placing unrelated documents together.
 - Use `docs/product/` for product vision, user journeys, and product decisions; use `docs/adr/`, `docs/specs/`, and `docs/tasks/` when their first respective artifacts are needed.
 - Add a focused `README.md` when creating a documentation directory so its purpose and contents remain discoverable.

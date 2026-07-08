@@ -10,7 +10,7 @@ The landing-page product catalogue needs fixed, reviewable local product data. T
 
 ## Decision
 
-Create the H2 product table and seed its initial data from committed `schema.sql` and `data.sql` resources at application startup. Use Spring JDBC for the persistence implementation. Expose catalogue lookups through a Java repository boundary that returns domain products; controllers and later recommendation/basket workflows must not query tables directly.
+Create the H2 product table and seed its initial data from committed `schema.sql` and `data.sql` resources at application startup. Use Spring JDBC for the persistence implementation. Expose the catalogue through a Java repository boundary that returns domain products; controllers and later recommendation/basket workflows must not query tables directly. Add narrower catalogue operations only when a visitor-facing workflow requires them.
 
 Represent prices as `BigDecimal` with ISO currency code EUR. Render prices using the configured presentation locale, initially `Locale.GERMANY`.
 

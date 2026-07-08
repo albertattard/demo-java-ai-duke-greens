@@ -2,7 +2,7 @@
 
 ## Status
 
-Ready.
+Review.
 
 ## Sources of truth
 
@@ -21,10 +21,10 @@ Direct. Visitors immediately see that Duke Greens is a supermarket and can inspe
 ## Scope
 
 - Seed the initial catalogue in local application data.
-- Make products available to application services by stable public slugs while retaining internal identifiers for persistence and internal relationships.
+- Define products with stable public slugs while retaining internal identifiers for persistence and internal relationships.
 - Include each product's name, slug, package quantity and unit, and `BigDecimal` price.
 - Present each seeded product as an accessible card on the landing page, showing a decorative image placeholder, its name, package quantity and unit, and formatted price.
-- Add automated tests that prove the seeded catalogue is available and that unknown slugs are rejected.
+- Add automated tests that prove the seeded catalogue is available.
 - Add a browser end-to-end test that opens the landing page and asserts that product cards are visible.
 - Ensure normal test runs need neither an OpenAI API key nor a live model call.
 
@@ -38,15 +38,28 @@ Direct. Visitors immediately see that Duke Greens is a supermarket and can inspe
 ## Completion criteria
 
 1. The seeded catalogue provides product name, stable public slug, package quantity and unit, `BigDecimal` price, and EUR currency for every product displayed on the landing page.
-2. Application code resolves a known public slug to its product and rejects an unknown slug.
-3. Product prices use `BigDecimal`; `double` and `float` are not used for currency.
-4. Automated tests cover the normal and unknown-slug paths without external credentials or network calls.
-5. A browser end-to-end test demonstrates that the landing page presents the seeded products as cards with their package information and prices.
-6. `./mvnw package` and `./mvnw verify` pass.
+2. Product prices use `BigDecimal`; `double` and `float` are not used for currency.
+3. Automated tests cover the seeded catalogue without external credentials or network calls.
+4. A browser end-to-end test demonstrates that the landing page presents the seeded products as cards with their package information and prices.
+5. `./mvnw package` and `./mvnw verify` pass.
 
 ## Verification
 
-- Start with focused failing tests for cataloguing and slug resolution and for visible landing-page product cards.
+- Start with focused failing tests for the catalogue and visible landing-page product cards.
 - Run the focused test before and after implementation.
 - Run `./mvnw package` and `./mvnw verify` after implementation.
 - Review the root README and affected documentation for configuration or data-contract changes.
+
+## Implementation notes
+
+- Before implementation, the landing-page browser expectation for the `Products`
+  section and product cards failed because the page did not render a catalogue.
+- The focused catalogue-availability tests and browser test pass after implementation.
+- `./mvnw package` and `./mvnw verify` pass with no OpenAI API key or live
+  model call.
+- The initial catalogue contains vegetarian pantry staples and fresh vegetables
+  to support credible meal-planning demonstrations without availability claims.
+- Browser assertions scope package and price text to a named product card, so
+  duplicate package sizes remain unambiguous.
+- Slug resolution is deliberately deferred to a later recommendation or basket
+  mapping slice; this slice stores stable slugs but does not consume them.

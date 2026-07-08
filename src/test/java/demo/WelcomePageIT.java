@@ -1,7 +1,5 @@
 package demo;
 
-import demo.functional.browser.BrowserHarness;
-import demo.functional.browser.PlaywrightBrowserHarness;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -9,6 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+
+import demo.functional.browser.BrowserHarness;
+import demo.functional.browser.PlaywrightBrowserHarness;
 
 @Tag("e2e")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -31,9 +32,12 @@ class WelcomePageIT {
     }
 
     @Test
-    void presentsWelcomeAndMealRequestInput() throws Exception {
+    void presentsWelcomeMealRequestInputAndProducts() throws Exception {
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .shouldShowWelcome()
-                .shouldProvideMealRequestInput());
+                .shouldProvideMealRequestInput()
+                .shouldShowProducts(12)
+                .shouldShowProduct("Wholewheat spaghetti", "500 g", "1,49")
+                .shouldShowProduct("Chickpeas", "400 g", "0,99"));
     }
 }

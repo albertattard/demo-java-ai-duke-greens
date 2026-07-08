@@ -16,6 +16,18 @@
         <label for="meal-request">Describe the meals you want</label>
         <textarea id="meal-request" name="mealRequest" placeholder="For example: three quick vegetarian dinners for one person." rows="5"></textarea>
     </section>
+
+    <section aria-labelledby="products-heading" class="products-panel">
+        <h2 id="products-heading">Products</h2>
+        <div class="product-grid">
+            <article class="product-card" data-testid="product-card" th:each="product : ${products}">
+                <div aria-hidden="true" class="product-image-placeholder"></div>
+                <h3 th:text="${product.name}">Product name</h3>
+                <p th:text="${product.packageDetail}">Package detail</p>
+                <p class="product-price" th:text="${product.formattedPrice}">0,00 €</p>
+            </article>
+        </div>
+    </section>
 </main>
 </body>
 </html>

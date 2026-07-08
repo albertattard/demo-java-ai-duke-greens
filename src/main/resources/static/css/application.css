@@ -21,6 +21,46 @@ main {
     padding: 2.5rem;
 }
 
+.products-panel {
+    margin-top: 2rem;
+}
+
+.products-panel h2 {
+    font-size: 2rem;
+}
+
+.product-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.product-card {
+    background: #ffffff;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 2rem rgb(25 51 38 / 12%);
+    padding: 1.25rem;
+}
+
+.product-card h3 {
+    margin-bottom: 0.25rem;
+}
+
+.product-card p {
+    margin: 0.25rem 0;
+}
+
+.product-image-placeholder {
+    aspect-ratio: 4 / 3;
+    background: linear-gradient(135deg, #cadfc4, #8eb79a);
+    border-radius: 0.5rem;
+}
+
+.product-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
 .eyebrow {
     color: #4b6e55;
     font-size: 0.875rem;

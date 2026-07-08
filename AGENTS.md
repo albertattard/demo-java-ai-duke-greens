@@ -22,6 +22,7 @@
 - Add or update automated tests for behaviour changes where practical.
 - Run relevant verification before handing work over and report what was verified.
 - Document decisions that are hard to reverse or would otherwise be surprising to future contributors.
+- Use typographic curly quotation marks and apostrophes in human-facing prose and documentation. Use straight ASCII quotes only where syntax, copying, interoperability, or code conventions require them, including code, commands, configuration, identifiers, and URLs.
 
 ## Delivery workflow
 

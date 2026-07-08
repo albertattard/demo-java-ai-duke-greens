@@ -17,9 +17,9 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 - A single-page, text-based web conversation for one anonymous visitor.
 - Free-form requests for dinner ideas, including preferences such as household size, dietary preference, preparation time, and meal style.
 - One follow-up question only when both dietary preference and maximum preparation time are absent.
-- Three AI-generated meal options, each returned with structured ingredients and quantities.
+- AI-generated meal suggestions, each returned with structured ingredients and quantities. The model interprets the number of suggestions requested in the visitor's free-form text, defaults to one when no number is stated, and returns no more than seven suggestions.
 - Clickable selection of one or more recommended meal cards.
-- A repeatable “Show more ideas” action before selection that replaces the current options with three new options.
+- A repeatable “Show more ideas” action before selection that replaces the current suggestions with a new set of the same requested quantity.
 - A virtual basket built from the selected recipes and matched to products in a curated catalogue.
 - Per-meal estimated prices and a final basket total based on sellable product packages.
 - An explicit simulated-order confirmation and a visible completion state.
@@ -40,8 +40,8 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 1. The visitor opens Duke Greens and sees a welcome message plus a text input.
 2. The visitor describes the meals they want, for example: “I live alone and need three light vegetarian dinners I can make in 25 minutes after work.”
 3. If both dietary preference and maximum preparation time are absent, Duke Greens asks one concise follow-up question for either preference. Otherwise it applies the defaults of no dietary restriction and a 30-minute maximum preparation time, where either value is absent. If household size is absent, it defaults to one person.
-4. Each option shows a meal name, a short explanation of why it fits, the displayed preparation time, the mapped product packages and their prices, and an estimated per-meal cost.
-5. Before selecting a meal, the visitor may select “Show more ideas” repeatedly. Duke Greens replaces the current options with three new options that exclude previously displayed meal names.
+4. Each suggestion shows a meal name, a short explanation of why it fits, the displayed preparation time, the mapped product packages and their prices, and an estimated per-meal cost.
+5. Before selecting a meal, the visitor may select “Show more ideas” repeatedly. Duke Greens replaces the current suggestions with new suggestions of the same requested quantity that exclude previously displayed meal names.
 6. The visitor selects one or more meals by using the controls on the meal cards.
 7. Duke Greens creates a virtual basket from the selected meals and maps their ingredients to catalogue products.
 8. The visitor reviews the read-only basket.
@@ -53,12 +53,14 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 ### Conversation and recommendations
 
 - The application retains the current visitor's conversation and selected meals for the active browser session only.
+- The model interprets “a couple” as two meal suggestions and “a few” as three. An explicit numeric count takes precedence. When no unambiguous count is stated, it returns one suggestion.
 - The assistant generates meal candidates, but application data remains authoritative for products, prices, and package sizes.
 - A meal candidate must contain a name, preparation time, short explanation, servings, and structured ingredients with quantities before it can be validated or presented.
 - Each meal candidate represents one dinner for the requested household size.
-- If a model response does not produce three catalogue-mappable candidates, the application does not retry automatically. It shows a friendly error with “Try again” and “Reset” actions rather than presenting an invalid option.
-- The application presents exactly three catalogue-mappable options at a time.
-- The user can proceed with fewer than three selected meals.
+- If a model response does not produce a valid catalogue-mappable suggestion set of one to seven complete candidates, the application does not retry automatically. It shows a friendly error with “Try again” and “Reset” actions rather than presenting an invalid suggestion set.
+- “Try again” is a distinct visitor action that resubmits the same original request. “Reset” clears the failed request and returns the visitor to the initial input state. Provider error details and partial meal suggestions are not shown.
+- The application presents from one to seven catalogue-mappable suggestions at a time. It sends the visitor's free-form request to the model; the model returns seven suggestions when the visitor requests more than seven.
+- The user can proceed with fewer selected meals than were requested.
 - Reset clears the conversation, displayed options, selections, basket, and completion state for the active browser session.
 
 ### Basket
@@ -86,13 +88,13 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 
 The MVP satisfies this specification when all of the following are demonstrable:
 
-1. A visitor can submit a free-form meal request and receive three AI-generated meal options with structured ingredients and quantities.
+1. A visitor can submit a free-form meal request and receive one to seven AI-generated meal suggestions with structured ingredients and quantities. The model fulfils requests for one to seven suggestions, defaults to one when no number is stated, and returns seven suggestions when the visitor requests more than seven.
 2. The displayed options reflect supplied preferences for household size, dietary preference, and preparation time when the product catalogue supports them.
 3. Selecting meals creates a basket of catalogue products with package quantities.
-4. The visitor can request another set of three options before selection; the new set excludes previously displayed meal names.
+4. The visitor can request another set of suggestions before selection; the new set has the same requested quantity and excludes previously displayed meal names.
 5. Each meal card displays package quantities, package prices, and an estimated per-meal cost; the basket displays aggregated line prices and a final total.
 6. Ingredient quantities reflect the selected household size, and the basket rounds them up to whole product packages.
-7. A model response that does not provide three mappable candidates produces a friendly error with “Try again” and “Reset” actions, without automatic retries.
+7. A model response that does not provide a valid one-to-seven set of complete mappable candidates produces a friendly error with “Try again” and “Reset” actions, without automatic retries.
 8. Reset clears the active visitor session and returns the application to its initial state.
 9. A visitor can complete a simulated order only by explicitly confirming a valid basket.
 10. The completed state makes clear that no payment, delivery, or external order has been created.

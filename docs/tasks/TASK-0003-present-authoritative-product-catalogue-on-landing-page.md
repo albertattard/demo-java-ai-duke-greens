@@ -2,7 +2,7 @@
 
 ## Status
 
-Review.
+Completed.
 
 ## Sources of truth
 

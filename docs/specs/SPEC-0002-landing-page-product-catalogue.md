@@ -41,7 +41,7 @@ Illustrative product records (not a fixed catalogue) are:
 
 1. A visitor opening the landing page sees the welcome/input experience and a visible `Products` section.
 2. The section presents every seeded catalogue product as a distinct, accessible card.
-3. Each card shows a decorative image placeholder, the product's name, package quantity and unit, and its EUR price using German formatting.
+3. Each card shows a decorative image placeholder, the product’s name, package quantity and unit, and its EUR price using German formatting.
 4. The landing page does not expose internal product identifiers or public slug values as visitor-facing product data.
 5. Cards provide no product search, filtering, selection, or basket-changing action.
 6. The catalogue data is available without an OpenAI API key or live model call.

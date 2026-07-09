@@ -24,8 +24,8 @@ Direct. A visitor receives practical meal ideas tailored to their written reques
 ## Scope
 
 - Add a browser end-to-end test, tagged `@Tag("e2e")`, that submits a representative request and asserts that the appropriate number of suggestions, capped at seven, and their structured information are visible.
-- Add a model-facing boundary that accepts the visitor's request and receives structured meal suggestions.
-- Send the visitor's free-form request to the model without application-side quantity parsing. Instruct the model to interpret the requested number of meals, default to one when no count is stated, and return no more than seven suggestions.
+- Add a model-facing boundary that accepts the visitor’s request and receives structured meal suggestions.
+- Send the visitor’s free-form request to the model without application-side quantity parsing. Instruct the model to interpret the requested number of meals, default to one when no count is stated, and return no more than seven suggestions.
 - Require every displayed suggestion to contain a name, preparation time, short explanation, servings, and one or more ingredients with a quantity and unit.
 - Display the suggestions accessibly and make clear that they are meal ideas, not product, price, stock, basket, or order commitments.
 - Reject blank or whitespace-only submissions with a visible, accessible validation message.
@@ -58,7 +58,7 @@ Direct. A visitor receives practical meal ideas tailored to their written reques
 
 ## Verification
 
-- Before implementation, add and run the focused end-to-end test for a submitted request and its suggestions; record its failure in this task's implementation notes or the implementation commit body.
+- Before implementation, add and run the focused end-to-end test for a submitted request and its suggestions; record its failure in this task’s implementation notes or the implementation commit body.
 - Run the focused unit and browser tests after implementation.
 - Run `./mvnw package` and `./mvnw verify`.
 - With a configured local OpenAI API key, run `./mvnw verify --activate-profiles openai-integration` and confirm the live structured-output request succeeds.

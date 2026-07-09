@@ -6,7 +6,7 @@ Accepted.
 
 ## Goal
 
-Demonstrate that Duke Greens can turn a visitor's meal-planning request into a validated virtual grocery basket through a short text conversation.
+Demonstrate that Duke Greens can turn a visitor’s meal-planning request into a validated virtual grocery basket through a short text conversation.
 
 The MVP is complete when a visitor can complete this journey reliably in two to three minutes without an account, payment, or real fulfilment.
 
@@ -17,7 +17,7 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 - A single-page, text-based web conversation for one anonymous visitor.
 - Free-form requests for dinner ideas, including preferences such as household size, dietary preference, preparation time, and meal style.
 - One follow-up question only when both dietary preference and maximum preparation time are absent.
-- AI-generated meal suggestions, each returned with structured ingredients and quantities. The model interprets the number of suggestions requested in the visitor's free-form text, defaults to one when no number is stated, and returns no more than seven suggestions.
+- AI-generated meal suggestions, each returned with structured ingredients and quantities. The model interprets the number of suggestions requested in the visitor’s free-form text, defaults to one when no number is stated, and returns no more than seven suggestions.
 - Clickable selection of one or more recommended meal cards.
 - A repeatable “Show more ideas” action before selection that replaces the current suggestions with a new set of the same requested quantity.
 - A virtual basket built from the selected recipes and matched to products in a curated catalogue.
@@ -52,7 +52,7 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 
 ### Conversation and recommendations
 
-- The application retains the current visitor's conversation and selected meals for the active browser session only.
+- The application retains the current visitor’s conversation and selected meals for the active browser session only.
 - A meal request contains from 1 through 300 characters inclusive. The application rejects a longer request before loading the catalogue or invoking the model.
 - The model interprets “a couple” as two meal suggestions and “a few” as three. An explicit numeric count takes precedence. When no unambiguous count is stated, it returns one suggestion.
 - The assistant generates meal candidates, but application data remains authoritative for products, prices, and package sizes.
@@ -60,7 +60,7 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 - Each meal candidate represents one dinner for the requested household size.
 - If a model response does not produce a valid catalogue-mappable suggestion set of one to seven complete candidates, the application does not retry automatically. It shows a friendly error with “Try again” and “Reset” actions rather than presenting an invalid suggestion set.
 - “Try again” is a distinct visitor action that resubmits the same original request. “Reset” clears the failed request and returns the visitor to the initial input state. Provider error details and partial meal suggestions are not shown.
-- The application presents from one to seven catalogue-mappable suggestions at a time. It sends the visitor's free-form request to the model; the model returns seven suggestions when the visitor requests more than seven.
+- The application presents from one to seven catalogue-mappable suggestions at a time. It sends the visitor’s free-form request to the model; the model returns seven suggestions when the visitor requests more than seven.
 - The user can proceed with fewer selected meals than were requested.
 - Reset clears the conversation, displayed options, selections, basket, and completion state for the active browser session.
 

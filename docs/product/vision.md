@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Duke Greens is a conversational green-supermarket demo for a Java stand. It shows how a Java application can combine AI with trusted business data to turn a shopper's meal-planning intent into a practical virtual grocery basket.
+Duke Greens is a conversational green-supermarket demo for a Java stand. It shows how a Java application can combine AI with trusted business data to turn a shopper’s meal-planning intent into a practical virtual grocery basket.
 
 The goal is not to imitate a production e-commerce service. The goal is to give a stand visitor a short, credible demonstration of AI creating business value: understanding natural-language needs, proposing suitable meals, adapting to constraints, and preparing an order from products the store can supply.
 

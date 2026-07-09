@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted.
+Draft.
 
 ## Goal
 
@@ -53,6 +53,10 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 ### Conversation and recommendations
 
 - The application retains the current visitor’s conversation and selected meals for the active browser session only.
+- The active browser-session state is transient. Duke Greens does not persist it as a durable conversation record, and a server restart makes the active request, suggestions, selections, basket, and recovery state unavailable.
+- After a visitor submits a meal request, Duke Greens performs the AI request once, retains the resulting suggestions or recovery state in the active browser session, and navigates to a GET page for that state. Refreshing or revisiting that GET page must not show a browser form-resubmission prompt or invoke the AI service again.
+- “Try again” is the only action that may resubmit a failed original request. “Reset” clears the active browser-session meal-request state and returns the visitor to the initial input state.
+- If a visitor opens a result or recovery URL without the required active browser-session state, Duke Greens returns the visitor to the initial request page and explains that there is no active meal request to display.
 - A meal request contains from 1 through 300 characters inclusive. The application rejects a longer request before loading the catalogue or invoking the model.
 - The model interprets “a couple” as two meal suggestions and “a few” as three. An explicit numeric count takes precedence. When no unambiguous count is stated, it returns one suggestion.
 - The assistant generates meal candidates, but application data remains authoritative for products, prices, and package sizes.
@@ -103,6 +107,8 @@ The MVP satisfies this specification when all of the following are demonstrable:
 9. A visitor can complete a simulated order only by explicitly confirming a valid basket.
 10. The completed state makes clear that no payment, delivery, or external order has been created.
 11. The core journey can be demonstrated in two to three minutes using the curated data set.
+12. Refreshing a meal-suggestion result or recovery page neither asks the browser to resubmit a form nor repeats an AI request. Only an explicit visitor submission, including “Try again”, may invoke the AI service.
+13. The application does not promise to recover active visitor state after a server restart. A visitor whose transient state is unavailable returns to the initial request page with an accessible explanation.
 
 ## Deferred follow-on capability
 
@@ -112,6 +118,6 @@ Inventory-aware shopping is deliberately deferred, not discarded. A later slice 
 
 - Java and framework versions, build tool, UI technology, and deployment model.
 - AI provider, model, prompt design, and structured-output mechanism.
-- Persistence mechanism for catalogue data and the active browser session.
+- Whether a future durable conversation capability should retain state in a database, how long it should retain it, and how a visitor could securely recover it after losing their browser session. Such a capability is outside this MVP.
 - The exact product dataset.
 - Visual design, accessibility treatment, and stand-specific reset behaviour.

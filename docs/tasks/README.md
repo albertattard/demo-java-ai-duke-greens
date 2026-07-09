@@ -9,3 +9,4 @@ This directory contains small, implementation-ready units of delivery work. Each
 - [`TASK-0003-present-authoritative-product-catalogue-on-landing-page.md`](TASK-0003-present-authoritative-product-catalogue-on-landing-page.md) presents the local product catalogue as landing-page cards.
 - [`TASK-0004-fulfil-a-one-shot-meal-request-with-ai-generated-suggestions.md`](TASK-0004-fulfil-a-one-shot-meal-request-with-ai-generated-suggestions.md) fulfils the one-shot AI meal-suggestion slice.
 - [`TASK-0005-map-meal-ingredients-to-authoritative-catalogue-products.md`](TASK-0005-map-meal-ingredients-to-authoritative-catalogue-products.md) makes meal suggestions demonstrably grounded in authoritative catalogue products and prices.
+- [`TASK-0006-preserve-meal-request-results-across-safe-page-refresh.md`](TASK-0006-preserve-meal-request-results-across-safe-page-refresh.md) makes meal-request results and recovery pages safe to refresh.

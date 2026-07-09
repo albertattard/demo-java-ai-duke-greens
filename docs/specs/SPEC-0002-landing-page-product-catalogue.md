@@ -27,8 +27,8 @@ Illustrative product records (not a fixed catalogue) are:
 
 - The application owns the catalogue, prices, package quantities, and units. Product slugs are stable public references; internal identifiers remain internal.
 - Prices and calculated totals use `BigDecimal`; `double` and `float` must not be used for currency.
-- The initial currency is EUR. The default presentation locale is Germany, so a price such as `1.49 EUR` is shown as `1,49 €`.
-- Locale changes affect only presentation. Changing the currency requires an explicitly maintained price list or conversion policy; the application does not convert catalogue prices automatically.
+- Duke Greens has one application-wide EUR price list. Currency is not persisted per product. The default presentation locale is Germany, so a price such as `1.49 EUR` is shown as `1,49 €`.
+- Locale changes affect only presentation. Supporting another currency requires an explicitly maintained price list or conversion policy; the application does not convert catalogue prices automatically.
 - Cards are display-only in this slice and do not add products to a basket or change visitor state.
 
 ## Out of scope

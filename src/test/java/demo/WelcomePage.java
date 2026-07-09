@@ -19,7 +19,9 @@ public final class WelcomePage {
     }
 
     public WelcomePage shouldProvideMealRequestInput() {
-        assertThat(elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want")).isVisible();
+        final Locator mealRequestInput = elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want");
+        assertThat(mealRequestInput).isVisible();
+        assertThat(mealRequestInput).hasAttribute("maxlength", "300");
         return this;
     }
 
@@ -43,27 +45,16 @@ public final class WelcomePage {
         return this;
     }
 
-    WelcomePage shouldShowSuggestions(final MealSuggestions suggestions) {
-        assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Meal ideas")).isVisible();
-        assertThat(page.locator("[data-testid='meal-suggestion']")).hasCount(suggestions.size());
-        suggestions.forEach(this::shouldShowSuggestion);
-
+    WelcomePage shouldShowMappedProduct(
+            final String name,
+            final String packageDetail,
+            final String price,
+            final int packageCount,
+            final String estimatedCost) {
+        final Locator suggestion = page.locator("[data-testid='meal-suggestion']").filter(new Locator.FilterOptions().setHasText(name));
+        assertThat(elementByTextAndExactName(suggestion, packageCount + " × " + name + " (" + packageDetail + "), " + price + " €")).isVisible();
+        assertThat(elementByTextAndExactName(suggestion, "Estimated standalone meal cost: " + estimatedCost + " €")).isVisible();
         return this;
-    }
-
-    private void shouldShowSuggestion(final MealSuggestion suggestion) {
-        final Locator renderedSuggestion = page.locator("[data-testid='meal-suggestion']")
-                .filter(new Locator.FilterOptions().setHasText(suggestion.name()));
-
-        assertThat(renderedSuggestion).hasCount(1);
-        assertThat(elementByRoleAndExactName(renderedSuggestion, AriaRole.HEADING, suggestion.name())).isVisible();
-        assertThat(elementByTextAndExactName(renderedSuggestion, suggestion.preparationMinutes() + " minutes")).isVisible();
-        assertThat(elementByTextAndExactName(renderedSuggestion, suggestion.explanation())).isVisible();
-        assertThat(elementByTextAndExactName(renderedSuggestion, "Serves " + suggestion.servings())).isVisible();
-
-        for (final Ingredient ingredient : suggestion.ingredients()) {
-            assertThat(elementByTextAndExactName(renderedSuggestion, ingredient.name() + ": " + ingredient.quantity() + " " + ingredient.unit())).isVisible();
-        }
     }
 
     public WelcomePage shouldOfferRetryAndReset() {
@@ -96,6 +87,11 @@ public final class WelcomePage {
     WelcomePage shouldNotProvideMealRequestInput() {
         assertThat(elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want")).isHidden();
         assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Get meal ideas")).isHidden();
+        return this;
+    }
+
+    WelcomePage shouldNotShowMealSuggestions() {
+        assertThat(page.locator("[data-testid='meal-suggestion']")).hasCount(0);
         return this;
     }
 

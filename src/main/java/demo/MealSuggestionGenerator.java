@@ -1,6 +1,8 @@
 package demo;
 
+import module java.base;
+
 interface MealSuggestionGenerator {
 
-    MealSuggestions suggest(String request);
+    ModelMealSuggestions suggest(String request, List<Product> catalogue);
 }

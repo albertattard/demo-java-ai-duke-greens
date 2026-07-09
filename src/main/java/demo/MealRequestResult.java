@@ -2,7 +2,7 @@ package demo;
 
 import static demo.Strings.requireNonBlank;
 
-sealed interface MealRequestResult permits MealSuggestions, InvalidRequest, FailedRequest { }
+sealed interface MealRequestResult permits MappedMealSuggestions, InvalidRequest, FailedRequest { }
 
 record InvalidRequest(String message) implements MealRequestResult {
 

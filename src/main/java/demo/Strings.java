@@ -4,6 +4,15 @@ import module java.base;
 
 final class Strings {
 
+    private static final Currency CURRENCY = Currency.getInstance("EUR");
+    private static final Locale LOCALE = Locale.GERMANY;
+
+    static void requireMatches(final String value, final String regex, final String message) {
+        if (isBlank(value) || !value.matches(regex)) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
     static void requireNonBlank(final String value, final String message) {
         if (isBlank(value)) {
             throw new IllegalArgumentException(message);
@@ -14,9 +23,9 @@ final class Strings {
         return value == null || value.isBlank();
     }
 
-    static String formatPrice(final BigDecimal price, final Currency currency) {
-        final NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.GERMANY);
-        formatter.setCurrency(currency);
+    static String formatPrice(final BigDecimal price) {
+        final NumberFormat formatter = NumberFormat.getCurrencyInstance(LOCALE);
+        formatter.setCurrency(CURRENCY);
         return formatter.format(price);
     }
 

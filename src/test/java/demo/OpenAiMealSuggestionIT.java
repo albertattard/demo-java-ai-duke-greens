@@ -13,9 +13,12 @@ class OpenAiMealSuggestionIT {
     @Autowired
     private MealSuggestionGenerator generator;
 
+    @Autowired
+    private ProductCatalogue productCatalogue;
+
     @Test
     void returnsOneCompleteStructuredSuggestionFromOpenAi() {
-        final MealSuggestions response = generator.suggest("Suggest one quick vegetarian dinner for one person.");
+        final ModelMealSuggestions response = generator.suggest("Suggest one quick vegetarian dinner for one person.", productCatalogue.allProducts());
 
         assertThat(response.suggestions())
                 .hasSize(1);

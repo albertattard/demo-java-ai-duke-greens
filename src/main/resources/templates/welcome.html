@@ -15,7 +15,7 @@
 
         <form method="post" th:action="@{/meal-request}" th:if="${suggestions == null and failed != true}">
             <label for="meal-request">Describe the meals you want</label>
-            <textarea id="meal-request" name="mealRequest" placeholder="For example: three quick vegetarian dinners for one person." rows="5" th:text="${mealRequest}"></textarea>
+            <textarea id="meal-request" maxlength="300" name="mealRequest" placeholder="For example: three quick vegetarian dinners for one person." rows="5" th:text="${mealRequest}"></textarea>
             <p aria-live="polite" class="validation-message" th:if="${validationMessage}" th:text="${validationMessage}"></p>
             <button type="submit">Get meal ideas</button>
         </form>
@@ -27,11 +27,12 @@
                 <p th:text="${suggestion.preparationMinutes + ' minutes'}">30 minutes</p>
                 <p th:text="${suggestion.explanation}">Why it fits</p>
                 <p th:text="${'Serves ' + suggestion.servings}">Serves 1</p>
-                <h4>Ingredients</h4>
+                <h4>Products needed</h4>
                 <ul>
-                    <li th:each="ingredient : ${suggestion.ingredients}"
-                        th:text="${ingredient.name + ': ' + ingredient.quantity + ' ' + ingredient.unit}">Ingredient: 1 unit</li>
+                    <li th:each="mappedProduct : ${suggestion.products}"
+                        th:text="${mappedProduct.packageCount + ' × ' + mappedProduct.name + ' (' + mappedProduct.packageDetail + '), ' + mappedProduct.formattedPrice}">1 × Product (500 g), 1,49 €</li>
                 </ul>
+                <p th:text="${'Estimated standalone meal cost: ' + suggestion.formattedEstimatedCost}">Estimated standalone meal cost: 0,00 €</p>
             </article>
         </section>
         <section aria-labelledby="meal-request-error-heading" class="meal-request-error" role="alert" th:if="${failed}">

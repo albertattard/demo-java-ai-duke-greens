@@ -37,7 +37,7 @@ Direct. Visitors immediately see that Duke Greens is a supermarket and can inspe
 
 ## Completion criteria
 
-1. The seeded catalogue provides product name, stable public slug, package quantity and unit, `BigDecimal` price, and EUR currency for every product displayed on the landing page.
+1. The seeded catalogue provides product name, stable public slug, package quantity and unit, and `BigDecimal` price for every product displayed on the landing page. Prices use Duke Greens’ application-wide EUR price list.
 2. Product prices use `BigDecimal`; `double` and `float` are not used for currency.
 3. Automated tests cover the seeded catalogue without external credentials or network calls.
 4. A browser end-to-end test demonstrates that the landing page presents the seeded products as cards with their package information and prices.

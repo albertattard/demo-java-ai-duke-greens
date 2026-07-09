@@ -35,8 +35,8 @@ class WelcomePageController {
         model.addAttribute("products", allProducts());
 
         switch (result) {
-            case MealSuggestions(final List<MealSuggestion> suggestions) ->
-                model.addAttribute("suggestions", suggestions);
+            case MappedMealSuggestions(final List<MappedMealSuggestion> suggestions) ->
+                model.addAttribute("suggestions", suggestions.stream().map(MealSuggestionCard::of).toList());
             case InvalidRequest(final String message) ->
                 model.addAttribute("validationMessage", message);
             case FailedRequest(final String request) -> {

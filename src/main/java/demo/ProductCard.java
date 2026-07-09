@@ -14,7 +14,7 @@ record ProductCard(String name, String packageDetail, String formattedPrice) {
     static ProductCard of(final Product product) {
         return new ProductCard(
                 product.name(),
-                product.packageQuantity() + " " + product.packageUnit(),
-                formatPrice(product.price(), product.currency()));
+                product.packageQuantity() + " " + product.packageUnit().symbol(),
+                formatPrice(product.price()));
     }
 }

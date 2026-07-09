@@ -18,7 +18,7 @@ class JdbcProductCatalogue implements ProductCatalogue {
     @Override
     public List<Product> allProducts() {
         return jdbcClient.sql("""
-                SELECT slug, name, package_quantity, package_unit, price, currency
+                SELECT slug, name, package_quantity, package_unit, price
                 FROM product
                 ORDER BY id
                 """)
@@ -31,8 +31,7 @@ class JdbcProductCatalogue implements ProductCatalogue {
                 resultSet.getString("slug"),
                 resultSet.getString("name"),
                 resultSet.getInt("package_quantity"),
-                resultSet.getString("package_unit"),
-                resultSet.getObject("price", BigDecimal.class),
-                Currency.getInstance(resultSet.getString("currency")));
+                MeasurementUnit.from(resultSet.getString("package_unit")),
+                resultSet.getObject("price", BigDecimal.class));
     }
 }

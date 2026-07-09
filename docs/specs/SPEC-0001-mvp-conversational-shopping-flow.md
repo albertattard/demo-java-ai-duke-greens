@@ -53,6 +53,7 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 ### Conversation and recommendations
 
 - The application retains the current visitor's conversation and selected meals for the active browser session only.
+- A meal request contains from 1 through 300 characters inclusive. The application rejects a longer request before loading the catalogue or invoking the model.
 - The model interprets “a couple” as two meal suggestions and “a few” as three. An explicit numeric count takes precedence. When no unambiguous count is stated, it returns one suggestion.
 - The assistant generates meal candidates, but application data remains authoritative for products, prices, and package sizes.
 - A meal candidate must contain a name, preparation time, short explanation, servings, and structured ingredients with quantities before it can be validated or presented.
@@ -66,7 +67,7 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 ### Basket
 
 - A generated meal candidate declares its required ingredients and quantities; a product declares its package size. Each ingredient quantity is the total required to prepare that candidate for its declared servings, not a per-serving amount. The application must not multiply ingredient quantities by servings again.
-- Ingredient quantities are positive whole integers. Decimal, zero, negative, and non-numeric quantities make the candidate unmappable.
+- Ingredient quantities are whole integers from 1 through 99,999 inclusive. Decimal, zero, negative, values above 99,999, and non-numeric quantities make the candidate unmappable. The upper bound keeps a demonstrator-facing meal request within a plausible scale; it is not a stock, availability, or basket limit.
 - Ingredient and package units use the exact lowercase values `g`, `kg`, or `ml`. Mass quantities expressed in `g` or `kg` are compatible and are converted to grams before package calculation. Volume quantities use `ml` only. Any other unit, or a mass quantity mapped to a volume package or vice versa, makes the candidate unmappable.
 - The application maps candidate ingredients to sellable catalogue products and determines the quantity of each product required for the selected meals.
 - Required ingredient quantities are calculated for the meal’s household size. To build the basket, the application aggregates the selected meals’ unrounded, converted ingredient quantities by product slug, then rounds each aggregate up to positive whole product packages. It does not substitute products or use ingredients left over from products outside the selected meals.

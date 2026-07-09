@@ -22,6 +22,7 @@
 
         <spring-ai.version>2.0.0</spring-ai.version>
         <playwright.version>1.61.0</playwright.version>
+        <mockito.version>5.23.0</mockito.version>
 
         <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
         <required.maven.version>3.6.3</required.maven.version>
@@ -79,6 +80,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <excludedGroups>e2e</excludedGroups>
+                    <argLine>-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
                 </configuration>
             </plugin>
             <plugin>
@@ -86,6 +88,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
                     <groups>e2e</groups>
+                    <argLine>-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
                     <includes>
                         <include>**/*IT.java</include>
                     </includes>

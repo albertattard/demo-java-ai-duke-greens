@@ -40,7 +40,7 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 1. The visitor opens Duke Greens and sees a welcome message plus a text input.
 2. The visitor describes the meals they want, for example: “I live alone and need three light vegetarian dinners I can make in 25 minutes after work.”
 3. If both dietary preference and maximum preparation time are absent, Duke Greens asks one concise follow-up question for either preference. Otherwise it applies the defaults of no dietary restriction and a 30-minute maximum preparation time, where either value is absent. If household size is absent, it defaults to one person.
-4. Each suggestion shows a meal name, a short explanation of why it fits, the displayed preparation time, the mapped product packages and their prices, and an estimated per-meal cost.
+4. Each suggestion shows a meal name, a short explanation of why it fits, the displayed preparation time, each mapped product’s required whole-package count, catalogue package size, and per-package price, plus an estimated standalone meal cost.
 5. Before selecting a meal, the visitor may select “Show more ideas” repeatedly. Duke Greens replaces the current suggestions with new suggestions of the same requested quantity that exclude previously displayed meal names.
 6. The visitor selects one or more meals by using the controls on the meal cards.
 7. Duke Greens creates a virtual basket from the selected meals and maps their ingredients to catalogue products.
@@ -65,10 +65,12 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 
 ### Basket
 
-- A generated meal candidate declares its required ingredients and quantities; a product declares its package size.
+- A generated meal candidate declares its required ingredients and quantities; a product declares its package size. Each ingredient quantity is the total required to prepare that candidate for its declared servings, not a per-serving amount. The application must not multiply ingredient quantities by servings again.
+- Ingredient quantities are positive whole integers. Decimal, zero, negative, and non-numeric quantities make the candidate unmappable.
+- Ingredient and package units use the exact lowercase values `g`, `kg`, or `ml`. Mass quantities expressed in `g` or `kg` are compatible and are converted to grams before package calculation. Volume quantities use `ml` only. Any other unit, or a mass quantity mapped to a volume package or vice versa, makes the candidate unmappable.
 - The application maps candidate ingredients to sellable catalogue products and determines the quantity of each product required for the selected meals.
-- Required ingredient quantities are calculated for the meal's household size. Basket quantities are then rounded up to positive whole product packages; the MVP does not optimise leftovers.
-- A meal card's estimated cost is the sum of its required product packages. The final basket aggregates product quantities across all selected meals, then calculates the authoritative line prices and total from those aggregate package quantities.
+- Required ingredient quantities are calculated for the meal’s household size. To build the basket, the application aggregates the selected meals’ unrounded, converted ingredient quantities by product slug, then rounds each aggregate up to positive whole product packages. It does not substitute products or use ingredients left over from products outside the selected meals.
+- A meal card shows each mapped product’s required whole-package count, catalogue package size, and per-package price. Its estimated cost is the sum of the packages that meal would require on its own. These estimates are informative and must not be added to calculate a basket total. The final basket calculates authoritative line prices and its total from the aggregated package quantities.
 - The basket is review-only in the MVP. To alter the proposed meals, the visitor starts a new request.
 
 ### Completion
@@ -81,6 +83,7 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 
 - The initial product data set is curated and local to the application.
 - The model receives the entire local product catalogue and must propose meals using only mappable ingredients.
+- For each ingredient, the model returns only the catalogue product slug and the quantity and unit required by the meal. The slug must exactly match a supplied lowercase catalogue slug; the application performs no trimming, case-folding, or heuristic name matching. These are recipe requirements, not sellable-package quantities. The application resolves the slug and derives the required packages and costs from the authoritative catalogue.
 - Each product has a name, price, and package size.
 - A future curated recipe catalogue may be added as an additional recommendation source without changing basket product mapping.
 

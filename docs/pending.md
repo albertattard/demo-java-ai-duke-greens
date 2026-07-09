@@ -2,6 +2,10 @@
 
 This document captures deferred work that is worth retaining but is not yet ready for implementation.
 
+## Pantry-aware meal coverage
+
+Let a visitor record that they already have a product at home, including its quantity and unit. Use this pantry quantity with basket quantities when calculating whether selected meals can be fulfilled. Do not present an “Already have this” action until that quantity-aware coverage calculation exists.
+
 ## Meal-suggestion failure metrics
 
 Add application metrics for meal-suggestion failures with stable categories:

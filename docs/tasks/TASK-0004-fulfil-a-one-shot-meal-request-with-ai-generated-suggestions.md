@@ -67,7 +67,7 @@ Direct. A visitor receives practical meal ideas tailored to their written reques
 ## Implementation notes
 
 - The initial end-to-end test was added before implementation and failed because the landing page did not yet provide a submission action.
-- Spring AI 2.0.0 is used because it supports the repository's Spring Boot 4.1 baseline; the previously available 1.1.2 release does not.
+- Spring AI 2.0.0 is used because it supports the repository’s Spring Boot 4.1 baseline; the previously available 1.1.2 release does not.
 - The OpenAI generator is active outside the `test` profile and receives its key from external Spring configuration supplied at launch. Automated tests activate the `test` profile and inject a deterministic Mockito `MealSuggestionGenerator` boundary, so verification neither reads local configuration nor invokes a live model.
 - The `openai-integration` Maven profile sets the external configuration import and runs only the tagged live-provider test. It is intentionally opt-in because it requires credentials, network access, and incurs API cost.
 - `./mvnw verify --activate-profiles openai-integration` completed successfully with the locally configured OpenAI API key, including one live structured-output request.

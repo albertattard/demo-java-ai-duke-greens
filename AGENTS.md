@@ -50,4 +50,5 @@
 - Use `docs/product/` for product vision, user journeys, and product decisions; use `docs/adr/`, `docs/specs/`, and `docs/tasks/` when their first respective artifacts are needed.
 - Add a focused `README.md` when creating a documentation directory so its purpose and contents remain discoverable.
 - When documentation refers to a specific repository artifact, such as a named task, specification, or ADR, use a relative Markdown link where practical. Do not add links for generic or casual mentions that do not identify a specific artifact.
+- Write Markdown prose as one logical paragraph per source line; do not hard-wrap prose. Preserve deliberate line breaks for lists, tables, blockquotes, code blocks, and other Markdown structures.
 - Write architecture decision records using Michael Nygard's template: Title, Status, Context, Decision, and Consequences.

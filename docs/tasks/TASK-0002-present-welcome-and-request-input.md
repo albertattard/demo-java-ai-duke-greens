@@ -29,11 +29,7 @@ Direct. It gives a stand visitor a clear entry point into the conversational sho
 
 ## Browser setup decision
 
-End-to-end tests use the Playwright-managed Chromium binary rather than a
-system-installed browser. This makes the supported browser version part of the
-project’s test tooling and avoids machine-specific executable paths. The root
-README must document the one-time Playwright Chromium installation command;
-Maven test lifecycles must not download browsers implicitly.
+End-to-end tests use the Playwright-managed Chromium binary rather than a system-installed browser. This makes the supported browser version part of the project’s test tooling and avoids machine-specific executable paths. The root README must document the one-time Playwright Chromium installation command; Maven test lifecycles must not download browsers implicitly.
 
 ## Out of scope
 
@@ -57,13 +53,7 @@ Maven test lifecycles must not download browsers implicitly.
 
 ## Implementation notes
 
-- Before adding the initial page, `./mvnw verify` failed on 2026-07-07 in
-  `WelcomePageIT.presentsWelcomeAndMealRequestInput`: the expected Duke Greens
-  heading was not visible at `/`.
-- After implementation, `./mvnw package` passed with the unit-test suite only
-  and `./mvnw verify` passed with both the unit-test suite and the tagged
-  `WelcomePageIT` browser integration test.
-- The browser test was then refactored to use a local Playwright harness and
-  fluent page methods; `./mvnw package` and `./mvnw verify` passed again.
-- The page assertions use Playwright’s retrying locator assertions with exact
-  accessible-name matching; `./mvnw verify` passed after that change.
+- Before adding the initial page, `./mvnw verify` failed on 2026-07-07 in `WelcomePageIT.presentsWelcomeAndMealRequestInput`: the expected Duke Greens heading was not visible at `/`.
+- After implementation, `./mvnw package` passed with the unit-test suite only and `./mvnw verify` passed with both the unit-test suite and the tagged `WelcomePageIT` browser integration test.
+- The browser test was then refactored to use a local Playwright harness and fluent page methods; `./mvnw package` and `./mvnw verify` passed again.
+- The page assertions use Playwright’s retrying locator assertions with exact accessible-name matching; `./mvnw verify` passed after that change.

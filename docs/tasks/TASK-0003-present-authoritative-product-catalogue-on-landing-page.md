@@ -22,7 +22,7 @@ Direct. Visitors immediately see that Duke Greens is a supermarket and can inspe
 
 - Seed the initial catalogue in local application data.
 - Define products with stable public slugs while retaining internal identifiers for persistence and internal relationships.
-- Include each product's name, slug, package quantity and unit, and `BigDecimal` price.
+- Include each product’s name, slug, package quantity and unit, and `BigDecimal` price.
 - Present each seeded product as an accessible card on the landing page, showing a decorative image placeholder, its name, package quantity and unit, and formatted price.
 - Add automated tests that prove the seeded catalogue is available.
 - Add a browser end-to-end test that opens the landing page and asserts that product cards are visible.
@@ -52,14 +52,9 @@ Direct. Visitors immediately see that Duke Greens is a supermarket and can inspe
 
 ## Implementation notes
 
-- Before implementation, the landing-page browser expectation for the `Products`
-  section and product cards failed because the page did not render a catalogue.
+- Before implementation, the landing-page browser expectation for the `Products` section and product cards failed because the page did not render a catalogue.
 - The focused catalogue-availability tests and browser test pass after implementation.
-- `./mvnw package` and `./mvnw verify` pass with no OpenAI API key or live
-  model call.
-- The initial catalogue contains vegetarian pantry staples and fresh vegetables
-  to support credible meal-planning demonstrations without availability claims.
-- Browser assertions scope package and price text to a named product card, so
-  duplicate package sizes remain unambiguous.
-- Slug resolution is deliberately deferred to a later recommendation or basket
-  mapping slice; this slice stores stable slugs but does not consume them.
+- `./mvnw package` and `./mvnw verify` pass with no OpenAI API key or live model call.
+- The initial catalogue contains vegetarian pantry staples and fresh vegetables to support credible meal-planning demonstrations without availability claims.
+- Browser assertions scope package and price text to a named product card, so duplicate package sizes remain unambiguous.
+- Slug resolution is deliberately deferred to a later recommendation or basket mapping slice; this slice stores stable slugs but does not consume them.

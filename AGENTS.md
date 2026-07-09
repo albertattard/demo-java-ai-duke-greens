@@ -35,6 +35,7 @@
 - Repeat that test-first vertical-slice cycle until the relevant acceptance criteria are met. Then review and refactor where warranted, and rerun the relevant verification.
 - Call out tasks that do not provide direct visitor value. Such enabling work may still proceed when it is necessary, but its value and scope must be explicit.
 - Use these task statuses: `Draft` while the task is being prepared or has unanswered design questions; `Ready` for work that is specified and eligible to begin; `In progress` while implementation or verification is underway; `Review` when all required implementation and verification are complete and the task awaits user review; `Blocked` when progress cannot continue because a required external decision, access, dependency, or user input is missing; and `Completed` only after the user explicitly says the task is complete. A blocked task must record the blocker and what is needed to resume, and returns to `In progress` when resolved. Do not use `Blocked` merely because implementation or verification has failed; diagnose and address that work while the task remains `In progress`. Agents must not transition a task from `Review` to `Completed` on their own.
+- A task in `Review` does not prevent implementation changes when the user explicitly requests them in response to review feedback. Perform the requested change and verification without seeking redundant confirmation, but do not change the task status unless the user explicitly requests that status transition.
 
 ## Git commits
 

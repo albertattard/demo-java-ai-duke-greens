@@ -2,7 +2,7 @@
 
 ## Status
 
-Ready.
+In progress.
 
 ## Sources of truth
 
@@ -51,3 +51,10 @@ Direct. Visitors can safely refresh or revisit a page without accidentally repea
 - Run the focused unit, MVC/integration, and browser tests after implementation.
 - Run `./mvnw package` and `./mvnw verify`.
 - Review the root README and affected specifications and task documentation before handover; stop for direction if any are stale or contradicted.
+
+## Implementation notes
+
+- The initial MVC tests for successful and failed meal requests failed as intended because the original controller rendered the POST response directly with no redirect destination.
+- Successful and failed requests now use POST/Redirect/GET and retain only the original request plus mapped suggestions or recovery state in the active server-managed browser session. Result and recovery GET handlers do not invoke the model or remap suggestions.
+- “Try again” and “Reset” are explicit POST actions. Missing or cleared session state redirects to the initial page with an accessible explanation.
+- `./mvnw package` and `./mvnw verify` pass without an OpenAI API key or live model call. The browser verification suite reloads both successful and recovery pages and asserts one model invocation per initial submission.

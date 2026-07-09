@@ -74,7 +74,13 @@ class WelcomePageIT {
                 .submitMealRequest(request)
                 .shouldShowSuggestions(3)
                 .shouldShowMappedProduct("Red lentils", "500 g", "1,69", 1, "1,69")
-                .shouldNotProvideMealRequestInput());
+                .shouldNotProvideMealRequestInput()
+                .reload()
+                .shouldShowSuggestions(3)
+                .resetMealRequest()
+                .shouldShowInitialRequestState());
+
+        verify(mealSuggestionGenerator).suggest(eq(request), anyList());
     }
 
     @Test
@@ -98,7 +104,11 @@ class WelcomePageIT {
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .submitMealRequest(request)
                 .shouldOfferRetryAndReset()
-                .shouldNotShowMealSuggestions());
+                .shouldNotShowMealSuggestions()
+                .reload()
+                .shouldOfferRetryAndReset());
+
+        verify(mealSuggestionGenerator).suggest(eq(request), anyList());
     }
 
     @Test

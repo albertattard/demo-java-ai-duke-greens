@@ -60,7 +60,7 @@ public final class WelcomePage {
     public WelcomePage shouldOfferRetryAndReset() {
         assertThat(elementByRoleAndExactName(AriaRole.HEADING, "We could not create meal ideas")).isVisible();
         assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Try again")).isVisible();
-        assertThat(elementByRoleAndExactName(AriaRole.LINK, "Reset")).isVisible();
+        assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Reset")).isVisible();
         shouldNotProvideMealRequestInput();
         return this;
     }
@@ -71,7 +71,12 @@ public final class WelcomePage {
     }
 
     public WelcomePage resetMealRequest() {
-        elementByRoleAndExactName(AriaRole.LINK, "Reset").click();
+        elementByRoleAndExactName(AriaRole.BUTTON, "Reset").click();
+        return this;
+    }
+
+    public WelcomePage reload() {
+        page.reload();
         return this;
     }
 

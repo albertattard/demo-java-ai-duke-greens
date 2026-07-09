@@ -12,6 +12,7 @@
         <p class="eyebrow">Conversational green supermarket</p>
         <h1 id="welcome-heading">Duke Greens</h1>
         <p>Tell us what you would like to cook, and we will help plan your meals and groceries.</p>
+        <p aria-live="polite" class="information-message" th:if="${informationMessage}" th:text="${informationMessage}"></p>
 
         <form method="post" th:action="@{/meal-request}" th:if="${suggestions == null and failed != true}">
             <label for="meal-request">Describe the meals you want</label>
@@ -35,14 +36,18 @@
                 <p th:text="${'Estimated standalone meal cost: ' + suggestion.formattedEstimatedCost}">Estimated standalone meal cost: 0,00 €</p>
             </article>
         </section>
+        <form method="post" th:action="@{/meal-request/reset}" th:if="${suggestions != null and !suggestions.isEmpty()}">
+            <button type="submit">Reset</button>
+        </form>
         <section aria-labelledby="meal-request-error-heading" class="meal-request-error" role="alert" th:if="${failed}">
             <h2 id="meal-request-error-heading">We could not create meal ideas</h2>
             <p>Please try your request again or reset and start over.</p>
-            <form method="post" th:action="@{/meal-request}">
-                <input name="mealRequest" th:value="${mealRequest}" type="hidden">
+            <form method="post" th:action="@{/meal-request/retry}">
                 <button type="submit">Try again</button>
             </form>
-            <a href="/">Reset</a>
+            <form method="post" th:action="@{/meal-request/reset}">
+                <button type="submit">Reset</button>
+            </form>
         </section>
     </section>
 

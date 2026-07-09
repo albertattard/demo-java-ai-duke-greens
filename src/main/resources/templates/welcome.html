@@ -12,7 +12,10 @@
         <p class="eyebrow">Conversational green supermarket</p>
         <h1 id="welcome-heading">Duke Greens</h1>
         <p>Tell us what you would like to cook, and we will help plan your meals and groceries.</p>
-        <p aria-live="polite" class="information-message" th:if="${informationMessage}" th:text="${informationMessage}"></p>
+        <section aria-live="polite" class="information-message" role="status" th:if="${informationMessage}">
+            <h2>Meal request unavailable</h2>
+            <p th:text="${informationMessage}"></p>
+        </section>
 
         <form method="post" th:action="@{/meal-request}" th:if="${suggestions == null and failed != true}">
             <label for="meal-request">Describe the meals you want</label>

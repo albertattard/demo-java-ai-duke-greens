@@ -17,4 +17,9 @@ public final class DukeGreens {
         page.navigate(baseUrl);
         return new WelcomePage(page);
     }
+
+    public WelcomePage openMealRequestResults() {
+        page.navigate(baseUrl + "/meal-request/results");
+        return new WelcomePage(page);
+    }
 }

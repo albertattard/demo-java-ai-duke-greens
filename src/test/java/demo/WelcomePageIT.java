@@ -60,6 +60,15 @@ class WelcomePageIT {
     }
 
     @Test
+    void highlightsWhyAMissingMealRequestResultReturnedToTheInitialPage() throws Exception {
+        browser.openDukeGreens(dukeGreens -> dukeGreens.openMealRequestResults()
+                .shouldShowNoActiveMealRequest()
+                .shouldShowInitialRequestState());
+
+        verifyNoInteractions(mealSuggestionGenerator);
+    }
+
+    @Test
     void recommendThreeMealsAsRequested() throws Exception {
         final String request = "Suggest three quick vegetarian dinners for one person";
         final ModelMealSuggestions suggestions = new ModelMealSuggestions(List.of(

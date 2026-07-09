@@ -18,6 +18,15 @@ public final class WelcomePage {
         return this;
     }
 
+    public WelcomePage shouldShowNoActiveMealRequest() {
+        assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Meal request unavailable")).isVisible();
+        final Locator informationMessage = page.locator(".information-message");
+        assertThat(informationMessage).isVisible();
+        assertThat(informationMessage).hasAttribute("role", "status");
+        assertThat(informationMessage.locator("p")).hasText("There is no active meal request to display.");
+        return this;
+    }
+
     public WelcomePage shouldProvideMealRequestInput() {
         final Locator mealRequestInput = elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want");
         assertThat(mealRequestInput).isVisible();

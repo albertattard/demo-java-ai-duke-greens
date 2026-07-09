@@ -109,6 +109,24 @@ button {
     font-weight: 700;
 }
 
+.information-message {
+    background: #fff3cf;
+    border-left: 0.375rem solid #b45f06;
+    border-radius: 0.5rem;
+    color: #5d3500;
+    margin: 1.5rem 0;
+    padding: 1rem 1.25rem;
+}
+
+.information-message h2 {
+    font-size: 1.25rem;
+    margin: 0;
+}
+
+.information-message p {
+    margin: 0.5rem 0 0;
+}
+
 .meal-ideas, .meal-request-error {
     margin-top: 2rem;
 }

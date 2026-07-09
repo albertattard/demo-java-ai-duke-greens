@@ -5,7 +5,6 @@ This directory groups project documentation by purpose. Create a new category on
 ## Current categories
 
 - [`product/`](product/README.md) contains product vision, user journeys, and product decisions.
-- [`specs/`](specs/README.md) contains implementation-ready feature specifications.
 - [`adr/`](adr/README.md) contains architecture decision records.
-- [`tasks/`](tasks/README.md) contains implementation-ready delivery tasks and work tracking.
-- [`pending.md`](pending.md) records deferred work that is not yet specified or ready for implementation.
+- [`current.md`](current.md) is the single active change brief and its implementation and review contract.
+- [`pending.md`](pending.md) records deferred work that is not yet ready for implementation.

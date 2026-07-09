@@ -1,11 +1,13 @@
 ---
 name: review-current-changes
-description: Review current repository changes for a named task as a Staff Software Engineer.
+description: Review current repository changes against the active change brief as a Staff Software Engineer.
 ---
 
-Review the current code changes made to implement the task reference provided in the user’s request as a Staff Software Engineer.
+Review the current repository changes as a Staff Software Engineer.
 
-Inspect the changed code, tests, and relevant surrounding code. Focus on correctness, architecture, security, performance, maintainability, test coverage, and production readiness. Ignore minor style or formatting concerns unless they hide a real defect.
+Read `docs/current.md` before reviewing. It is the contract for the current change: use its outcome, constraints, and acceptance checks to assess the diff. Do not infer a different objective from the user’s request. If the brief is missing or too unclear to review the changes meaningfully, say so plainly and identify the information needed.
+
+Inspect the changed code, tests, and relevant surrounding code. Focus on correctness, architecture, security, performance, maintainability, test coverage, and production readiness. Review the changes against `docs/current.md`. Ignore minor style or formatting concerns unless they hide a real defect.
 
 Read `docs/pending.md` before reporting findings. Do not report a finding whose underlying issue is already listed there. Report it only if the current changes introduce a distinct regression or materially increase its impact.
 

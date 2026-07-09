@@ -26,16 +26,16 @@
 
 ## Delivery workflow
 
-- Before mutating implementation, documentation, configuration, or tests, verify that the working tree has no modified or untracked files. If it is not clean, stop and ask the user how to proceed. Read-only inspection may proceed, but must report existing changes and must not alter them without direction.
+- Before beginning a new vertical slice, verify that the working tree has no modified or untracked files. After recording its brief in `docs/current.md`, permit expected changes to that file and to files belonging to the same active slice. If changes predate the slice or are unrelated to it, stop and ask the user how to proceed. Read-only inspection may proceed, but must report existing changes and must not alter them without direction.
 - Before changing an existing implementation, verify that the project compiles and its tests pass. If no build or test harness exists, report that the baseline cannot yet be verified; do not represent it as passing.
-- Do not create, update, or transition the status of a specification or task unless the user explicitly requests that documentation action. This applies even when a specification or task would otherwise be required by these working agreements.
-- A specification is `Draft` while it is being prepared and `Accepted` before implementation begins. Specifications are the source of truth: code that conflicts with an accepted specification is wrong. Only the user may transition a specification to `Accepted`. If a relevant specification is missing, draft, stale, or requires a change, identify the gap and ask the user whether they want it created or updated; do not begin or continue implementation until the relevant specification is accepted.
-- An implementation-ready task, normally linked to its specification, is required before starting implementation. If it is missing or requires a change, identify the gap and ask the user whether they want it created or updated.
-- Deliver in small vertical slices. Identify the smallest meaningful task, start with an end-to-end test for its main flow, verify that it fails, then implement only enough to make it pass.
-- Repeat that test-first vertical-slice cycle until the relevant acceptance criteria are met. Then review and refactor where warranted, and rerun the relevant verification.
-- Call out tasks that do not provide direct visitor value. Such enabling work may still proceed when it is necessary, but its value and scope must be explicit.
-- Use these task statuses: `Draft` while the task is being prepared or has unanswered design questions; `Ready` for work that is specified and eligible to begin; `In progress` while implementation or verification is underway; `Review` when all required implementation and verification are complete and the task awaits user review; `Blocked` when progress cannot continue because a required external decision, access, dependency, or user input is missing; and `Completed` only after the user explicitly says the task is complete. A blocked task must record the blocker and what is needed to resume, and returns to `In progress` when resolved. Do not use `Blocked` merely because implementation or verification has failed; diagnose and address that work while the task remains `In progress`. Agents must not transition a task from `Review` to `Completed` on their own.
-- A task in `Review` does not prevent implementation changes when the user explicitly requests them in response to review feedback. Perform the requested change and verification without seeking redundant confirmation, but do not change the task status unless the user explicitly requests that status transition.
+- Use `docs/current.md` as the single shared contract for the current change. Do not create a second current-work file.
+- Before implementation, agree and record a concise change brief in `docs/current.md`: the visitor outcome, non-negotiable constraints, and observable acceptance checks. Record only information needed to guide implementation and review.
+- After the user has agreed the brief, the model may update `docs/current.md` without further approval only to record that agreed brief and factual implementation or verification results. It must ask before changing the outcome, constraints, or acceptance checks, or before replacing the brief for a new vertical slice.
+- Deliver in small vertical slices. Identify the smallest meaningful visitor-facing change, start with an end-to-end test for its main flow, verify that it fails, then implement only enough to make it pass.
+- Call out enabling work that does not provide direct visitor value. It may proceed when necessary, but its value and scope must be explicit in `docs/current.md`.
+- After implementation, update `docs/current.md` only when needed to accurately describe what was delivered, the tests added or updated, and the verification run. Do not turn it into a historical project log.
+- Review each completed slice in a separate session where practical. Provide the reviewer with `docs/current.md`, the diff, and any relevant durable documentation. Ask it to assess the change against the brief and identify concrete correctness, safety, user-experience, design, and test gaps without inventing requirements outside that contract.
+- Address relevant review findings, rerun the appropriate verification, and keep `docs/current.md` focused on the next change. A new brief replaces the prior one; the repository retains only one `docs/current.md`.
 
 ## Git commits
 
@@ -49,8 +49,8 @@
 
 - Before completing work or creating a commit, review documentation affected by code or documentation changes and verify that it remains valid, accurate, and current. If accuracy depends on an unresolved decision, stop and ask the user for direction; do not silently proceed or update it on assumption. When documentation maintenance is explicitly requested, update it within the requested scope.
 - Keep documentation organised by purpose beneath `docs/`; use the closest relevant directory rather than placing unrelated documents together.
-- Use `docs/product/` for product vision, user journeys, and product decisions; use `docs/adr/`, `docs/specs/`, and `docs/tasks/` when their first respective artifacts are needed.
+- Use `docs/product/` for product vision, user journeys, and product decisions, and `docs/adr/` for durable architecture decisions.
 - Add a focused `README.md` when creating a documentation directory so its purpose and contents remain discoverable.
-- When documentation refers to a specific repository artifact, such as a named task, specification, or ADR, use a relative Markdown link where practical. Do not add links for generic or casual mentions that do not identify a specific artifact.
+- When documentation refers to a specific repository artifact, such as `docs/current.md` or an ADR, use a relative Markdown link where practical. Do not add links for generic or casual mentions that do not identify a specific artifact.
 - Write Markdown prose as one logical paragraph per source line; do not hard-wrap prose. Preserve deliberate line breaks for lists, tables, blockquotes, code blocks, and other Markdown structures.
 - Write architecture decision records using Michael Nygard's template: Title, Status, Context, Decision, and Consequences.

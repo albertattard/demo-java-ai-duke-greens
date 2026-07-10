@@ -12,8 +12,8 @@ record InvalidRequest(String message) implements MealRequestResult {
 }
 
 /// Visitor-facing recovery state for a failed request. It retains the original
-/// request for explicit retry but deliberately excludes provider diagnostics and
-/// partial suggestions, which remain server-side.
+/// request for explicit retry but deliberately excludes provider diagnostics
+/// and partial suggestions, which remain server-side.
 record FailedRequest(String request) implements MealRequestResult {
 
     FailedRequest {

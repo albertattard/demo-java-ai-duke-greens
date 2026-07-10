@@ -62,6 +62,9 @@ class MealSuggestionService {
             return new FailedRequest(request);
         }
 
+        // Validate the complete model response all-or-nothing. A mapping
+        // failure exposes no partial suggestions; diagnostics remain
+        // server-side and the visitor receives the safe recovery state.
         try {
             return mapper.map(suggestions, catalogue);
         } catch (final RuntimeException e) {

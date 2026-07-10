@@ -63,10 +63,15 @@
         <section aria-labelledby="reset-confirmation-heading" class="information-message" role="alert" th:if="${resetConfirmationRequired}">
             <h2 id="reset-confirmation-heading">Start over?</h2>
             <p>Your selected meals and basket contents will be cleared.</p>
-            <form method="post" th:action="@{/recommendations/reset}">
-                <input name="confirmed" type="hidden" value="true">
-                <button type="submit">Clear and start over</button>
-            </form>
+            <div class="reset-confirmation-actions">
+                <form method="get" th:action="@{/recommendations}">
+                    <button class="secondary-action" type="submit">Keep shopping</button>
+                </form>
+                <form method="post" th:action="@{/recommendations/reset}">
+                    <input name="confirmed" type="hidden" value="true">
+                    <button type="submit">Clear and start over</button>
+                </form>
+            </div>
         </section>
         <section aria-labelledby="meal-request-error-heading" class="meal-request-error" role="alert" th:if="${failed}">
             <h2 id="meal-request-error-heading">We could not create meal ideas</h2>

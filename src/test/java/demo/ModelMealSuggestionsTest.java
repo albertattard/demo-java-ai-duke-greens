@@ -1,11 +1,26 @@
 package demo;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import org.junit.jupiter.api.Test;
 
 import module java.base;
 
 class ModelMealSuggestionsTest {
+
+    @Test
+    void representsAnOutOfScopeResponseWithAnEmptyProviderSuggestionsList() {
+        final ModelMealRequestResponse response = ModelMealRequestResponse.outOfScope();
+
+        assertThat(response.scope()).isEqualTo(MealRequestScope.OUT_OF_SCOPE);
+        assertThat(response.suggestions()).isEmpty();
+    }
+
+    @Test
+    void rejectsAnInScopeResponseWithNoSuggestions() {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> new ModelMealRequestResponse(MealRequestScope.IN_SCOPE, List.of()));
+    }
 
     @Test
     void rejectsAnEmptySuggestionsList() {

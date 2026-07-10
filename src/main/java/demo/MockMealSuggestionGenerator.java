@@ -7,6 +7,10 @@ import module java.base;
 
 @Component
 @Profile("mock")
+/// Development-only generator that deliberately returns catalogue-valid meal
+/// ideas for every request. It does not emulate the model’s in-scope and
+/// out-of-scope classification, so do not use the mock profile to verify that
+/// visitor safeguard.
 final class MockMealSuggestionGenerator implements MealSuggestionGenerator {
 
     private static final List<ModelMealSuggestion> RECOMMENDATIONS = List.of(
@@ -28,19 +32,20 @@ final class MockMealSuggestionGenerator implements MealSuggestionGenerator {
                     new ModelIngredient("tofu-400g", "200", "g"))));
 
     @Override
-    public ModelMealSuggestions suggest(final String request, final List<Product> catalogue) {
+    public ModelMealRequestResponse suggest(final String request, final List<Product> catalogue) {
         final Set<String> catalogueSlugs = catalogue.stream().map(Product::slug).collect(Collectors.toSet());
         final List<ModelMealSuggestion> available = RECOMMENDATIONS.stream()
                 .filter(recommendation -> recommendation.ingredients().stream()
                         .map(ModelIngredient::productSlug)
                         .allMatch(catalogueSlugs::contains))
                 .collect(Collectors.toCollection(ArrayList::new));
+
         if (available.isEmpty()) {
             throw new IllegalArgumentException("The catalogue does not support any mock meal recommendations");
         }
 
         java.util.Collections.shuffle(available);
         final int count = ThreadLocalRandom.current().nextInt(1, Math.min(3, available.size()) + 1);
-        return new ModelMealSuggestions(available.subList(0, count));
+        return ModelMealRequestResponse.inScope(new ModelMealSuggestions(available.subList(0, count)));
     }
 }

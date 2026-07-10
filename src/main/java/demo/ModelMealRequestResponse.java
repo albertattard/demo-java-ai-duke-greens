@@ -1,11 +1,55 @@
 package demo;
 
+import static java.util.Objects.requireNonNull;
+
 import static demo.Collections.requireNonEmpty;
 import static demo.Collections.requireSizeBetween;
 import static demo.Numbers.requireGreaterThanZero;
 import static demo.Strings.requireNonBlank;
 
 import module java.base;
+
+record ModelMealRequestResponse(MealRequestScope scope, List<ModelMealSuggestion> suggestions) {
+
+    ModelMealRequestResponse {
+        requireNonNull(scope, "A request scope is required");
+        requireNonNull(suggestions, "A response must contain a suggestions list");
+        suggestions = List.copyOf(suggestions);
+
+        if (scope == MealRequestScope.OUT_OF_SCOPE && !suggestions.isEmpty()) {
+            throw new IllegalArgumentException("Out-of-scope requests cannot contain meal suggestions");
+        }
+
+        if (scope == MealRequestScope.IN_SCOPE) {
+            requireSizeBetween(suggestions, 1, 7, "A response must contain between one and seven suggestions");
+        }
+    }
+
+    static ModelMealRequestResponse inScope(final ModelMealSuggestions suggestions) {
+        return new ModelMealRequestResponse(MealRequestScope.IN_SCOPE, suggestions.suggestions());
+    }
+
+    static ModelMealRequestResponse outOfScope() {
+        return new ModelMealRequestResponse(MealRequestScope.OUT_OF_SCOPE, List.of());
+    }
+
+    boolean isOutOfScope() {
+        return scope == MealRequestScope.OUT_OF_SCOPE;
+    }
+
+    ModelMealSuggestions inScopeSuggestions() {
+        if (isOutOfScope()) {
+            throw new IllegalStateException("Out-of-scope requests do not have meal suggestions");
+        }
+
+        return new ModelMealSuggestions(suggestions);
+    }
+}
+
+enum MealRequestScope {
+    IN_SCOPE,
+    OUT_OF_SCOPE
+}
 
 record ModelMealSuggestions(List<ModelMealSuggestion> suggestions) implements Iterable<ModelMealSuggestion> {
 

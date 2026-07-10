@@ -2,7 +2,7 @@ package demo;
 
 import static demo.Strings.requireNonBlank;
 
-sealed interface MealRequestResult permits MappedMealSuggestions, InvalidRequest, FailedRequest { }
+sealed interface MealRequestResult permits MappedMealSuggestions, InvalidRequest, FailedRequest, OutOfScopeRequest { }
 
 record InvalidRequest(String message) implements MealRequestResult {
 
@@ -17,6 +17,16 @@ record InvalidRequest(String message) implements MealRequestResult {
 record FailedRequest(String request) implements MealRequestResult {
 
     FailedRequest {
+        requireNonBlank(request, "The request cannot be blank");
+    }
+}
+
+/// Visitor-facing result for a request outside Duke Greens’ meal-idea scope. It
+/// retains the submitted text for editing but deliberately creates no
+/// recommendation, selection, or basket state.
+record OutOfScopeRequest(String request) implements MealRequestResult {
+
+    OutOfScopeRequest {
         requireNonBlank(request, "The request cannot be blank");
     }
 }

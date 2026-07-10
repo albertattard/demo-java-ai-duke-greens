@@ -23,8 +23,10 @@ class MockMealSuggestionGeneratorTest {
     void suppliesCatalogueValidRecommendationsForArbitraryRequestsWithoutOpenAi() {
         final List<Product> catalogue = productCatalogue.allProducts();
 
-        final ModelMealSuggestions suggestions = generator.suggest("This request should not affect the mock response.", catalogue);
+        final ModelMealRequestResponse response = generator.suggest("This request should not affect the mock response.", catalogue);
+        final ModelMealSuggestions suggestions = response.inScopeSuggestions();
 
+        assertThat(response.scope()).isEqualTo(MealRequestScope.IN_SCOPE);
         assertThat(suggestions.suggestions()).isNotEmpty();
         assertThat(suggestions.suggestions())
                 .flatMap(ModelMealSuggestion::ingredients)

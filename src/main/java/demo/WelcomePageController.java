@@ -5,10 +5,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
-
-import module java.base;
 
 @Controller
 class WelcomePageController {
@@ -39,16 +38,11 @@ class WelcomePageController {
     String submitMealRequest(
             @RequestParam(required = false) final String mealRequest,
             final HttpServletRequest request,
-            final Model model) {
+            final RedirectAttributes redirectAttributes) {
         final MealRequestResult result = mealSuggestionService.submit(mealRequest);
-        if (result instanceof InvalidRequest(final String message)) {
-            addProducts(model);
-            model.addAttribute("validationMessage", message);
-            return "welcome";
-        }
 
         return switch (result) {
-            case MappedMealSuggestions mappedSuggestions -> {
+            case final MappedMealSuggestions mappedSuggestions -> {
                 mealRequestSession.store(request, new SuccessfulMealRequest(mealRequest, mappedSuggestions));
                 yield "redirect:/recommendations";
             }
@@ -56,7 +50,17 @@ class WelcomePageController {
                 mealRequestSession.store(request, new FailedMealRequest(failedRequest));
                 yield "redirect:/recommendations";
             }
-            case InvalidRequest(_) -> throw new IllegalStateException("A retained meal request must remain valid");
+            case OutOfScopeRequest(final String outOfScopeRequest) -> {
+                mealRequestSession.clear(request);
+                redirectAttributes.addFlashAttribute("mealRequest", outOfScopeRequest);
+                redirectAttributes.addFlashAttribute("outOfScopeMessage", "Duke Greens helps you find meal ideas. Tell us what you’d like to cook, such as a quick vegetarian dinner for two.");
+                yield "redirect:/";
+            }
+            case InvalidRequest(final String message) -> {
+                redirectAttributes.addFlashAttribute("mealRequest", mealRequest);
+                redirectAttributes.addFlashAttribute("validationMessage", message);
+                yield "redirect:/";
+            }
         };
     }
 

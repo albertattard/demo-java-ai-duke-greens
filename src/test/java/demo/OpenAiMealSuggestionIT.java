@@ -18,9 +18,18 @@ class OpenAiMealSuggestionIT {
 
     @Test
     void returnsOneCompleteStructuredSuggestionFromOpenAi() {
-        final ModelMealSuggestions response = generator.suggest("Suggest one quick vegetarian dinner for one person.", productCatalogue.allProducts());
+        final ModelMealRequestResponse response = generator.suggest("Suggest one quick vegetarian dinner for one person.", productCatalogue.allProducts());
 
-        assertThat(response.suggestions())
+        assertThat(response.scope()).isEqualTo(MealRequestScope.IN_SCOPE);
+        assertThat(response.inScopeSuggestions())
                 .hasSize(1);
+    }
+
+    @Test
+    void returnsAnExplicitOutOfScopeResponseFromOpenAi() {
+        final ModelMealRequestResponse response = generator.suggest("What’s the weather?", productCatalogue.allProducts());
+
+        assertThat(response.scope()).isEqualTo(MealRequestScope.OUT_OF_SCOPE);
+        assertThat(response.suggestions()).isEmpty();
     }
 }

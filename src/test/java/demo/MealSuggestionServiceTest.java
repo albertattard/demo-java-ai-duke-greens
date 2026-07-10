@@ -41,8 +41,8 @@ class MealSuggestionServiceTest {
         final MappedMealSuggestions mappedSuggestions = mappedSuggestions(catalogue);
         when(productCatalogue.allProducts()).thenReturn(catalogue);
         when(generator.suggest(eq(request), same(catalogue)))
-                .thenReturn(modelSuggestions);
-        when(mapper.map(same(modelSuggestions), same(catalogue)))
+                .thenReturn(ModelMealRequestResponse.inScope(modelSuggestions));
+        when(mapper.map(eq(modelSuggestions), same(catalogue)))
                 .thenReturn(mappedSuggestions);
 
         final MealRequestResult result = service.submit(request);
@@ -50,7 +50,7 @@ class MealSuggestionServiceTest {
         assertThat(result)
                 .isSameAs(mappedSuggestions);
         verify(generator).suggest(eq(request), same(catalogue));
-        verify(mapper).map(same(modelSuggestions), same(catalogue));
+        verify(mapper).map(eq(modelSuggestions), same(catalogue));
     }
 
     @Test
@@ -60,8 +60,8 @@ class MealSuggestionServiceTest {
         when(productCatalogue.allProducts()).thenReturn(catalogue);
         when(generator.suggest(eq("Suggest a meal"), same(catalogue)))
                 .thenThrow(new IllegalStateException("provider timeout"))
-                .thenReturn(unmappableSuggestions);
-        when(mapper.map(same(unmappableSuggestions), same(catalogue)))
+                .thenReturn(ModelMealRequestResponse.inScope(unmappableSuggestions));
+        when(mapper.map(eq(unmappableSuggestions), same(catalogue)))
                 .thenThrow(new IllegalArgumentException("unknown product"));
 
         assertThat(service.submit("Suggest a meal"))
@@ -94,8 +94,8 @@ class MealSuggestionServiceTest {
         final List<Product> catalogue = catalogue();
         final ModelMealSuggestions modelSuggestions = modelSuggestions("wholewheat-spaghetti-500g", "500", "g");
         when(productCatalogue.allProducts()).thenReturn(catalogue);
-        when(generator.suggest(eq(request), same(catalogue))).thenReturn(modelSuggestions);
-        when(mapper.map(same(modelSuggestions), same(catalogue))).thenReturn(mappedSuggestions(catalogue));
+        when(generator.suggest(eq(request), same(catalogue))).thenReturn(ModelMealRequestResponse.inScope(modelSuggestions));
+        when(mapper.map(eq(modelSuggestions), same(catalogue))).thenReturn(mappedSuggestions(catalogue));
 
         assertThat(service.submit(request))
                 .isInstanceOf(MappedMealSuggestions.class);
@@ -108,6 +108,29 @@ class MealSuggestionServiceTest {
         assertThat(service.submit("Suggest a meal"))
                 .isInstanceOf(FailedRequest.class);
         verifyNoInteractions(generator);
+    }
+
+    @Test
+    void returnsAnExplicitOutOfScopeResultWithoutMappingSuggestions() {
+        final String request = "What’s the weather?";
+        final List<Product> catalogue = catalogue();
+        when(productCatalogue.allProducts()).thenReturn(catalogue);
+        when(generator.suggest(eq(request), same(catalogue))).thenReturn(ModelMealRequestResponse.outOfScope());
+
+        assertThat(service.submit(request)).isEqualTo(new OutOfScopeRequest(request));
+        verify(generator).suggest(eq(request), same(catalogue));
+        verifyNoInteractions(mapper);
+    }
+
+    @Test
+    void handlesAMixedRequestAsOutOfScopeWithoutMappingSuggestions() {
+        final String request = "Suggest dinner and tell me a joke";
+        final List<Product> catalogue = catalogue();
+        when(productCatalogue.allProducts()).thenReturn(catalogue);
+        when(generator.suggest(eq(request), same(catalogue))).thenReturn(ModelMealRequestResponse.outOfScope());
+
+        assertThat(service.submit(request)).isEqualTo(new OutOfScopeRequest(request));
+        verifyNoInteractions(mapper);
     }
 
     private static List<Product> catalogue() {

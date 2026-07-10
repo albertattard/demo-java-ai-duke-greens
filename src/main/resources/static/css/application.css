@@ -104,6 +104,11 @@ button {
     padding: 0.75rem 1rem;
 }
 
+.meal-request-submit {
+    display: block;
+    margin-left: auto;
+}
+
 .secondary-action {
     background: #ffffff;
     border: 1px solid #285a3a;
@@ -204,8 +209,14 @@ button {
     justify-content: space-between;
 }
 
+.reset-confirmation-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+}
+
 @media (width < 32rem) {
-    .checkout-actions, .basket-actions {
+    .checkout-actions, .basket-actions, .reset-confirmation-actions {
         align-items: stretch;
         flex-direction: column;
     }

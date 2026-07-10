@@ -114,6 +114,15 @@ public final class RecommendationsPage extends PageObject {
         return new WelcomePage(page);
     }
 
+    public RecommendationsPage keepShopping() {
+        final Locator confirmationActions = page.locator(".reset-confirmation-actions");
+        assertThat(confirmationActions).hasCSS("justify-content", "space-between");
+        assertThat(elementByRoleAndExactName(confirmationActions, AriaRole.BUTTON, "Keep shopping")).isVisible();
+        assertThat(elementByRoleAndExactName(confirmationActions, AriaRole.BUTTON, "Clear and start over")).isVisible();
+        elementByRoleAndExactName(confirmationActions, AriaRole.BUTTON, "Keep shopping").click();
+        return this;
+    }
+
     public RecommendationsPage reload() {
         page.reload();
         return this;

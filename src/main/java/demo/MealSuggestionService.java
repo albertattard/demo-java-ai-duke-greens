@@ -49,26 +49,32 @@ class MealSuggestionService {
             return new FailedRequest(request);
         }
 
-        final ModelMealSuggestions suggestions;
+        final ModelMealRequestResponse response;
         try {
-            suggestions = generator.suggest(request, catalogue);
+            response = generator.suggest(request, catalogue);
         } catch (final RuntimeException e) {
             LOGGER.error("The meal suggestion provider failed", e);
             return new FailedRequest(request);
         }
 
-        if (suggestions == null) {
+        if (response == null) {
             LOGGER.error("Cannot map meal suggestions because the provider returned no response");
             return new FailedRequest(request);
+        }
+
+        // The model determined that the request is out of scope and cannot be
+        // answered without breaking the policy defined by the system message.
+        if (response.isOutOfScope()) {
+            return new OutOfScopeRequest(request);
         }
 
         // Validate the complete model response all-or-nothing. A mapping
         // failure exposes no partial suggestions; diagnostics remain
         // server-side and the visitor receives the safe recovery state.
         try {
-            return mapper.map(suggestions, catalogue);
+            return mapper.map(response.inScopeSuggestions(), catalogue);
         } catch (final RuntimeException e) {
-            LOGGER.warn("The meal suggestion response could not be mapped to the catalogue. Suggestions: {}", suggestions, e);
+            LOGGER.warn("The meal suggestion response could not be mapped to the catalogue. Suggestions: {}", response.suggestions(), e);
             return new FailedRequest(request);
         }
     }

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Something went leafy | Duke Greens</title>
+    <link rel="stylesheet" th:href="@{/css/application.css}">
+</head>
+<body>
+<main>
+    <section aria-labelledby="error-heading" class="welcome-panel">
+        <p class="eyebrow">500 · A small supermarket-sized mishap</p>
+        <h1 id="error-heading">Something went leafy</h1>
+        <p>Our lettuce has encountered an unexpected situation. Nothing has been added to your basket.</p>
+        <p>Please head back to Duke Greens and try your meal request again.</p>
+        <form method="get" th:action="@{/}">
+            <button type="submit">Return to welcome page</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

@@ -5,15 +5,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -77,7 +77,7 @@ class WelcomePageIT {
                 new ModelMealSuggestion("Tomato spinach spaghetti", 20, "A simple weeknight meal.", 1, List.of(new ModelIngredient("baby-spinach-200g", "100", "g")))));
 
         when(mealSuggestionGenerator.suggest(eq(request), anyList()))
-                .thenReturn(suggestions);
+                .thenReturn(ModelMealRequestResponse.inScope(suggestions));
 
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .submitMealRequest(request)
@@ -97,9 +97,33 @@ class WelcomePageIT {
     void showsAnAccessibleValidationMessageForABlankMealRequest() throws Exception {
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .submitInvalidMealRequest("   ")
-                .shouldShowBlankRequestValidation());
+                .shouldShowBlankRequestValidation()
+                .reload()
+                .shouldShowInitialRequestState());
 
         verifyNoInteractions(mealSuggestionGenerator);
+    }
+
+    @Test
+    void recoversFromAnOutOfScopeRequestAndAcceptsAReplacementMealRequest() throws Exception {
+        final String unrelatedRequest = "What’s the weather?";
+        final String mealRequest = "Suggest a vegetarian dinner";
+        final ModelMealSuggestions suggestions = new ModelMealSuggestions(List.of(
+                new ModelMealSuggestion("Lentil pasta", 20, "A quick vegetarian dinner.", 1,
+                        List.of(new ModelIngredient("red-lentils-500g", "100", "g")))));
+        when(mealSuggestionGenerator.suggest(eq(unrelatedRequest), anyList())).thenReturn(ModelMealRequestResponse.outOfScope());
+        when(mealSuggestionGenerator.suggest(eq(mealRequest), anyList())).thenReturn(ModelMealRequestResponse.inScope(suggestions));
+
+        browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
+                .submitOutOfScopeRequest(unrelatedRequest)
+                .shouldShowOutOfScopeRecovery(unrelatedRequest)
+                .reload()
+                .shouldShowInitialRequestState()
+                .submitMealRequest(mealRequest)
+                .shouldShowSuggestions(1));
+
+        verify(mealSuggestionGenerator).suggest(eq(unrelatedRequest), anyList());
+        verify(mealSuggestionGenerator).suggest(eq(mealRequest), anyList());
     }
 
     @Test
@@ -109,7 +133,7 @@ class WelcomePageIT {
                 new ModelMealSuggestion("Unknown product dinner", 20, "A complete meal.", 1,
                         List.of(new ModelIngredient("unknown-product", "100", "g")))));
         when(mealSuggestionGenerator.suggest(eq(request), anyList()))
-                .thenReturn(unmappableSuggestions);
+                .thenReturn(ModelMealRequestResponse.inScope(unmappableSuggestions));
 
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .submitMealRequest(request)
@@ -128,7 +152,7 @@ class WelcomePageIT {
                 new ModelMealSuggestion("Retry dinner", 20, "A complete meal after retrying.", 1, List.of(new ModelIngredient("chopped-tomatoes-400g", "1", "g")))));
         when(mealSuggestionGenerator.suggest(eq(request), anyList()))
                 .thenThrow(new IllegalStateException("simulated provider failure"))
-                .thenReturn(retrySuggestions);
+                .thenReturn(ModelMealRequestResponse.inScope(retrySuggestions));
 
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .submitMealRequest(request)
@@ -154,11 +178,11 @@ class WelcomePageIT {
     @Test
     void consolidatesSelectedMealsIntoAnEditableBasketWithoutLosingSelection() throws Exception {
         final String request = "Suggest two pasta dinners";
-        when(mealSuggestionGenerator.suggest(eq(request), anyList())).thenReturn(new ModelMealSuggestions(List.of(
+        when(mealSuggestionGenerator.suggest(eq(request), anyList())).thenReturn(ModelMealRequestResponse.inScope(new ModelMealSuggestions(List.of(
                 new ModelMealSuggestion("First pasta", 20, "A complete dinner.", 1,
                         List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g"))),
                 new ModelMealSuggestion("Second pasta", 20, "Another complete dinner.", 1,
-                        List.of(new ModelIngredient("wholewheat-spaghetti-500g", "300", "g"))))));
+                        List.of(new ModelIngredient("wholewheat-spaghetti-500g", "300", "g")))))));
 
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .submitMealRequest(request)
@@ -172,6 +196,11 @@ class WelcomePageIT {
                 .shouldShowSelectedMeal(0)
                 .startOver()
                 .shouldRequireStartOverConfirmation()
+                .keepShopping()
+                .shouldShowSelectedMeal(0)
+                .shouldShowBasketCoverageWarning()
+                .startOver()
+                .shouldRequireStartOverConfirmation()
                 .confirmStartOver()
                 .shouldShowInitialRequestState());
     }
@@ -179,9 +208,9 @@ class WelcomePageIT {
     @Test
     void reviewsTheBasketAtCheckoutAndReturnsToEditingIt() throws Exception {
         final String request = "Suggest a pasta dinner";
-        when(mealSuggestionGenerator.suggest(eq(request), anyList())).thenReturn(new ModelMealSuggestions(List.of(
+        when(mealSuggestionGenerator.suggest(eq(request), anyList())).thenReturn(ModelMealRequestResponse.inScope(new ModelMealSuggestions(List.of(
                 new ModelMealSuggestion("Pasta", 20, "A complete dinner.", 1,
-                        List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g"))))));
+                        List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g")))))));
 
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .submitMealRequest(request)
@@ -198,9 +227,9 @@ class WelcomePageIT {
     @Test
     void completesASimulatedOrderAndReturnsToAFreshWelcomePage() throws Exception {
         final String request = "Suggest a pasta dinner";
-        when(mealSuggestionGenerator.suggest(eq(request), anyList())).thenReturn(new ModelMealSuggestions(List.of(
+        when(mealSuggestionGenerator.suggest(eq(request), anyList())).thenReturn(ModelMealRequestResponse.inScope(new ModelMealSuggestions(List.of(
                 new ModelMealSuggestion("Pasta", 20, "A complete dinner.", 1,
-                        List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g"))))));
+                        List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g")))))));
 
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .submitMealRequest(request)

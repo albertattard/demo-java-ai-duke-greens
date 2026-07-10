@@ -19,6 +19,6 @@ class OpenAiMealSuggestionConfiguration {
                 .system(systemMessageFormatter.format(catalogue))
                 .user(request)
                 .call()
-                .entity(ModelMealSuggestions.class, spec -> spec.useProviderStructuredOutput());
+                .entity(ModelMealRequestResponse.class, spec -> spec.useProviderStructuredOutput());
     }
 }

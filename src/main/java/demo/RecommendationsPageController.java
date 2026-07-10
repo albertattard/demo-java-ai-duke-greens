@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,12 +29,17 @@ class RecommendationsPageController {
     }
 
     @GetMapping("/recommendations")
-    String showResults(final HttpServletRequest request, final HttpServletResponse response, final Model model) {
+    String showResults(
+            @RequestParam(required = false) final Boolean resetConfirmation,
+            final HttpServletRequest request,
+            final HttpServletResponse response,
+            final Model model) {
         final MealRequestSessionState state = mealRequestSession.state(request);
         return switch (state) {
             case SuccessfulMealRequest successfulRequest -> {
                 response.setHeader("Cache-Control", "no-store");
                 addSuccessfulRequest(model, successfulRequest);
+                model.addAttribute("resetConfirmationRequired", successfulRequest.needsResetConfirmation() && Boolean.TRUE.equals(resetConfirmation));
                 yield "recommendations";
             }
             case FailedMealRequest failedRequest -> {
@@ -42,30 +48,37 @@ class RecommendationsPageController {
                 model.addAttribute("failed", true);
                 yield "recommendations";
             }
-            case null -> mealRequestSession.initialRequestRedirect();
+            case null ->
+                mealRequestSession.initialRequestRedirect();
         };
     }
 
     @PostMapping("/recommendations/retry")
-    String retryMealRequest(final HttpServletRequest request) {
+    String retryMealRequest(final HttpServletRequest request, final RedirectAttributes redirectAttributes) {
         final MealRequestSessionState state = mealRequestSession.state(request);
         if (state instanceof FailedMealRequest failedRequest) {
-            return storeResultAndRedirect(failedRequest.request(), mealSuggestionService.submit(failedRequest.request()), request);
+            return storeResultAndRedirect(
+                    failedRequest.request(),
+                    mealSuggestionService.submit(failedRequest.request()),
+                    request,
+                    redirectAttributes);
         }
+
         return mealRequestSession.initialRequestRedirect();
     }
 
     @PostMapping("/recommendations/reset")
     String resetMealRequest(
             @RequestParam(required = false) final Boolean confirmed,
-            final HttpServletRequest request,
-            final Model model) {
+            final HttpServletRequest request) {
         final MealRequestSessionState state = mealRequestSession.state(request);
-        if (state instanceof SuccessfulMealRequest successfulRequest && successfulRequest.needsResetConfirmation() && !Boolean.TRUE.equals(confirmed)) {
-            addSuccessfulRequest(model, successfulRequest);
-            model.addAttribute("resetConfirmationRequired", true);
-            return "recommendations";
+
+        if (state instanceof final SuccessfulMealRequest successfulRequest
+                && successfulRequest.needsResetConfirmation()
+                && !Boolean.TRUE.equals(confirmed)) {
+            return "redirect:/recommendations?resetConfirmation=true";
         }
+
         mealRequestSession.clear(request);
         return "redirect:/";
     }
@@ -73,10 +86,12 @@ class RecommendationsPageController {
     @PostMapping("/recommendations/meals")
     String addMealToBasket(@RequestParam final int index, final HttpServletRequest request) {
         final MealRequestSessionState state = mealRequestSession.state(request);
-        if (state instanceof SuccessfulMealRequest successfulRequest) {
+
+        if (state instanceof final SuccessfulMealRequest successfulRequest) {
             mealRequestSession.store(request, successfulRequest.addMeal(index));
             return "redirect:/recommendations";
         }
+
         return mealRequestSession.initialRequestRedirect();
     }
 
@@ -86,18 +101,21 @@ class RecommendationsPageController {
             @RequestParam final int quantity,
             final HttpServletRequest request) {
         final MealRequestSessionState state = mealRequestSession.state(request);
+
         if (state instanceof final SuccessfulMealRequest successfulRequest
                 && successfulRequest.basket().quantities().containsKey(slug)) {
             mealRequestSession.store(request, successfulRequest.changeBasketQuantity(slug, quantity));
             return "redirect:/recommendations";
         }
+
         return mealRequestSession.initialRequestRedirect();
     }
 
     private String storeResultAndRedirect(
             final String mealRequest,
             final MealRequestResult result,
-            final HttpServletRequest request) {
+            final HttpServletRequest request,
+            final RedirectAttributes redirectAttributes) {
         return switch (result) {
             case MappedMealSuggestions mappedSuggestions -> {
                 mealRequestSession.store(request, new SuccessfulMealRequest(mealRequest, mappedSuggestions));
@@ -107,15 +125,22 @@ class RecommendationsPageController {
                 mealRequestSession.store(request, new FailedMealRequest(failedRequest));
                 yield "redirect:/recommendations";
             }
-            case InvalidRequest(_) -> throw new IllegalStateException("A retained meal request must remain valid");
+            case OutOfScopeRequest(final String outOfScopeRequest) -> {
+                mealRequestSession.clear(request);
+                redirectAttributes.addFlashAttribute("mealRequest", outOfScopeRequest);
+                redirectAttributes.addFlashAttribute("outOfScopeMessage", "Duke Greens helps you find meal ideas. Tell us what you’d like to cook, such as a quick vegetarian dinner for two.");
+                yield "redirect:/";
+            }
+            case InvalidRequest(_) ->
+                throw new IllegalStateException("A retained meal request must remain valid");
         };
     }
 
     private void addSuccessfulRequest(final Model model, final SuccessfulMealRequest request) {
         model.addAttribute("suggestions", IntStream.range(0, request.suggestions().suggestions().size())
-                .mapToObj(index -> MealSuggestionCard.of(index, request.suggestions().suggestions().get(index))).toList());
+                .mapToObj(index -> MealSuggestionCard.of(index, request.suggestions().suggestions().get(index)))
+                .toList());
         model.addAttribute("selectedMealIndexes", request.selectedMealIndexes());
         basketPresentation.addTo(model, request);
-        model.addAttribute("resetConfirmationRequired", false);
     }
 }

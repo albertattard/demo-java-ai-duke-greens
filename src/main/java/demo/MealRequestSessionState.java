@@ -8,8 +8,7 @@ import static demo.Strings.requireNonBlank;
 
 import module java.base;
 
-sealed interface MealRequestSessionState permits SuccessfulMealRequest, FailedMealRequest {
-}
+sealed interface MealRequestSessionState permits SuccessfulMealRequest, FailedMealRequest { }
 
 record SuccessfulMealRequest(
         String request,

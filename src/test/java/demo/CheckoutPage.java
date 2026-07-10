@@ -1,0 +1,23 @@
+package demo;
+
+import com.microsoft.playwright.Page;
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import com.microsoft.playwright.options.AriaRole;
+
+public final class CheckoutPage extends PageObject {
+
+    public CheckoutPage(final Page page) {
+        super(page);
+    }
+
+    public CheckoutPage shouldShowCheckout(final String total) {
+        assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Checkout")).isVisible();
+        assertThat(elementByTextAndExactName("Basket total: " + total + "\u00a0€")).isVisible();
+        return this;
+    }
+
+    public RecommendationsPage backToBasket() {
+        elementByRoleAndExactName(AriaRole.BUTTON, "Back to basket").click();
+        return new RecommendationsPage(page);
+    }
+}

@@ -1,6 +1,7 @@
 package demo.functional;
 
 import com.microsoft.playwright.Page;
+import demo.CheckoutPage;
 import demo.WelcomePage;
 
 public final class DukeGreens {
@@ -18,8 +19,13 @@ public final class DukeGreens {
         return new WelcomePage(page);
     }
 
-    public WelcomePage openMealRequestResults() {
-        page.navigate(baseUrl + "/meal-request/results");
+    public WelcomePage openRecommendationsWithoutSession() {
+        page.navigate(baseUrl + "/recommendations");
         return new WelcomePage(page);
+    }
+
+    public CheckoutPage openCheckout() {
+        page.navigate(baseUrl + "/checkout");
+        return new CheckoutPage(page);
     }
 }

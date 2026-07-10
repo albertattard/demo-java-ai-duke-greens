@@ -27,8 +27,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 import module java.base;
 
-@WebMvcTest(WelcomePageController.class)
-@Import(SecurityConfiguration.class)
+@WebMvcTest({WelcomePageController.class, RecommendationsPageController.class, CheckoutController.class})
+@Import({SecurityConfiguration.class, MealRequestSession.class, BasketPresentation.class})
 @ImportAutoConfiguration({SecurityAutoConfiguration.class, ServletWebSecurityAutoConfiguration.class, SecurityFilterAutoConfiguration.class})
 class MealRequestSessionMvcTest {
 
@@ -58,10 +58,10 @@ class MealRequestSessionMvcTest {
                 .thenReturn(suggestions);
 
         mvc.perform(MockMvcRequestBuilders.post("/meal-request").with(csrf()).session(session).param("mealRequest", "Suggest a vegetarian dinner"))
-                .andExpect(redirectedUrl("/meal-request/results"))
+                .andExpect(redirectedUrl("/recommendations"))
                 .andExpect(request().sessionAttribute("mealRequestState", new SuccessfulMealRequest("Suggest a vegetarian dinner", suggestions)));
-        mvc.perform(MockMvcRequestBuilders.get("/meal-request/results").session(session))
-                .andExpect(MockMvcResultMatchers.view().name("welcome"))
+        mvc.perform(MockMvcRequestBuilders.get("/recommendations").session(session))
+                .andExpect(MockMvcResultMatchers.view().name("recommendations"))
                 .andExpect(model().attributeExists("suggestions"))
                 .andExpect(header().string("Cache-Control", "no-store"));
 
@@ -76,10 +76,10 @@ class MealRequestSessionMvcTest {
                 .thenReturn(new FailedRequest("Suggest a vegetarian dinner"));
 
         mvc.perform(MockMvcRequestBuilders.post("/meal-request").with(csrf()).session(session).param("mealRequest", "Suggest a vegetarian dinner"))
-                .andExpect(redirectedUrl("/meal-request/recovery"))
+                .andExpect(redirectedUrl("/recommendations"))
                 .andExpect(request().sessionAttribute("mealRequestState", new FailedMealRequest("Suggest a vegetarian dinner")));
-        mvc.perform(MockMvcRequestBuilders.get("/meal-request/recovery").session(session))
-                .andExpect(MockMvcResultMatchers.view().name("welcome"))
+        mvc.perform(MockMvcRequestBuilders.get("/recommendations").session(session))
+                .andExpect(MockMvcResultMatchers.view().name("recommendations"))
                 .andExpect(model().attribute("failed", true))
                 .andExpect(header().string("Cache-Control", "no-store"));
 
@@ -89,15 +89,11 @@ class MealRequestSessionMvcTest {
 
     @Test
     void returnsToTheInitialPageWhenAResultRouteHasNoSessionState() throws Exception {
-        final MvcResult result = mvc.perform(MockMvcRequestBuilders.get("/meal-request/results"))
-                .andExpect(redirectedUrl("/?notice=no-active-meal-request"))
-                .andReturn();
-        final MvcResult recovery = mvc.perform(MockMvcRequestBuilders.get("/meal-request/recovery"))
+        final MvcResult result = mvc.perform(MockMvcRequestBuilders.get("/recommendations"))
                 .andExpect(redirectedUrl("/?notice=no-active-meal-request"))
                 .andReturn();
 
         assertThat(result.getRequest().getSession(false)).isNull();
-        assertThat(recovery.getRequest().getSession(false)).isNull();
         mvc.perform(MockMvcRequestBuilders.get("/").param("notice", "no-active-meal-request"))
                 .andExpect(MockMvcResultMatchers.view().name("welcome"))
                 .andExpect(model().attribute("informationMessage", "There is no active meal request to display."));
@@ -112,11 +108,9 @@ class MealRequestSessionMvcTest {
                 new MappedMealSuggestions(List.of(new MappedMealSuggestion("Lemon lentil pasta", 25, "A quick dinner.", 1,
                         List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69))))));
 
-        mvc.perform(MockMvcRequestBuilders.post("/meal-request/reset").with(csrf()).session(session))
+        mvc.perform(MockMvcRequestBuilders.post("/recommendations/reset").with(csrf()).session(session))
                 .andExpect(redirectedUrl("/"));
-        mvc.perform(MockMvcRequestBuilders.get("/meal-request/results").session(session))
-                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
-        mvc.perform(MockMvcRequestBuilders.get("/meal-request/recovery").session(session))
+        mvc.perform(MockMvcRequestBuilders.get("/recommendations").session(session))
                 .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
 
         verifyNoMoreInteractions(mealSuggestionService);
@@ -129,8 +123,8 @@ class MealRequestSessionMvcTest {
         final MappedMealSuggestions suggestions = new MappedMealSuggestions(List.of(new MappedMealSuggestion( "Lemon lentil pasta", 25, "A quick dinner.", 1, List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69))));
         when(mealSuggestionService.submit("Suggest a vegetarian dinner")).thenReturn(suggestions);
 
-        mvc.perform(MockMvcRequestBuilders.post("/meal-request/retry").with(csrf()).session(session))
-                .andExpect(redirectedUrl("/meal-request/results"))
+        mvc.perform(MockMvcRequestBuilders.post("/recommendations/retry").with(csrf()).session(session))
+                .andExpect(redirectedUrl("/recommendations"))
                 .andExpect(request().sessionAttribute("mealRequestState", new SuccessfulMealRequest("Suggest a vegetarian dinner", suggestions)));
 
         verify(mealSuggestionService).submit("Suggest a vegetarian dinner");
@@ -142,10 +136,68 @@ class MealRequestSessionMvcTest {
         final MockHttpSession firstSession = new MockHttpSession();
         firstSession.setAttribute("mealRequestState", new SuccessfulMealRequest("Suggest a vegetarian dinner", new MappedMealSuggestions(List.of(new MappedMealSuggestion("Lemon lentil pasta", 25, "A quick dinner.", 1, List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69))))));
 
-        mvc.perform(MockMvcRequestBuilders.get("/meal-request/results").session(new MockHttpSession()))
+        mvc.perform(MockMvcRequestBuilders.get("/recommendations").session(new MockHttpSession()))
                 .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
-        mvc.perform(MockMvcRequestBuilders.get("/meal-request/results").session(firstSession))
-                .andExpect(MockMvcResultMatchers.view().name("welcome"));
+        mvc.perform(MockMvcRequestBuilders.get("/recommendations").session(firstSession))
+                .andExpect(MockMvcResultMatchers.view().name("recommendations"));
+
+        verifyNoMoreInteractions(mealSuggestionService);
+    }
+
+    @Test
+    void showsAnAuthoritativeBasketReviewForAPopulatedSuccessfulRequest() throws Exception {
+        final Product lentils = product("red-lentils-500g");
+        final Product spaghetti = new Product("wholewheat-spaghetti-500g", "Wholewheat spaghetti", 500, MeasurementUnit.GRAM, BigDecimal.valueOf(1.49));
+        final MockHttpSession session = new MockHttpSession();
+        session.setAttribute("mealRequestState", new SuccessfulMealRequest("Suggest two dinners",
+                new MappedMealSuggestions(List.of(new MappedMealSuggestion("Lentil pasta", 25, "A quick dinner.", 1,
+                        List.of(new MappedProduct(lentils, 1)), BigDecimal.valueOf(1.69)))),
+                Set.of(0), new Basket(Map.of(lentils.slug(), 2, spaghetti.slug(), 1))));
+        when(productCatalogue.allProducts()).thenReturn(List.of(lentils, spaghetti));
+
+        mvc.perform(MockMvcRequestBuilders.get("/checkout").session(session))
+                .andExpect(MockMvcResultMatchers.view().name("checkout"))
+                .andExpect(model().attribute("basketLines", org.hamcrest.Matchers.hasSize(2)))
+                .andExpect(model().attribute("basketTotal", "4,87\u00a0€"))
+                .andExpect(model().attribute("basketFulfilsSelectedMeals", true))
+                .andExpect(header().string("Cache-Control", "no-store"));
+
+        verifyNoMoreInteractions(mealSuggestionService);
+    }
+
+    @Test
+    void identifiesAnIncompleteBasketAtCheckout() throws Exception {
+        final Product lentils = product("red-lentils-500g");
+        final Product spaghetti = new Product("wholewheat-spaghetti-500g", "Wholewheat spaghetti", 500, MeasurementUnit.GRAM, BigDecimal.valueOf(1.49));
+        final MockHttpSession session = new MockHttpSession();
+        session.setAttribute("mealRequestState", new SuccessfulMealRequest("Suggest a dinner",
+                new MappedMealSuggestions(List.of(new MappedMealSuggestion("Lentil pasta", 25, "A quick dinner.", 1,
+                        List.of(new MappedProduct(lentils, 1)), BigDecimal.valueOf(1.69)))),
+                Set.of(0), new Basket(Map.of(spaghetti.slug(), 1))));
+        when(productCatalogue.allProducts()).thenReturn(List.of(lentils, spaghetti));
+
+        mvc.perform(MockMvcRequestBuilders.get("/checkout").session(session))
+                .andExpect(MockMvcResultMatchers.view().name("checkout"))
+                .andExpect(model().attribute("basketFulfilsSelectedMeals", false));
+
+        verifyNoMoreInteractions(mealSuggestionService);
+    }
+
+    @Test
+    void returnsToTheInitialPageWhenCheckoutHasNoUsableBasketState() throws Exception {
+        final MockHttpSession failedSession = new MockHttpSession();
+        failedSession.setAttribute("mealRequestState", new FailedMealRequest("Suggest a dinner"));
+        final MockHttpSession emptyBasketSession = new MockHttpSession();
+        emptyBasketSession.setAttribute("mealRequestState", new SuccessfulMealRequest("Suggest a dinner",
+                new MappedMealSuggestions(List.of(new MappedMealSuggestion("Lentil pasta", 25, "A quick dinner.", 1,
+                        List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69))))));
+
+        mvc.perform(MockMvcRequestBuilders.get("/checkout"))
+                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
+        mvc.perform(MockMvcRequestBuilders.get("/checkout").session(failedSession))
+                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
+        mvc.perform(MockMvcRequestBuilders.get("/checkout").session(emptyBasketSession))
+                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
 
         verifyNoMoreInteractions(mealSuggestionService);
     }

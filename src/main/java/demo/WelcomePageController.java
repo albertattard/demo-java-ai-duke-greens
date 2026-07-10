@@ -7,33 +7,30 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 import module java.base;
 
 @Controller
 class WelcomePageController {
 
-    private static final String MEAL_REQUEST_STATE = "mealRequestState";
-    private static final String NO_ACTIVE_MEAL_REQUEST = "There is no active meal request to display.";
-    private static final String NO_ACTIVE_MEAL_REQUEST_NOTICE = "no-active-meal-request";
-
     private final ProductCatalogue productCatalogue;
     private final MealSuggestionService mealSuggestionService;
+    private final MealRequestSession mealRequestSession;
 
     WelcomePageController(
             final ProductCatalogue productCatalogue,
-            final MealSuggestionService mealSuggestionService) {
+            final MealSuggestionService mealSuggestionService,
+            final MealRequestSession mealRequestSession) {
         this.productCatalogue = productCatalogue;
         this.mealSuggestionService = mealSuggestionService;
+        this.mealRequestSession = mealRequestSession;
     }
 
     @GetMapping("/")
     String showWelcomePage(@RequestParam(required = false) final String notice, final Model model) {
         addProducts(model);
-        if (NO_ACTIVE_MEAL_REQUEST_NOTICE.equals(notice)) {
-            model.addAttribute("informationMessage", NO_ACTIVE_MEAL_REQUEST);
+        if (mealRequestSession.isMissingRequestNotice(notice)) {
+            model.addAttribute("informationMessage", mealRequestSession.noActiveRequestMessage());
         }
         return "welcome";
     }
@@ -44,149 +41,26 @@ class WelcomePageController {
             final HttpServletRequest request,
             final Model model) {
         final MealRequestResult result = mealSuggestionService.submit(mealRequest);
-
         if (result instanceof InvalidRequest(final String message)) {
             addProducts(model);
             model.addAttribute("validationMessage", message);
             return "welcome";
         }
 
-        return storeResultAndRedirect(mealRequest, result, request.getSession());
-    }
-
-    @GetMapping("/meal-request/results")
-    String showResults(final HttpServletRequest request, final HttpServletResponse response, final Model model) {
-        final MealRequestSessionState state = sessionState(request.getSession(false));
-        if (!(state instanceof SuccessfulMealRequest successfulRequest)) {
-            return redirectToInitialRequest();
-        }
-
-        response.setHeader("Cache-Control", "no-store");
-        addSuccessfulRequest(model, successfulRequest);
-        return "welcome";
-    }
-
-    @GetMapping("/meal-request/recovery")
-    String showRecovery(final HttpServletRequest request, final HttpServletResponse response, final Model model) {
-        final MealRequestSessionState state = sessionState(request.getSession(false));
-        if (!(state instanceof FailedMealRequest failedRequest)) {
-            return redirectToInitialRequest();
-        }
-
-        response.setHeader("Cache-Control", "no-store");
-        addProducts(model);
-        model.addAttribute("mealRequest", failedRequest.request());
-        model.addAttribute("failed", true);
-        return "welcome";
-    }
-
-    @PostMapping("/meal-request/retry")
-    String retryMealRequest(final HttpServletRequest request) {
-        final HttpSession session = request.getSession(false);
-        final MealRequestSessionState state = sessionState(session);
-        if (!(state instanceof FailedMealRequest failedRequest)) {
-            return redirectToInitialRequest();
-        }
-
-        return storeResultAndRedirect(failedRequest.request(), mealSuggestionService.submit(failedRequest.request()), session);
-    }
-
-    @PostMapping("/meal-request/reset")
-    String resetMealRequest(
-            @RequestParam(required = false) final Boolean confirmed,
-            final HttpServletRequest request,
-            final Model model) {
-        final HttpSession session = request.getSession(false);
-        final MealRequestSessionState state = sessionState(session);
-        if (state instanceof SuccessfulMealRequest successfulRequest && successfulRequest.needsResetConfirmation() && !Boolean.TRUE.equals(confirmed)) {
-            addSuccessfulRequest(model, successfulRequest);
-            model.addAttribute("resetConfirmationRequired", true);
-            return "welcome";
-        }
-        if (session != null) {
-            session.removeAttribute(MEAL_REQUEST_STATE);
-        }
-        return "redirect:/";
-    }
-
-    @PostMapping("/meal-request/results/add")
-    String addMealToBasket(@RequestParam final int index, final HttpServletRequest request) {
-        final HttpSession session = request.getSession(false);
-        final MealRequestSessionState state = sessionState(session);
-        if (state instanceof SuccessfulMealRequest successfulRequest) {
-            session.setAttribute(MEAL_REQUEST_STATE, successfulRequest.addMeal(index));
-            return "redirect:/meal-request/results";
-        }
-        return redirectToInitialRequest();
-    }
-
-    @PostMapping("/basket/quantity")
-    String changeBasketQuantity(
-            @RequestParam final String slug,
-            @RequestParam final int quantity,
-            final HttpServletRequest request) {
-        final HttpSession session = request.getSession(false);
-        final MealRequestSessionState state = sessionState(session);
-        if (state instanceof final SuccessfulMealRequest successfulRequest
-                && successfulRequest.basket().quantities().containsKey(slug)) {
-            session.setAttribute(MEAL_REQUEST_STATE, successfulRequest.changeBasketQuantity(slug, quantity));
-            return "redirect:/meal-request/results";
-        }
-        return redirectToInitialRequest();
-    }
-
-    private static String storeResultAndRedirect(
-            final String request,
-            final MealRequestResult result,
-            final HttpSession session) {
         return switch (result) {
             case MappedMealSuggestions mappedSuggestions -> {
-                session.setAttribute(MEAL_REQUEST_STATE, new SuccessfulMealRequest(request, mappedSuggestions));
-                yield "redirect:/meal-request/results";
+                mealRequestSession.store(request, new SuccessfulMealRequest(mealRequest, mappedSuggestions));
+                yield "redirect:/recommendations";
             }
             case FailedRequest(final String failedRequest) -> {
-                session.setAttribute(MEAL_REQUEST_STATE, new FailedMealRequest(failedRequest));
-                yield "redirect:/meal-request/recovery";
+                mealRequestSession.store(request, new FailedMealRequest(failedRequest));
+                yield "redirect:/recommendations";
             }
-            case InvalidRequest(_) ->
-                throw new IllegalStateException("A retained meal request must remain valid");
+            case InvalidRequest(_) -> throw new IllegalStateException("A retained meal request must remain valid");
         };
     }
 
-    private static MealRequestSessionState sessionState(final HttpSession session) {
-        if (session == null) {
-            return null;
-        }
-
-        final Object state = session.getAttribute(MEAL_REQUEST_STATE);
-        return state instanceof MealRequestSessionState mealRequestSessionState ? mealRequestSessionState : null;
-    }
-
-    private static String redirectToInitialRequest() {
-        return "redirect:/?notice=" + NO_ACTIVE_MEAL_REQUEST_NOTICE;
-    }
-
-    private List<ProductCard> allProducts() {
-        return productCatalogue.allProducts().stream()
-                .map(ProductCard::of)
-                .toList();
-    }
-
-    private void addSuccessfulRequest(final Model model, final SuccessfulMealRequest request) {
-        final List<Product> catalogue = productCatalogue.allProducts();
-        model.addAttribute("products", catalogue.stream().map(ProductCard::of).toList());
-        model.addAttribute("suggestions", IntStream.range(0, request.suggestions().suggestions().size())
-                .mapToObj(index -> MealSuggestionCard.of(index, request.suggestions().suggestions().get(index))).toList());
-        model.addAttribute("selectedMealIndexes", request.selectedMealIndexes());
-        model.addAttribute("basketLines", catalogue.stream()
-                .filter(product -> request.basket().quantities().containsKey(product.slug()))
-                .map(product -> BasketLineCard.of(product, request.basket().quantityOf(product.slug()))).toList());
-        model.addAttribute("basketTotal", Strings.formatPrice(request.basket().totalPrice(catalogue)));
-        model.addAttribute("basketFulfilsSelectedMeals", request.basket().fulfils(request.selectedMeals()));
-        model.addAttribute("resetConfirmationRequired", false);
-    }
-
     private void addProducts(final Model model) {
-        model.addAttribute("products", allProducts());
+        model.addAttribute("products", productCatalogue.allProducts().stream().map(ProductCard::of).toList());
     }
 }

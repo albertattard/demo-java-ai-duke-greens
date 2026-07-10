@@ -167,6 +167,11 @@ button {
     font-weight: 700;
 }
 
+.checkout-warning {
+    border-left-color: #8a1f11;
+    color: #6b180e;
+}
+
 .basket-total, .selected-meal {
     font-weight: 700;
 }

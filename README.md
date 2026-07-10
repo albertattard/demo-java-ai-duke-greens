@@ -70,6 +70,18 @@ Production has no fake model: without a configured API key, its OpenAI client ca
 
 Stop it with `Ctrl+C`.
 
+## Offline manual testing
+
+Start the application without OpenAI credentials or network access by using the `mock` Spring profile:
+
+```shell
+./mvnw \
+  -Dspring-boot.run.arguments="--spring.profiles.active=mock" \
+  spring-boot:run
+```
+
+The `mock` profile ignores the meal-request wording and returns one or more random catalogue-valid recommendations from a fixed local set. It is intended only for exercising the visitor flow; use the default profile for the live AI demonstration.
+
 ## Live OpenAI integration check
 
 With the local API-key file configured, run the opt-in integration check:

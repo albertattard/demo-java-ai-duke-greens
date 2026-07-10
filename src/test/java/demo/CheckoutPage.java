@@ -20,4 +20,16 @@ public final class CheckoutPage extends PageObject {
         elementByRoleAndExactName(AriaRole.BUTTON, "Back to basket").click();
         return new RecommendationsPage(page);
     }
+
+    public ThankYouPage completeSimulatedOrder() {
+        elementByRoleAndExactName(AriaRole.BUTTON, "Complete simulated order").click();
+        return new ThankYouPage(page);
+    }
+
+    public CheckoutPage shouldPlaceCheckoutActionsOnOneRow() {
+        assertThat(page.locator(".checkout-actions")).hasCSS("display", "flex");
+        assertThat(page.locator(".checkout-actions")).hasCSS("justify-content", "space-between");
+        assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Back to basket")).hasCSS("background-color", "rgb(255, 255, 255)");
+        return this;
+    }
 }

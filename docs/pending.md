@@ -6,22 +6,32 @@ This document captures deferred work that is worth retaining but is not yet read
 
 The following visitor-facing commitments remain from the original MVP definition. They are deferred until a future change brief makes each slice implementation-ready.
 
-- Ask one concise follow-up question only when both dietary preference and maximum preparation time are absent. Where a preference is absent, apply the documented defaults of no dietary restriction, a 30-minute maximum preparation time, and a one-person household when household size is absent.
+- Refine the meal-request conversation. Ask one concise follow-up question only when both dietary preference and maximum preparation time are absent. Where a preference is absent, apply the defaults of no dietary restriction, a 30-minute maximum preparation time, and a one-person household when household size is absent. The displayed meals must reflect supplied household-size, dietary, and preparation-time preferences when the catalogue supports them, and each candidate’s ingredient quantities must be for that household rather than being multiplied by servings again in the application.
+- Preserve the documented suggestion-count interpretation when refining the conversation: interpret “a couple” as two and “a few” as three; let an explicit numeric count take precedence; default to one suggestion when the count is ambiguous or absent; and cap a request above seven at seven suggestions. Add deterministic tests for these rules rather than relying solely on a model instruction.
 - Let the visitor request “Show more ideas” repeatedly before adding a meal to the basket. Each result must preserve the requested suggestion count and exclude every meal name shown earlier in that request.
+- Keep the visible journey understandable to both the visitor and nearby observers by showing the conversation transcript, recommendations, selected meals, and basket throughout the flow.
 - Complete the demo flow with an explicit “Complete virtual order” action, a separate confirmation action, and a visible completion state that clearly says it is simulated and has not created a payment, delivery, or external order.
-- Keep the visible journey understandable to both the visitor and nearby observers by showing the conversation, recommendations, selected meals, and basket throughout the flow.
+- Validate that the complete core journey can be demonstrated in two to three minutes with the curated catalogue.
 
-### Completion eligibility decision
+### Basket-editing product decision
 
-Before adding simulated order completion, decide whether a basket that no longer fulfils its selected meals may be completed. The current editable-basket behaviour deliberately treats insufficient coverage as non-blocking, while the original MVP commitment allowed completion only for a valid, complete basket. Do not implement completion until this product rule is resolved.
+Decide whether the editable basket remains the product direction or whether to restore the original review-only basket. The current change brief deliberately retains basket editing, while allowing simulated completion only when the basket fulfils the selected meals. Restoring review-only behaviour must be an explicit product decision rather than an accidental consequence of completing the original specification.
 
-### Future conversation refinement
+### Already delivered MVP behaviour to retain
 
-Preserve the existing request interpretation rules when refining the conversation: accept meal requests from 1 through 300 characters, interpret “a couple” as two suggestions and “a few” as three, give an explicit numeric count precedence, default to one suggestion when the count is ambiguous or absent, and cap output at seven suggestions. Continue to present only complete, catalogue-mappable candidates and show friendly recovery rather than partial results or provider details when validation fails.
+Do not regress the existing request and recovery contract while implementing the remaining work: accept requests from 1 through 300 characters; validate complete catalogue-mappable candidates; present one through seven suggestions; show no partial suggestions or provider details; prevent automatic retries; make “Try again” an explicit resubmission; retain active state only in the browser session; and use POST/Redirect/GET so refreshing a result or recovery page does not repeat an AI request.
 
 ## Pantry-aware meal coverage
 
 Let a visitor record that they already have a product at home, including its quantity and unit. Use this pantry quantity with basket quantities when calculating whether selected meals can be fulfilled. Do not present an “Already have this” action until that quantity-aware coverage calculation exists.
+
+## Inventory-aware shopping
+
+Add product availability and stock validation before order completion, including unavailable-product handling and substitutions. Decide whether the initial source is local demonstrator-controlled stock data or an optional MCP-backed inventory service; neither source may become authoritative for catalogue products, prices, pack sizes, or basket contents. This capability includes the previously deferred real-time external stock data and presenter-controlled stock changes.
+
+## Future recommendation sources
+
+Evaluate adding a curated recipe catalogue as an additional recommendation source without changing the existing catalogue-product mapping boundary.
 
 ## Meal-suggestion failure metrics
 

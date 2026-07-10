@@ -1,58 +1,69 @@
 # Current change
 
-## Status
-
-Complete on 10 July 2026.
-
 ## Outcome
 
-Let a visitor with products in their basket select “Proceed to checkout” and review that basket on a dedicated checkout page.
+Let a visitor with a complete basket explicitly complete a simulated order, see a dedicated thank-you page, and return to the welcome page to begin again.
 
 ## Constraints
 
-- This slice introduces navigation and basket review only. It does not place, complete, persist, or charge for an order.
-- Product details, quantities, prices, and totals on checkout remain application-controlled basket and catalogue data.
-- “Proceed to checkout” is shown only when the basket contains at least one product.
-- The checkout page shows the basket’s products, quantities, line totals, basket total, and selected-meal coverage status.
-- An incomplete basket may be reviewed at checkout, but it must remain clearly identified as not fulfilling all selected meals. This slice must not imply that it can be completed.
-- The visitor can return to the recommendations page and continue editing the basket.
-- Checkout requires a successful meal-request state with a non-empty basket. A failed request, an empty basket, or missing session state returns the visitor to the initial request page with the same accessible explanation.
-- The checkout page provides a “Back to basket” action that returns to `/recommendations` and preserves the active session state.
-- Keep visitor state session-scoped and in memory.
+- Completing an order is simulated: it must not charge the visitor, persist an order, or change catalogue or stock data.
+- The checkout action must plainly communicate that it completes a simulated order; selecting it is the visitor’s explicit confirmation.
+- Only a successful meal request with a non-empty basket that fulfils the selected meals may be completed.
+- On simulated completion, clear the active meal-request state, including selected meals and basket contents; retain unrelated session data.
+- The thank-you page is only available immediately after a valid simulated completion, does not disclose the prior basket, and provides a return action to the welcome page.
+- On checkout, the return and completion actions share one row, with completion aligned to the right; narrow viewports may stack them to remain usable.
+- “Back to basket” is visually secondary to the simulated-order completion action.
+- On recommendations, “Start over” and “Proceed to checkout” share one row when the basket is non-empty, with checkout aligned to the right; narrow viewports may stack them to remain usable.
+- “Start over” is visually secondary to the checkout action while retaining its confirmation step.
+- Enabling work: a `mock` Spring profile supports offline manual flow testing without OpenAI credentials or network calls. It returns one or more random valid recommendations from a fixed local set, regardless of the visitor’s request.
 - Keep the conversation workflow independent of its input and output channel.
 
 ## Done when
 
-- A visitor with a non-empty basket sees a “Proceed to checkout” button on the recommendations page.
-- Selecting the button opens a dedicated checkout page showing the authoritative basket contents and total.
-- Checkout accurately shows whether the basket fulfils the selected meals.
-- A visitor can select “Back to basket” from checkout and edit their basket without losing the active session state.
-- A visitor with a failed request, empty basket, or no session state is redirected safely when attempting to open checkout directly.
-- Application and browser tests cover the primary results-to-checkout journey and missing-session handling.
-- Relevant verification passes.
+- A complete checkout displays a “Complete simulated order” action.
+- Selecting that action shows a dedicated thank-you page confirming the simulated order.
+- Incomplete baskets cannot display or invoke simulated completion.
+- The prior active request, selected meals, and basket are absent after completion.
+- The thank-you page safely rejects direct access without a preceding valid completion.
+- A visitor can return from the thank-you page to the welcome page and start a fresh request.
+- On a complete checkout, “Back to basket” is on the left and “Complete simulated order” is on the right of the same action row.
+- “Back to basket” uses a neutral outlined style, distinct from the green primary completion action.
+- With a non-empty basket, “Start over” is on the left and “Proceed to checkout” is on the right of the same recommendations-page action row.
+- “Start over” uses a neutral outlined style, distinct from the green primary checkout action.
+- Starting with the `mock` profile succeeds without OpenAI configuration and supplies catalogue-valid meal suggestions for arbitrary input.
 
 ## Verification
 
-- Add a focused failing MVC test for navigating from a populated basket to checkout.
-- Add tests for checkout totals and the insufficient-coverage status.
-- Add tests proving that direct checkout requests with a failed request, empty basket, or no session state return to the initial request page.
-- Add a browser integration test from meal selection through checkout and back to basket editing.
+- Add a focused failing MVC test for completing a valid checkout and reaching the thank-you page.
+- Add MVC tests for incomplete checkout and invalid direct thank-you access.
+- Add a browser journey from meal selection through complete checkout, thank-you, and a fresh welcome page.
+- Add a browser assertion for the checkout action row layout.
+- Add a browser assertion for the recommendations action row layout.
+- Add a Spring integration test for the offline mock generator and document how to start it.
 - Run `./mvnw verify` and `git diff --check`.
 
 ## Delivered
 
-- Added a read-only `/checkout` page that uses the session-backed basket and application catalogue as its authoritative data.
-- Added guarded checkout navigation, an explicit incomplete-coverage notice, and a return path to the editable basket.
-- Added MVC coverage for checkout totals, complete and incomplete meal coverage, and missing, failed, and empty-basket states.
-- Added a browser journey from meal selection through checkout and back to basket editing.
-- Refactored the request, basket, and checkout routes into focused controllers backed by shared session-state and basket-presentation components.
-- Split the welcome and recommendations visitor states into separate templates and controllers. Recommendations no longer show the full product catalogue; basket editing remains on that page. A separate basket page is explicitly deferred to a later slice.
+- Added a guarded “Complete simulated order” action for baskets that fulfil the selected meals.
+- Added a dedicated, one-time thank-you page that confirms no payment was taken and returns the visitor to the welcome page.
+- Simulated completion clears the active meal request, selected meals, and basket while retaining unrelated session data.
+- Added MVC coverage for valid completion, incomplete checkout, direct thank-you access, and consumed thank-you access.
+- Added a browser journey covering meal selection, completion, thank-you, and a fresh welcome page.
+- Placed checkout’s return and completion actions on one responsive row, with completion aligned right on wider viewports.
+- Styled “Back to basket” as a neutral outlined secondary action.
+- Placed recommendations’ “Start over” and “Proceed to checkout” actions on one responsive row, with checkout aligned right on wider viewports.
+- Styled “Start over” as a neutral outlined secondary action.
+- Added the offline `mock` profile and `MockMealSuggestionGenerator`, which selects one to three catalogue-valid recommendations at random from a fixed local set without reading the request or calling OpenAI.
+- Documented the offline manual-test command in the repository README.
 
 ## Verification results
 
-- `./mvnw test -Dtest=MealRequestSessionMvcTest` passed.
-- `./mvnw verify` passed with local port binding enabled for the browser integration tests.
-
-## Delivered routes
-
-- Use visitor-facing routes: `GET /recommendations` for successful and failed request states, nested recommendation actions, and `GET /checkout`. Keep `POST /meal-request` as the request-submission command.
+- Baseline: `./mvnw verify` passed.
+- After implementation: `./mvnw test -Dtest=MealRequestSessionMvcTest` passed.
+- After implementation: `./mvnw verify` and `git diff --check` passed.
+- After action-row refinement: `./mvnw verify -Dit.test=WelcomePageIT` and `git diff --check` passed.
+- After recommendations action-row refinement: `./mvnw verify -Dit.test=WelcomePageIT` and `git diff --check` passed.
+- After secondary-action styling: `./mvnw verify -Dit.test=WelcomePageIT` and `git diff --check` passed.
+- After checkout secondary-action styling: `./mvnw verify -Dit.test=WelcomePageIT` and `git diff --check` passed.
+- Mock-profile coverage: `./mvnw test -Dtest=MockMealSuggestionGeneratorTest` passed.
+- After mock-profile implementation: `./mvnw verify` and `git diff --check` passed.

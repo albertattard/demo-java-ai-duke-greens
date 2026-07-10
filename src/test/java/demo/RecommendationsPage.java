@@ -87,6 +87,13 @@ public final class RecommendationsPage extends PageObject {
         return new CheckoutPage(page);
     }
 
+    public RecommendationsPage shouldPlaceBasketActionsOnOneRow() {
+        assertThat(page.locator(".basket-actions")).hasCSS("display", "flex");
+        assertThat(page.locator(".basket-actions")).hasCSS("justify-content", "space-between");
+        assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Start over")).hasCSS("background-color", "rgb(255, 255, 255)");
+        return this;
+    }
+
     public RecommendationsPage startOver() {
         elementByRoleAndExactName(AriaRole.BUTTON, "Start over").click();
         return this;

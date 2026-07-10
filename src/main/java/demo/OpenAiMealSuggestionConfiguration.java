@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile("!test")
-class MealSuggestionConfiguration {
+@Profile("!test & !mock")
+class OpenAiMealSuggestionConfiguration {
 
     @Bean
     MealSuggestionGenerator openAiMealSuggestionGenerator(

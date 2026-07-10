@@ -104,6 +104,16 @@ button {
     padding: 0.75rem 1rem;
 }
 
+.secondary-action {
+    background: #ffffff;
+    border: 1px solid #285a3a;
+    color: #285a3a;
+}
+
+.secondary-action:hover {
+    background: #e8f1e5;
+}
+
 .validation-message, .meal-request-error {
     color: #8a1f11;
     font-weight: 700;
@@ -174,4 +184,29 @@ button {
 
 .basket-total, .selected-meal {
     font-weight: 700;
+}
+
+.checkout-actions {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+}
+
+.checkout-actions button, .basket-actions button {
+    margin-top: 0;
+}
+
+.basket-actions {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+}
+
+@media (width < 32rem) {
+    .checkout-actions, .basket-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
 }

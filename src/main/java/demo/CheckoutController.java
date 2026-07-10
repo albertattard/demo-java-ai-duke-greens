@@ -3,6 +3,7 @@ package demo;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,5 +29,29 @@ class CheckoutController {
         response.setHeader("Cache-Control", "no-store");
         basketPresentation.addTo(model, successfulRequest);
         return "checkout";
+    }
+
+    @PostMapping("/checkout/complete")
+    String completeCheckout(final HttpServletRequest request) {
+        final MealRequestSessionState state = mealRequestSession.state(request);
+        if (!(state instanceof SuccessfulMealRequest successfulRequest)
+                || successfulRequest.basket().isEmpty()
+                || !successfulRequest.basket().fulfils(successfulRequest.selectedMeals())) {
+            return mealRequestSession.initialRequestRedirect();
+        }
+
+        mealRequestSession.clear(request);
+        mealRequestSession.markSimulatedOrderCompleted(request);
+        return "redirect:/thank-you";
+    }
+
+    @GetMapping("/thank-you")
+    String showThankYou(final HttpServletRequest request, final HttpServletResponse response) {
+        if (!mealRequestSession.consumeSimulatedOrderCompletion(request)) {
+            return mealRequestSession.initialRequestRedirect();
+        }
+
+        response.setHeader("Cache-Control", "no-store");
+        return "thank-you";
     }
 }

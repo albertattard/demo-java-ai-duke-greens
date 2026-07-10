@@ -186,11 +186,30 @@ class WelcomePageIT {
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .submitMealRequest(request)
                 .addMealToBasket(0)
+                .shouldPlaceBasketActionsOnOneRow()
                 .proceedToCheckout()
                 .shouldShowCheckout("1,49")
                 .backToBasket()
                 .shouldShowSelectedMeal(0)
                 .changeBasketQuantity("Wholewheat spaghetti", 0)
                 .shouldShowBasketCoverageWarning());
+    }
+
+    @Test
+    void completesASimulatedOrderAndReturnsToAFreshWelcomePage() throws Exception {
+        final String request = "Suggest a pasta dinner";
+        when(mealSuggestionGenerator.suggest(eq(request), anyList())).thenReturn(new ModelMealSuggestions(List.of(
+                new ModelMealSuggestion("Pasta", 20, "A complete dinner.", 1,
+                        List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g"))))));
+
+        browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
+                .submitMealRequest(request)
+                .addMealToBasket(0)
+                .proceedToCheckout()
+                .shouldPlaceCheckoutActionsOnOneRow()
+                .completeSimulatedOrder()
+                .shouldShowThankYou()
+                .returnToWelcomePage()
+                .shouldShowInitialRequestState());
     }
 }

@@ -11,7 +11,7 @@
     <section aria-labelledby="checkout-heading" class="welcome-panel">
         <p class="eyebrow">Basket review</p>
         <h1 id="checkout-heading">Checkout</h1>
-        <p>Review your basket before a future simulated order step. This page does not place an order or charge you.</p>
+        <p>Review your basket before completing a simulated order. No charge will be made.</p>
         <section aria-live="polite" class="information-message" role="status" th:if="${basketFulfilsSelectedMeals}">
             <h2>Selected meals covered</h2>
             <p>Your basket contains enough products for the selected meals.</p>
@@ -31,9 +31,14 @@
             </ul>
             <p class="basket-total" th:text="${'Basket total: ' + basketTotal}">Basket total: 0,00 €</p>
         </section>
-        <form method="get" th:action="@{/recommendations}">
-            <button type="submit">Back to basket</button>
-        </form>
+        <div class="checkout-actions">
+            <form method="get" th:action="@{/recommendations}">
+                <button class="secondary-action" type="submit">Back to basket</button>
+            </form>
+            <form method="post" th:action="@{/checkout/complete}" th:if="${basketFulfilsSelectedMeals}">
+                <button type="submit">Complete simulated order</button>
+            </form>
+        </div>
     </section>
 </main>
 </body>

@@ -51,13 +51,15 @@
                 </li>
             </ul>
             <p class="basket-total" th:text="${'Basket total: ' + basketTotal}">Basket total: 0,00 €</p>
+        </section>
+        <section class="basket-actions" th:if="${suggestions != null and !suggestions.isEmpty() and !resetConfirmationRequired}">
+            <form method="post" th:action="@{/recommendations/reset}">
+                <button class="secondary-action" type="submit">Start over</button>
+            </form>
             <form method="get" th:action="@{/checkout}" th:if="${!basketLines.isEmpty()}">
                 <button type="submit">Proceed to checkout</button>
             </form>
         </section>
-        <form method="post" th:action="@{/recommendations/reset}" th:if="${suggestions != null and !suggestions.isEmpty() and !resetConfirmationRequired}">
-            <button type="submit">Start over</button>
-        </form>
         <section aria-labelledby="reset-confirmation-heading" class="information-message" role="alert" th:if="${resetConfirmationRequired}">
             <h2 id="reset-confirmation-heading">Start over?</h2>
             <p>Your selected meals and basket contents will be cleared.</p>

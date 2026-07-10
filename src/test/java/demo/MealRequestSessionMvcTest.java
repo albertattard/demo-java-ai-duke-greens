@@ -202,6 +202,46 @@ class MealRequestSessionMvcTest {
         verifyNoMoreInteractions(mealSuggestionService);
     }
 
+    @Test
+    void completesACompleteBasketAndShowsTheOneTimeThankYouPage() throws Exception {
+        final Product lentils = product("red-lentils-500g");
+        final MockHttpSession session = new MockHttpSession();
+        session.setAttribute("mealRequestState", new SuccessfulMealRequest("Suggest a dinner",
+                new MappedMealSuggestions(List.of(new MappedMealSuggestion("Lentil soup", 25, "A complete dinner.", 1,
+                        List.of(new MappedProduct(lentils, 1)), BigDecimal.valueOf(1.69)))),
+                Set.of(0), new Basket(Map.of(lentils.slug(), 1))));
+
+        mvc.perform(MockMvcRequestBuilders.post("/checkout/complete").with(csrf()).session(session))
+                .andExpect(redirectedUrl("/thank-you"));
+        mvc.perform(MockMvcRequestBuilders.get("/thank-you").session(session))
+                .andExpect(MockMvcResultMatchers.view().name("thank-you"))
+                .andExpect(header().string("Cache-Control", "no-store"));
+        mvc.perform(MockMvcRequestBuilders.get("/recommendations").session(session))
+                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
+        mvc.perform(MockMvcRequestBuilders.get("/thank-you").session(session))
+                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
+
+        verifyNoMoreInteractions(mealSuggestionService);
+    }
+
+    @Test
+    void refusesToCompleteAnIncompleteBasketOrShowThankYouDirectly() throws Exception {
+        final Product lentils = product("red-lentils-500g");
+        final Product spaghetti = new Product("wholewheat-spaghetti-500g", "Wholewheat spaghetti", 500, MeasurementUnit.GRAM, BigDecimal.valueOf(1.49));
+        final MockHttpSession session = new MockHttpSession();
+        session.setAttribute("mealRequestState", new SuccessfulMealRequest("Suggest a dinner",
+                new MappedMealSuggestions(List.of(new MappedMealSuggestion("Lentil soup", 25, "A complete dinner.", 1,
+                        List.of(new MappedProduct(lentils, 1)), BigDecimal.valueOf(1.69)))),
+                Set.of(0), new Basket(Map.of(spaghetti.slug(), 1))));
+
+        mvc.perform(MockMvcRequestBuilders.post("/checkout/complete").with(csrf()).session(session))
+                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
+        mvc.perform(MockMvcRequestBuilders.get("/thank-you").session(session))
+                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
+
+        verifyNoMoreInteractions(mealSuggestionService);
+    }
+
     private static Product product(final String slug) {
         return new Product(slug, "Red lentils", 500, MeasurementUnit.GRAM, BigDecimal.valueOf(1.69));
     }

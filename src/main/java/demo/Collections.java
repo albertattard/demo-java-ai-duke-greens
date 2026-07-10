@@ -1,6 +1,6 @@
 package demo;
 
-import java.util.Collection;
+import module java.base;
 
 final class Collections {
 
@@ -21,6 +21,12 @@ final class Collections {
 
         final int size = collection.size();
         if (size < lowerBound || size > upperBound) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    static <T> void requireContainsKey(final Map<T, ?> map, final T key, final String message) {
+        if (map == null || key == null || !map.containsKey(key)) {
             throw new IllegalArgumentException(message);
         }
     }

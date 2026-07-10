@@ -149,4 +149,29 @@ class WelcomePageIT {
                 .resetMealRequest()
                 .shouldShowInitialRequestState());
     }
+
+    @Test
+    void consolidatesSelectedMealsIntoAnEditableBasketWithoutLosingSelection() throws Exception {
+        final String request = "Suggest two pasta dinners";
+        when(mealSuggestionGenerator.suggest(eq(request), anyList())).thenReturn(new ModelMealSuggestions(List.of(
+                new ModelMealSuggestion("First pasta", 20, "A complete dinner.", 1,
+                        List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g"))),
+                new ModelMealSuggestion("Second pasta", 20, "Another complete dinner.", 1,
+                        List.of(new ModelIngredient("wholewheat-spaghetti-500g", "300", "g"))))));
+
+        browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
+                .submitMealRequest(request)
+                .addMealToBasket(0)
+                .addMealToBasket(1)
+                .shouldShowSelectedMeal(0)
+                .shouldShowSelectedMeal(1)
+                .shouldShowBasketLine("Wholewheat spaghetti", 1, "1,49")
+                .changeBasketQuantity("Wholewheat spaghetti", 0)
+                .shouldShowBasketCoverageWarning()
+                .shouldShowSelectedMeal(0)
+                .startOver()
+                .shouldRequireStartOverConfirmation()
+                .confirmStartOver()
+                .shouldShowInitialRequestState());
+    }
 }

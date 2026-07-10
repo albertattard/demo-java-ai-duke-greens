@@ -136,3 +136,37 @@ button {
     margin-top: 1rem;
     padding-top: 1rem;
 }
+
+.basket {
+    border-top: 1px solid #cadfc4;
+    margin-top: 2rem;
+    padding-top: 1rem;
+}
+
+.basket li {
+    margin: 1rem 0;
+}
+
+.basket form {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.basket form button {
+    margin-top: 0;
+}
+
+.basket input[type="number"] {
+    max-width: 4rem;
+    padding: 0.4rem;
+}
+
+.basket-warning {
+    color: #8a1f11;
+    font-weight: 700;
+}
+
+.basket-total, .selected-meal {
+    font-weight: 700;
+}

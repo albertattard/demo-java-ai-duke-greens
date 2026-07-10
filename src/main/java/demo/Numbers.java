@@ -4,6 +4,12 @@ import module java.base;
 
 final class Numbers {
 
+    static void requireNonNegative(final int value, final String message) {
+        if (value < 0) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
     static void requireGreaterThanZero(final int value, final String message) {
         if (value <= 0) {
             throw new IllegalArgumentException(message);

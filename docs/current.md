@@ -1,5 +1,9 @@
 # Current change
 
+## Status
+
+Completed on 10 July 2026. The delivery and verification evidence is recorded below.
+
 ## Outcome
 
 Let a visitor add the products for individually selected AI-recommended meals to an in-memory basket, so recommendations become an actionable shopping outcome.
@@ -38,3 +42,10 @@ Let a visitor add the products for individually selected AI-recommended meals to
 - Add a test proving that starting over requires confirmation before clearing selected meals and basket contents.
 - Add a browser integration test from recommendations to an editable consolidated basket.
 - Run the project’s documented complete verification suite and `git diff --check`.
+
+## Delivered
+
+- Basket requirements are consolidated from validated base-unit ingredient quantities, then rounded once to whole catalogue packs.
+- The session retains selected meal indexes and an editable in-memory basket; the page shows totals and a non-blocking coverage warning after an edit makes a selection incomplete.
+- The browser suite covers adding two meals with a shared product, editing the consolidated basket, retaining meal selection, and confirming a start-over action.
+- Verification passed on 10 July 2026: `./mvnw verify` and `git diff --check`.

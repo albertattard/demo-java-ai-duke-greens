@@ -112,6 +112,20 @@ class MealSuggestionMapperTest {
     }
 
     @Test
+    void retainsTheBaseUnitRequirementForConsolidatingSelectedMeals() {
+        final MappedMealSuggestions mappedSuggestions = mapper.map(new ModelMealSuggestions(List.of(
+                new ModelMealSuggestion("First dinner", 20, "A complete dinner.", 1,
+                        List.of(modelIngredient("wholewheat-spaghetti-500g", "200", "g"))),
+                new ModelMealSuggestion("Second dinner", 20, "Another complete dinner.", 1,
+                        List.of(modelIngredient("wholewheat-spaghetti-500g", "300", "g"))))), catalogue);
+
+        assertThat(mappedSuggestions.suggestions())
+                .flatExtracting(MappedMealSuggestion::products)
+                .extracting(MappedProduct::requiredQuantity)
+                .containsExactly(new BigDecimal("200"), new BigDecimal("300"));
+    }
+
+    @Test
     void normalisesSupportedUnitsToTheirDimensionBaseUnit() {
         assertThat(MeasurementUnit.from("g").toBaseUnits(new BigDecimal("250")))
                 .isEqualByComparingTo("250");

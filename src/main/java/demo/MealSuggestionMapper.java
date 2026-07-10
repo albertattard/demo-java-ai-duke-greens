@@ -63,7 +63,7 @@ class MealSuggestionMapper {
         final BigDecimal packageQuantity = packageUnit.toBaseUnits(BigDecimal.valueOf(product.packageQuantity()));
         final int packageCount = requiredQuantity.divide(packageQuantity, 0, RoundingMode.CEILING)
                 .intValueExact();
-        return new MappedProduct(product, packageCount);
+        return new MappedProduct(product, requiredQuantity, packageCount);
     }
 
 }

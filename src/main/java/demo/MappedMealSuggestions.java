@@ -1,5 +1,9 @@
 package demo;
 
+import static java.util.Objects.requireNonNull;
+
+import static demo.Collections.requireNonEmpty;
+import static demo.Numbers.requireGreaterThanZero;
 import static demo.Strings.requireNonBlank;
 
 import module java.base;
@@ -30,18 +34,27 @@ record MappedMealSuggestion(
     MappedMealSuggestion {
         requireNonBlank(name, "A suggestion name is required");
         requireNonBlank(explanation, "A suggestion explanation is required");
-        if (preparationMinutes <= 0 || servings <= 0 || products == null || products.isEmpty() || estimatedCost == null) {
-            throw new IllegalArgumentException("A complete mapped suggestion is required");
-        }
+        requireGreaterThanZero(preparationMinutes, "The preparation time must be greater than 0");
+        requireGreaterThanZero(servings, "The meal serving must be greater than 0");
+        requireNonEmpty(products, "The meal related products must not be empty");
+        requireGreaterThanZero(estimatedCost, "The meal estimated cost must be greater than 0");
+
         products = List.copyOf(products);
     }
 }
 
-record MappedProduct(Product product, int packageCount) {
+record MappedProduct(
+        Product product,
+        BigDecimal requiredQuantity,
+        int packageCount) {
 
     MappedProduct {
-        if (product == null || packageCount <= 0) {
-            throw new IllegalArgumentException("A mapped product needs a positive package count");
-        }
+        requireNonNull(product, "The mapped product must not be null");
+        requireGreaterThanZero(requiredQuantity, "The required quantity must be greater than 0");
+        requireGreaterThanZero(packageCount, "The package count must be greater than 0");
+    }
+
+    MappedProduct(final Product product, final int packageCount) {
+        this(product, product.quantityForPackagesInBaseUnits(packageCount), packageCount);
     }
 }

@@ -37,11 +37,44 @@
                         th:text="${mappedProduct.packageCount + ' × ' + mappedProduct.name + ' (' + mappedProduct.packageDetail + '), ' + mappedProduct.formattedPrice}">1 × Product (500 g), 1,49 €</li>
                 </ul>
                 <p th:text="${'Estimated standalone meal cost: ' + suggestion.formattedEstimatedCost}">Estimated standalone meal cost: 0,00 €</p>
+                <form method="post" th:action="@{/meal-request/results/add}">
+                    <input name="index" th:value="${suggestion.index}" type="hidden">
+                    <button th:if="${!selectedMealIndexes.contains(suggestion.index)}" type="submit">Add meal to basket</button>
+                    <p class="selected-meal" th:if="${selectedMealIndexes.contains(suggestion.index)}">Added to basket</p>
+                </form>
             </article>
         </section>
-        <form method="post" th:action="@{/meal-request/reset}" th:if="${suggestions != null and !suggestions.isEmpty()}">
-            <button type="submit">Reset</button>
+        <section aria-labelledby="basket-heading" class="basket" th:if="${suggestions != null and !suggestions.isEmpty()}">
+            <h2 id="basket-heading">Your basket</h2>
+            <p aria-live="polite" class="basket-status" th:if="${basketFulfilsSelectedMeals}">Your basket contains enough products for the selected meals.</p>
+            <p aria-live="polite" class="basket-status basket-warning" th:if="${!basketFulfilsSelectedMeals}">Your basket no longer contains enough products for all selected meals. You can still continue editing it.</p>
+            <p th:if="${basketLines.isEmpty()}">Add a meal to place its products in your basket.</p>
+            <ul th:if="${!basketLines.isEmpty()}">
+                <li data-testid="basket-line" th:each="line : ${basketLines}">
+                    <strong th:text="${line.name}">Product</strong>
+                    <span th:text="${' (' + line.packageDetail + ')'}"> (500 g)</span>
+                    <span th:text="${' — ' + line.formattedLineTotal}"> — 0,00 €</span>
+                    <form method="post" th:action="@{/basket/quantity}">
+                        <input name="slug" th:value="${line.slug}" type="hidden">
+                        <label th:for="${'quantity-' + line.slug}">Packs</label>
+                        <input min="0" name="quantity" th:id="${'quantity-' + line.slug}" th:value="${line.quantity}" type="number">
+                        <button type="submit">Update basket</button>
+                    </form>
+                </li>
+            </ul>
+            <p class="basket-total" th:text="${'Basket total: ' + basketTotal}">Basket total: 0,00 €</p>
+        </section>
+        <form method="post" th:action="@{/meal-request/reset}" th:if="${suggestions != null and !suggestions.isEmpty() and !resetConfirmationRequired}">
+            <button type="submit">Start over</button>
         </form>
+        <section aria-labelledby="reset-confirmation-heading" class="information-message" role="alert" th:if="${resetConfirmationRequired}">
+            <h2 id="reset-confirmation-heading">Start over?</h2>
+            <p>Your selected meals and basket contents will be cleared.</p>
+            <form method="post" th:action="@{/meal-request/reset}">
+                <input name="confirmed" type="hidden" value="true">
+                <button type="submit">Clear and start over</button>
+            </form>
+        </section>
         <section aria-labelledby="meal-request-error-heading" class="meal-request-error" role="alert" th:if="${failed}">
             <h2 id="meal-request-error-heading">We could not create meal ideas</h2>
             <p>Please try your request again or reset and start over.</p>

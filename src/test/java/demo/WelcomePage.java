@@ -80,7 +80,56 @@ public final class WelcomePage {
     }
 
     public WelcomePage resetMealRequest() {
-        elementByRoleAndExactName(AriaRole.BUTTON, "Reset").click();
+        final Locator reset = elementByRoleAndExactName(AriaRole.BUTTON, "Reset");
+        (reset.count() == 1 ? reset : elementByRoleAndExactName(AriaRole.BUTTON, "Start over")).click();
+        return this;
+    }
+
+    public WelcomePage addMealToBasket(final int index) {
+        page.locator("[data-testid='meal-suggestion']").nth(index)
+                .getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Add meal to basket").setExact(true)).click();
+        return this;
+    }
+
+    public WelcomePage shouldShowSelectedMeal(final int index) {
+        final Locator suggestion = page.locator("[data-testid='meal-suggestion']").nth(index);
+        assertThat(suggestion.getByText("Added to basket", new Locator.GetByTextOptions().setExact(true))).isVisible();
+        assertThat(suggestion.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Add meal to basket").setExact(true))).isHidden();
+        return this;
+    }
+
+    public WelcomePage shouldShowBasketLine(final String name, final int quantity, final String total) {
+        final Locator line = page.locator("[data-testid='basket-line']").filter(new Locator.FilterOptions().setHasText(name));
+        assertThat(line).hasCount(1);
+        assertThat(line.getByRole(AriaRole.SPINBUTTON, new Locator.GetByRoleOptions().setName("Packs").setExact(true))).hasValue(String.valueOf(quantity));
+        assertThat(line.getByText("— " + total + "\u00A0€", new Locator.GetByTextOptions().setExact(true))).isVisible();
+        return this;
+    }
+
+    public WelcomePage changeBasketQuantity(final String productName, final int quantity) {
+        final Locator line = page.locator("[data-testid='basket-line']").filter(new Locator.FilterOptions().setHasText(productName));
+        line.getByRole(AriaRole.SPINBUTTON, new Locator.GetByRoleOptions().setName("Packs").setExact(true)).fill(String.valueOf(quantity));
+        line.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Update basket").setExact(true)).click();
+        return this;
+    }
+
+    public WelcomePage shouldShowBasketCoverageWarning() {
+        assertThat(page.getByText("Your basket no longer contains enough products for all selected meals. You can still continue editing it.", new Page.GetByTextOptions().setExact(true))).isVisible();
+        return this;
+    }
+
+    public WelcomePage startOver() {
+        elementByRoleAndExactName(AriaRole.BUTTON, "Start over").click();
+        return this;
+    }
+
+    public WelcomePage shouldRequireStartOverConfirmation() {
+        assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Start over?")).isVisible();
+        return this;
+    }
+
+    public WelcomePage confirmStartOver() {
+        elementByRoleAndExactName(AriaRole.BUTTON, "Clear and start over").click();
         return this;
     }
 

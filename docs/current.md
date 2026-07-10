@@ -2,50 +2,39 @@
 
 ## Status
 
-Completed on 10 July 2026. The delivery and verification evidence is recorded below.
+Agreed on 10 July 2026; not started.
 
 ## Outcome
 
-Let a visitor add the products for individually selected AI-recommended meals to an in-memory basket, so recommendations become an actionable shopping outcome.
+Let a visitor with products in their basket select “Proceed to checkout” and review that basket on a dedicated checkout page.
 
 ## Constraints
 
-- Product catalogue, prices, stock, pack sizes, and basket contents remain application-controlled data; AI may recommend and explain but is not their source of truth.
-- Adding a meal’s products to the basket is an explicit visitor action.
-- Keep the basket session-scoped and in memory.
-- A meal addition is a convenience action; the basket is the visitor’s editable product list.
-- Adding a meal records it as selected. It remains selected after basket edits so the application can assess whether the basket fulfils it.
-- A visitor can add each displayed recommendation once; do not support duplicate meal additions or removing a selected meal in this slice.
-- Do not sell fractional packs. When selected meals require the same product, aggregate their requirements and use the smallest whole-pack quantity that covers the combined amount.
-- A visitor may change basket quantities or remove products after adding a meal. The application must show a non-blocking status when the basket no longer contains enough products to fulfil one or more selected meals; the visitor may still proceed.
-- Starting a new meal request starts over by clearing the current recommendations, selected meals, basket, and meal-coverage status. The visitor must explicitly confirm this action when it would discard selected meals or basket contents.
-- Do not implement checkout, order completion, or meal swapping in this slice.
+- This slice introduces navigation and basket review only. It does not place, complete, persist, or charge for an order.
+- Product details, quantities, prices, and totals on checkout remain application-controlled basket and catalogue data.
+- “Proceed to checkout” is shown only when the basket contains at least one product.
+- The checkout page shows the basket’s products, quantities, line totals, basket total, and selected-meal coverage status.
+- An incomplete basket may be reviewed at checkout, but it must remain clearly identified as not fulfilling all selected meals. This slice must not imply that it can be completed.
+- The visitor can return to the meal-results page and continue editing the basket.
+- Checkout requires a successful meal-request state with a non-empty basket. A failed request, an empty basket, or missing session state returns the visitor to the initial request page with the same accessible explanation.
+- The checkout page provides a “Back to basket” action that returns to `/meal-request/results` and preserves the active session state.
+- Keep visitor state session-scoped and in memory.
 - Keep the conversation workflow independent of its input and output channel.
 
 ## Done when
 
-- A visitor can explicitly add each recommended meal’s products to their basket.
-- A previously added recommendation is identified as selected and cannot be added a second time.
-- Shared product requirements from selected meals result in the correct whole-pack basket quantity rather than duplicate packs per meal.
-- The visitor can increase or decrease a product quantity and remove a product; a line is removed when its quantity reaches zero.
-- The basket shows products, quantities, line totals, and total price, recalculating after every change.
-- The basket clearly shows whether it contains enough products to fulfil the selected meals without preventing the visitor from continuing when it does not.
-- A visitor can start over only after confirming that their selected meals and basket contents will be cleared.
-- Application tests cover the primary add-to-basket and shared-product aggregation flows.
+- A visitor with a non-empty basket sees a “Proceed to checkout” button on the results page.
+- Selecting the button opens a dedicated checkout page showing the authoritative basket contents and total.
+- Checkout accurately shows whether the basket fulfils the selected meals.
+- A visitor can select “Back to basket” from checkout and edit their basket without losing the active session state.
+- A visitor with a failed request, empty basket, or no session state is redirected safely when attempting to open checkout directly.
+- Application and browser tests cover the primary results-to-checkout journey and missing-session handling.
 - Relevant verification passes.
 
 ## Verification
 
-- Add a focused failing test for two selected meals sharing a product, then prove that one whole-pack basket quantity covers their combined requirement.
-- Add tests for basket quantity changes, removal, recalculated totals, and the non-blocking meal-coverage status.
-- Add a test proving that selected meals remain selected after a basket edit and that a selected recommendation cannot be added twice.
-- Add a test proving that starting over requires confirmation before clearing selected meals and basket contents.
-- Add a browser integration test from recommendations to an editable consolidated basket.
-- Run the project’s documented complete verification suite and `git diff --check`.
-
-## Delivered
-
-- Basket requirements are consolidated from validated base-unit ingredient quantities, then rounded once to whole catalogue packs.
-- The session retains selected meal indexes and an editable in-memory basket; the page shows totals and a non-blocking coverage warning after an edit makes a selection incomplete.
-- The browser suite covers adding two meals with a shared product, editing the consolidated basket, retaining meal selection, and confirming a start-over action.
-- Verification passed on 10 July 2026: `./mvnw verify` and `git diff --check`.
+- Add a focused failing MVC test for navigating from a populated basket to checkout.
+- Add tests for checkout totals and the insufficient-coverage status.
+- Add tests proving that direct checkout requests with a failed request, empty basket, or no session state return to the initial request page.
+- Add a browser integration test from meal selection through checkout and back to basket editing.
+- Run `./mvnw verify` and `git diff --check`.

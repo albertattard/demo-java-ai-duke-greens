@@ -23,6 +23,9 @@ final class Strings {
         return value == null || value.isBlank();
     }
 
+    /// The catalogue has one EUR price list. Render it using German conventions
+    /// only; formatting does not convert the underlying price to another
+    /// currency.
     static String formatPrice(final BigDecimal price) {
         final NumberFormat formatter = NumberFormat.getCurrencyInstance(LOCALE);
         formatter.setCurrency(CURRENCY);

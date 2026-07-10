@@ -8,7 +8,11 @@ import static demo.Strings.requireNonBlank;
 
 import module java.base;
 
-record Product(String slug,
+/// A sellable catalogue product. Its stable lowercase kebab-case slug is the
+/// public application reference used for model mapping and basket lines; names
+/// are presentation data and must not be used for heuristic matching.
+record Product(
+        String slug,
         String name,
         int packageQuantity,
         MeasurementUnit packageUnit,

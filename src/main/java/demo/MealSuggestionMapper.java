@@ -8,12 +8,12 @@ import static demo.Collections.requireNonEmpty;
 
 import module java.base;
 
-/**
- * Maps against the same catalogue snapshot supplied to the model. The snapshot
- * is indexed once by slug, avoiding a catalogue lookup for every returned
- * ingredient while ensuring validation uses the exact set of products the model
- * was allowed to select.
- */
+/// Maps against the same catalogue snapshot supplied to the model. The snapshot
+/// is indexed once by slug, avoiding a catalogue lookup for every returned
+/// ingredient while ensuring validation uses the exact set of products the
+/// model was allowed to select. Slug lookup is deliberately exact: do not trim,
+/// case-fold, or heuristically match product names, because the application—not
+/// the model—is authoritative for the sellable product, package, and price.
 @Component
 class MealSuggestionMapper {
 

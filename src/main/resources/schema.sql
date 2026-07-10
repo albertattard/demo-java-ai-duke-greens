@@ -4,5 +4,6 @@ CREATE TABLE product (
     name             VARCHAR(200) NOT NULL CHECK (name REGEXP '.*\S.*'),
     package_quantity INTEGER NOT NULL CHECK (package_quantity > 0),
     package_unit     ENUM('g', 'kg', 'ml') NOT NULL,
-    price            DECIMAL(10, 2) NOT NULL CHECK (price > 0)
+    price            DECIMAL(10, 2) NOT NULL CHECK (price > 0),
+    image_filename   VARCHAR(255)
 );

@@ -31,7 +31,8 @@
         <h2 id="products-heading">Products</h2>
         <div class="product-grid">
             <article class="product-card" data-testid="product-card" th:each="product : ${products}">
-                <div aria-hidden="true" class="product-image-placeholder"></div>
+                <img class="product-image" th:alt="${product.name}" th:if="${product.imageFilename}" th:src="@{/images/300/{filename}(filename=${product.imageFilename})}">
+                <div aria-hidden="true" class="product-image-placeholder" th:unless="${product.imageFilename}"></div>
                 <h3 th:text="${product.name}">Product name</h3>
                 <p th:text="${product.packageDetail}">Package detail</p>
                 <p class="product-price" th:text="${product.formattedPrice}">0,00 €</p>

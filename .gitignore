@@ -2,6 +2,3 @@
 .oca/
 target/
 **/.DS_Store
-
-# This is a local helper script that builds and runs the application
-run

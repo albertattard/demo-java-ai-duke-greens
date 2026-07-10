@@ -82,6 +82,17 @@ Start the application without OpenAI credentials or network access by using the 
 
 The `mock` profile ignores the meal-request wording and returns one or more random catalogue-valid recommendations from a fixed local set. It is intended only for exercising the visitor flow; use the default profile for the live AI demonstration.
 
+## Product-image resizing
+
+Large, unserved source PNGs belong in `assets/product-images/original/`. Generate the public 300 × 225 px derivatives with ImageMagick:
+
+```shell
+brew install imagemagick
+./tools/resize-product-images.sh
+```
+
+The script writes proportionally scaled, centred PNG files to `src/main/resources/static/images/300/`. It does not crop or enlarge source images.
+
 ## Live OpenAI integration check
 
 With the local API-key file configured, run the opt-in integration check:

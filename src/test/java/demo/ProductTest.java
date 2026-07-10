@@ -1,9 +1,9 @@
 package demo;
 
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import org.junit.jupiter.api.Test;
 
 import module java.base;
@@ -59,6 +59,19 @@ class ProductTest {
         }
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> product("wholewheat-spaghetti-500g", "Wholewheat spaghetti", 500, MeasurementUnit.GRAM, null));
+    }
+
+    @Test
+    void allowsAnAbsentImageButRequiresALowercasePngFilenameWhenPresent() {
+        assertThat(new Product("wholewheat-spaghetti-500g", "Wholewheat spaghetti", 500, MeasurementUnit.GRAM, new BigDecimal("1.49"), null).imageFilename())
+                .isNull();
+        assertThat(new Product("wholewheat-spaghetti-500g", "Wholewheat spaghetti", 500, MeasurementUnit.GRAM, new BigDecimal("1.49"), "pasta-photo.png").imageFilename())
+                .isEqualTo("pasta-photo.png");
+
+        for (final String invalidFilename : List.of("Pasta.png", "pasta.jpg", "../pasta.png", " ")) {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> new Product("wholewheat-spaghetti-500g", "Wholewheat spaghetti", 500, MeasurementUnit.GRAM, new BigDecimal("1.49"), invalidFilename));
+        }
     }
 
     private static Product product(final String slug) {

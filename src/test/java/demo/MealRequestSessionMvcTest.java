@@ -1,29 +1,31 @@
 package demo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.mock.web.MockHttpSession;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.web.servlet.SecurityFilterAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.mock.web.MockHttpSession;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import module java.base;
 
@@ -42,9 +44,26 @@ class MealRequestSessionMvcTest {
     private MealSuggestionService mealSuggestionService;
 
     @Test
+    void rendersProductImagesAndDecorativePlaceholdersOnTheWelcomePage() throws Exception {
+        when(productCatalogue.allProducts()).thenReturn(List.of(
+                new Product("wholewheat-spaghetti-500g", "Wholewheat spaghetti", 500, MeasurementUnit.GRAM, BigDecimal.valueOf(1.49), "pasta-photo.png"),
+                new Product("red-peppers-500g", "Red peppers", 500, MeasurementUnit.GRAM, BigDecimal.valueOf(2.49), null)));
+
+        mvc.perform(MockMvcRequestBuilders.get("/"))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(containsString("/images/300/pasta-photo.png")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("alt=\"Wholewheat spaghetti\"")))
+                .andExpect(MockMvcResultMatchers.content().string(not(containsString("alt=\"Red peppers\""))))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("aria-hidden=\"true\" class=\"product-image-placeholder\"")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Red peppers")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("500 g")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("2,49")));
+    }
+
+    @Test
     void rejectsAMealRequestSubmissionWithoutACsrfToken() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/meal-request")
-                        .param("mealRequest", "Suggest a vegetarian dinner"))
+                .param("mealRequest", "Suggest a vegetarian dinner"))
                 .andExpect(status().isForbidden());
 
         verifyNoMoreInteractions(mealSuggestionService);
@@ -175,7 +194,7 @@ class MealRequestSessionMvcTest {
     void retriesOnlyWhenTheVisitorExplicitlyPostsTheRetainedFailedRequest() throws Exception {
         final MockHttpSession session = new MockHttpSession();
         session.setAttribute("mealRequestState", new FailedMealRequest("Suggest a vegetarian dinner"));
-        final MappedMealSuggestions suggestions = new MappedMealSuggestions(List.of(new MappedMealSuggestion( "Lemon lentil pasta", 25, "A quick dinner.", 1, List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69))));
+        final MappedMealSuggestions suggestions = new MappedMealSuggestions(List.of(new MappedMealSuggestion("Lemon lentil pasta", 25, "A quick dinner.", 1, List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69))));
         when(mealSuggestionService.submit("Suggest a vegetarian dinner")).thenReturn(suggestions);
 
         mvc.perform(MockMvcRequestBuilders.post("/recommendations/retry").with(csrf()).session(session))

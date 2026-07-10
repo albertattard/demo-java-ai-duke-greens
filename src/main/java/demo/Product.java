@@ -16,7 +16,8 @@ record Product(
         String name,
         int packageQuantity,
         MeasurementUnit packageUnit,
-        BigDecimal price) {
+        BigDecimal price,
+        String imageFilename) {
 
     Product {
         requireValidSlug(slug);
@@ -24,6 +25,18 @@ record Product(
         requireGreaterThanZero(packageQuantity, "The package quantity must be greater than 0");
         requireNonNull(packageUnit, "The package unit must not be null");
         requireGreaterThanZero(price, "The product price must be greater than 0");
+        // The image may not exist
+        if (imageFilename != null) {
+            requireMatches(imageFilename, "[a-z0-9]+(?:[a-z0-9._-]*[a-z0-9])?\\.png", "A product image filename must be a lowercase PNG filename");
+        }
+    }
+
+    Product(final String slug,
+            final String name,
+            final int packageQuantity,
+            final MeasurementUnit packageUnit,
+            final BigDecimal price) {
+        this(slug, name, packageQuantity, packageUnit, price, null);
     }
 
     BigDecimal quantityForPackagesInBaseUnits(final int packageCount) {

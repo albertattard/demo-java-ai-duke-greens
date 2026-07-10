@@ -3,7 +3,7 @@ package demo;
 import static demo.Strings.formatPrice;
 import static demo.Strings.requireNonBlank;
 
-record ProductCard(String name, String packageDetail, String formattedPrice) {
+record ProductCard(String name, String packageDetail, String formattedPrice, String imageFilename) {
 
     ProductCard {
         requireNonBlank(name, "The product name cannot be blank");
@@ -15,6 +15,7 @@ record ProductCard(String name, String packageDetail, String formattedPrice) {
         return new ProductCard(
                 product.name(),
                 product.packageQuantity() + " " + product.packageUnit().symbol(),
-                formatPrice(product.price()));
+                formatPrice(product.price()),
+                product.imageFilename());
     }
 }

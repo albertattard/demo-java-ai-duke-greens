@@ -54,6 +54,10 @@ class MealSuggestionMapper {
         if (!ingredient.quantity().matches("[1-9][0-9]{0,4}")) {
             throw new IllegalArgumentException("Ingredient quantities must be positive whole integers between 1 and 99999 (five 9s)");
         }
+
+        // Validate units before conversion: mass cannot fulfil a volume pack,
+        // or vice versa. Retaining the requirement in base units lets the
+        // basket aggregate shared ingredients before it rounds to whole packs.
         final MeasurementUnit ingredientUnit = MeasurementUnit.from(ingredient.unit());
         final MeasurementUnit packageUnit = product.packageUnit();
         if (!ingredientUnit.hasSameDimensionAs(packageUnit)) {

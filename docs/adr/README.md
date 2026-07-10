@@ -7,3 +7,4 @@ This directory records consequential technical decisions and their rationale. Ea
 - [`ADR-0001-adopt-the-initial-technical-stack.md`](ADR-0001-adopt-the-initial-technical-stack.md) selects the MVP application, UI, data, AI, testing, and deployment stack.
 - [`ADR-0002-seed-the-h2-catalogue-with-sql-and-access-it-through-jdbc.md`](ADR-0002-seed-the-h2-catalogue-with-sql-and-access-it-through-jdbc.md) chooses SQL initialization and JDBC for the fixed initial catalogue.
 - [`ADR-0003-use-openai-structured-output-for-initial-meal-suggestions.md`](ADR-0003-use-openai-structured-output-for-initial-meal-suggestions.md) selects the initial OpenAI model and structured-response contract.
+- [`ADR-0004-keep-active-visitor-state-in-memory.md`](ADR-0004-keep-active-visitor-state-in-memory.md) keeps active visitor workflow state transient and server-managed.

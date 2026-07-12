@@ -29,6 +29,12 @@ Let a visitor record that they already have a product at home, including its qua
 
 Add product availability and stock validation before order completion, including unavailable-product handling and substitutions. Decide whether the initial source is local demonstrator-controlled stock data or an optional MCP-backed inventory service; neither source may become authoritative for catalogue products, prices, pack sizes, or basket contents. This capability includes the previously deferred real-time external stock data and presenter-controlled stock changes.
 
+The first inventory slice must let a presenter explicitly change a product’s demonstrator-controlled stock state and let a visitor see when an unavailable product prevents checkout. Do not begin with an administration dashboard unless the minimal presenter control cannot demonstrate the behaviour. A later slice may replan or offer substitutions using application-validated availability.
+
+## Allergy-aware meal suggestions
+
+Do not present an allergy filter or claim that a meal is allergy-safe until Duke Greens has authoritative per-product allergen data, including an explicit decision on cross-contamination and “may contain” information. AI must not infer allergen status from product names or recipes. Once that data exists, decide the supported allergen vocabulary, the visitor-facing safety language, and whether the feature only excludes known ingredients or can make a stronger suitability claim.
+
 ## Future recommendation sources
 
 Evaluate adding a curated recipe catalogue as an additional recommendation source without changing the existing catalogue-product mapping boundary.

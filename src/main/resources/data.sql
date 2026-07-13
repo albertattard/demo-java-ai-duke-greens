@@ -43,7 +43,6 @@ INSERT INTO product (slug, name, package_quantity, package_unit, price, image_fi
   ('mozzarella-250g',           'Mozzarella',           250,  'g', 1.99, null),
   ('greek-yogurt-500g',         'Greek yogurt',         500,  'g', 2.49, null),
   ('halloumi-250g',             'Halloumi',             250,  'g', 3.49, null),
-  ('pork-mince-500g',           'Pork mince',           500,  'g', 4.99, null),
   ('bacon-200g',                'Bacon',                200,  'g', 2.99, null),
   ('prawns-300g',               'Prawns',               300,  'g', 5.99, null),
   ('pesto-190g',                'Pesto',                190,  'g', 2.29, null),

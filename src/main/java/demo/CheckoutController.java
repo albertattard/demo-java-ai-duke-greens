@@ -28,6 +28,7 @@ class CheckoutController {
 
         response.setHeader("Cache-Control", "no-store");
         basketPresentation.addTo(model, successfulRequest);
+        model.addAttribute("conversationId", mealRequestSession.conversationId(request));
         return "checkout";
     }
 

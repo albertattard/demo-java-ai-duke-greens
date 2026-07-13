@@ -5,10 +5,13 @@ import org.springframework.stereotype.Component;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
+import module java.base;
+
 @Component
 class MealRequestSession {
 
     private static final String MEAL_REQUEST_STATE = "mealRequestState";
+    private static final String MEAL_CONVERSATION_ID = "mealConversationId";
     private static final String SIMULATED_ORDER_COMPLETION = "simulatedOrderCompletion";
     private static final String NO_ACTIVE_MEAL_REQUEST = "There is no active meal request to display.";
     private static final String NO_ACTIVE_MEAL_REQUEST_NOTICE = "no-active-meal-request";
@@ -22,7 +25,38 @@ class MealRequestSession {
         final HttpSession session = request.getSession(false);
         if (session != null) {
             session.removeAttribute(MEAL_REQUEST_STATE);
+            session.removeAttribute(MEAL_CONVERSATION_ID);
         }
+    }
+
+    String startConversation(final HttpServletRequest request) {
+        final String conversationId = UUID.randomUUID().toString();
+        request.getSession().setAttribute(MEAL_CONVERSATION_ID, conversationId);
+        return conversationId;
+    }
+
+    String conversationId(final HttpServletRequest request) {
+        final HttpSession session = request.getSession(false);
+        return session != null
+                && session.getAttribute(MEAL_CONVERSATION_ID) instanceof final String conversationId
+                ? conversationId
+                : null;
+    }
+
+    boolean hasConversation(final HttpServletRequest request, final String conversationId) {
+        return conversationId != null
+                && conversationId.equals(conversationId(request));
+    }
+
+    String recommendationsRedirect(final String conversationId) {
+        return "redirect:/recommendations/" + conversationId;
+    }
+
+    String recommendationsRedirect(final HttpServletRequest request) {
+        final String conversationId = conversationId(request);
+        return conversationId == null
+                ? initialRequestRedirect()
+                : recommendationsRedirect(conversationId);
     }
 
     void markSimulatedOrderCompleted(final HttpServletRequest request) {
@@ -31,9 +65,11 @@ class MealRequestSession {
 
     boolean consumeSimulatedOrderCompletion(final HttpServletRequest request) {
         final HttpSession session = request.getSession(false);
-        if (session == null || !Boolean.TRUE.equals(session.getAttribute(SIMULATED_ORDER_COMPLETION))) {
+        if (session == null
+                || !Boolean.TRUE.equals(session.getAttribute(SIMULATED_ORDER_COMPLETION))) {
             return false;
         }
+
         session.removeAttribute(SIMULATED_ORDER_COMPLETION);
         return true;
     }

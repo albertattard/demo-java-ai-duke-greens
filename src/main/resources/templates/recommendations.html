@@ -11,28 +11,75 @@
     <section aria-labelledby="recommendations-heading" class="welcome-panel">
         <p class="eyebrow">Meal planning</p>
         <h1 id="recommendations-heading">Recommendations</h1>
-        <section aria-labelledby="meal-ideas-heading" class="meal-ideas" th:if="${suggestions != null and !suggestions.isEmpty()}">
+        <section aria-labelledby="meal-ideas-heading" class="meal-ideas" th:if="${resultSets != null}">
             <h2 id="meal-ideas-heading">Meal ideas</h2>
             <p>These are meal ideas, not product, price, stock, basket, or order commitments.</p>
-            <article class="meal-suggestion" data-testid="meal-suggestion" th:each="suggestion : ${suggestions}">
-                <h3 th:text="${suggestion.name}">Meal name</h3>
-                <p th:text="${suggestion.preparationMinutes + ' minutes'}">30 minutes</p>
+            <section th:each="resultSet : ${resultSets}">
+            <p class="eyebrow" th:text="${resultSet.index == 0 ? 'Your meal ideas' : 'Refined meal ideas'}">Meal ideas</p>
+            <article class="meal-suggestion" data-testid="meal-suggestion" th:each="suggestion : ${resultSet.suggestions}">
+                <div class="meal-suggestion-title-row">
+                    <h3 th:classappend="${resultSet.dismissed.contains(suggestion.index) ? ' meal-suggestion-dismissed' : ''}" th:text="${suggestion.name}">Meal name</h3>
+                    <div class="meal-metadata" th:unless="${resultSet.dismissed.contains(suggestion.index)}">
+                        <p class="meal-preparation-time">
+                            <svg aria-hidden="true" class="meal-metadata-icon" focusable="false" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="8"></circle>
+                                <path d="M12 7v5l3 2"></path>
+                            </svg>
+                            <span class="visually-hidden">Preparation time: </span><span th:text="${suggestion.formattedPreparationTime}">30 min</span>
+                        </p>
+                        <p class="meal-serving-count">
+                            <svg aria-hidden="true" class="meal-metadata-icon" focusable="false" viewBox="0 0 24 24">
+                                <circle cx="12" cy="8" r="3"></circle>
+                                <path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"></path>
+                            </svg>
+                            <span class="visually-hidden">Serves </span><span th:text="${suggestion.servings}">1</span>
+                        </p>
+                        <p class="meal-estimated-cost"><span class="visually-hidden">Estimated standalone meal cost: </span><span th:text="${suggestion.formattedEstimatedCost}">0,00 €</span></p>
+                    </div>
+                    <form class="meal-restore-action" method="post" th:action="@{/recommendations/{conversationId}/meals/dismissal(conversationId=${conversationId})}" th:if="${resultSet.dismissed.contains(suggestion.index) and !resultSet.locked}">
+                        <input name="index" th:value="${suggestion.index}" type="hidden">
+                        <button class="restore-meal-link" type="submit">Restore meal</button>
+                    </form>
+                </div>
+                <div th:if="${!resultSet.dismissed.contains(suggestion.index)}">
                 <p th:text="${suggestion.explanation}">Why it fits</p>
-                <p th:text="${'Serves ' + suggestion.servings}">Serves 1</p>
-                <h4>Products needed</h4>
-                <ul>
-                    <li th:each="mappedProduct : ${suggestion.products}"
-                        th:text="${mappedProduct.packageCount + ' × ' + mappedProduct.name + ' (' + mappedProduct.packageDetail + '), ' + mappedProduct.formattedPrice}">1 × Product (500 g), 1,49 €</li>
-                </ul>
-                <p th:text="${'Estimated standalone meal cost: ' + suggestion.formattedEstimatedCost}">Estimated standalone meal cost: 0,00 €</p>
-                <form method="post" th:action="@{/recommendations/meals}">
-                    <input name="index" th:value="${suggestion.index}" type="hidden">
-                    <button th:if="${!selectedMealIndexes.contains(suggestion.index)}" type="submit">Add meal to basket</button>
-                    <p class="selected-meal" th:if="${selectedMealIndexes.contains(suggestion.index)}">Added to basket</p>
-                </form>
+                <h4>Products needed for this meal</h4>
+                <div class="meal-product-grid">
+                    <article class="meal-product-card" data-testid="meal-product-card" th:each="mappedProduct : ${suggestion.products}">
+                        <img class="meal-product-image" th:alt="${mappedProduct.name}" th:if="${mappedProduct.imageFilename}" th:src="@{/images/300/{filename}(filename=${mappedProduct.imageFilename})}">
+                        <div aria-label="Product image unavailable" class="meal-product-image-placeholder" role="img" th:unless="${mappedProduct.imageFilename}"></div>
+                        <div class="meal-product-details">
+                            <h5 th:text="${mappedProduct.name}">Product name</h5>
+                            <p th:text="${mappedProduct.packageCount + (mappedProduct.packageCount == 1 ? ' pack' : ' packs')}">1 pack</p>
+                            <p th:text="${mappedProduct.packageDetail}">500 g</p>
+                            <p class="meal-product-price" th:text="${mappedProduct.formattedPrice}">0,00 €</p>
+                        </div>
+                    </article>
+                </div>
+                <div class="meal-actions">
+                    <form method="post" th:action="@{/recommendations/{conversationId}/meals/dismissal(conversationId=${conversationId})}" th:if="${!resultSet.locked and !selectedMealKeys.contains(resultSet.index + ':' + suggestion.index)}">
+                        <input name="index" th:value="${suggestion.index}" type="hidden">
+                        <button class="secondary-action" type="submit">Not for me</button>
+                    </form>
+                    <form method="post" th:action="@{/recommendations/{conversationId}/meals(conversationId=${conversationId})}">
+                        <input name="index" th:value="${suggestion.index}" type="hidden">
+                        <input name="resultSet" th:value="${resultSet.index}" type="hidden">
+                        <button th:if="${!selectedMealKeys.contains(resultSet.index + ':' + suggestion.index)}" type="submit">Add meal to basket</button>
+                        <p class="selected-meal" th:if="${selectedMealKeys.contains(resultSet.index + ':' + suggestion.index)}">Added to basket</p>
+                    </form>
+                </div>
+                </div>
             </article>
+            </section>
+            <form method="post" th:action="@{/recommendations/{conversationId}/refine(conversationId=${conversationId})}" th:if="${canRefine}">
+                <label for="refinement">Refine these ideas</label>
+                <textarea id="refinement" maxlength="300" name="refinement"></textarea>
+                <button type="submit">Refine meal ideas</button>
+            </form>
+            <p class="meal-request-error" role="alert" th:if="${refinementError}" th:text="${refinementError}">Describe how you want to refine the meal ideas.</p>
+            <p th:unless="${canRefine}">Start a new meal request to continue refining.</p>
         </section>
-        <section aria-labelledby="basket-heading" class="basket" th:if="${suggestions != null and !suggestions.isEmpty()}">
+        <section aria-labelledby="basket-heading" class="basket" th:if="${resultSets != null}">
             <h2 id="basket-heading">Your basket</h2>
             <p aria-live="polite" class="basket-status" th:if="${basketFulfilsSelectedMeals}">Your basket contains enough products for the selected meals.</p>
             <p aria-live="polite" class="basket-status basket-warning" th:if="${!basketFulfilsSelectedMeals}">Your basket no longer contains enough products for all selected meals. You can still continue editing it.</p>
@@ -42,7 +89,7 @@
                     <strong th:text="${line.name}">Product</strong>
                     <span th:text="${' (' + line.packageDetail + ')'}"> (500 g)</span>
                     <span th:text="${' — ' + line.formattedLineTotal}"> — 0,00 €</span>
-                    <form method="post" th:action="@{/recommendations/basket/quantity}">
+                    <form method="post" th:action="@{/recommendations/{conversationId}/basket/quantity(conversationId=${conversationId})}">
                         <input name="slug" th:value="${line.slug}" type="hidden">
                         <label th:for="${'quantity-' + line.slug}">Packs</label>
                         <input min="0" name="quantity" th:id="${'quantity-' + line.slug}" th:value="${line.quantity}" type="number">
@@ -52,22 +99,27 @@
             </ul>
             <p class="basket-total" th:text="${'Basket total: ' + basketTotal}">Basket total: 0,00 €</p>
         </section>
-        <section class="basket-actions" th:if="${suggestions != null and !suggestions.isEmpty() and !resetConfirmationRequired}">
-            <form method="post" th:action="@{/recommendations/reset}">
+        <section class="basket-actions" th:if="${resultSets != null and !resetConfirmationRequired}">
+            <form method="post" th:action="@{/recommendations/{conversationId}/reset(conversationId=${conversationId})}">
                 <button class="secondary-action" type="submit">Start over</button>
             </form>
             <form method="get" th:action="@{/checkout}" th:if="${!basketLines.isEmpty()}">
                 <button type="submit">Proceed to checkout</button>
             </form>
         </section>
+        <section class="meal-request-error" role="alert" th:if="${refinementFailed}">
+            <h2>We could not refine meal ideas</h2>
+            <p>Your previous meal ideas are still available. Please try again.</p>
+            <form method="post" th:action="@{/recommendations/{conversationId}/retry(conversationId=${conversationId})}"><button type="submit">Try again</button></form>
+        </section>
         <section aria-labelledby="reset-confirmation-heading" class="information-message" role="alert" th:if="${resetConfirmationRequired}">
             <h2 id="reset-confirmation-heading">Start over?</h2>
             <p>Your selected meals and basket contents will be cleared.</p>
             <div class="reset-confirmation-actions">
-                <form method="get" th:action="@{/recommendations}">
+                <form method="get" th:action="@{/recommendations/{conversationId}(conversationId=${conversationId})}">
                     <button class="secondary-action" type="submit">Keep shopping</button>
                 </form>
-                <form method="post" th:action="@{/recommendations/reset}">
+                <form method="post" th:action="@{/recommendations/{conversationId}/reset(conversationId=${conversationId})}">
                     <input name="confirmed" type="hidden" value="true">
                     <button type="submit">Clear and start over</button>
                 </form>
@@ -76,10 +128,10 @@
         <section aria-labelledby="meal-request-error-heading" class="meal-request-error" role="alert" th:if="${failed}">
             <h2 id="meal-request-error-heading">We could not create meal ideas</h2>
             <p>Please try your request again or reset and start over.</p>
-            <form method="post" th:action="@{/recommendations/retry}">
+            <form method="post" th:action="@{/recommendations/{conversationId}/retry(conversationId=${conversationId})}">
                 <button type="submit">Try again</button>
             </form>
-            <form method="post" th:action="@{/recommendations/reset}">
+            <form method="post" th:action="@{/recommendations/{conversationId}/reset(conversationId=${conversationId})}">
                 <button type="submit">Reset</button>
             </form>
         </section>

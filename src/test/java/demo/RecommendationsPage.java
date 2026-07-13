@@ -25,8 +25,13 @@ public final class RecommendationsPage extends PageObject {
             final String estimatedCost) {
         final Locator suggestion = page.locator("[data-testid='meal-suggestion']")
                 .filter(new Locator.FilterOptions().setHasText(name));
-        assertThat(elementByTextAndExactName(suggestion, packageCount + " × " + name + " (" + packageDetail + "), " + price + "\u00A0€")).isVisible();
-        assertThat(elementByTextAndExactName(suggestion, "Estimated standalone meal cost: " + estimatedCost + "\u00A0€")).isVisible();
+        final Locator productCard = suggestion.locator("[data-testid='meal-product-card']")
+                .filter(new Locator.FilterOptions().setHasText(name));
+        assertThat(productCard).hasCount(1);
+        assertThat(elementByTextAndExactName(productCard, packageCount + (packageCount == 1 ? " pack" : " packs"))).isVisible();
+        assertThat(elementByTextAndExactName(productCard, packageDetail)).isVisible();
+        assertThat(elementByTextAndExactName(productCard, price + "\u00A0€")).isVisible();
+        assertThat(suggestion.locator(".meal-estimated-cost > span:not(.visually-hidden)")).hasText(estimatedCost + "\u00A0€");
         return this;
     }
 
@@ -50,6 +55,35 @@ public final class RecommendationsPage extends PageObject {
     public RecommendationsPage addMealToBasket(final int index) {
         final Locator suggestion = page.locator("[data-testid='meal-suggestion']").nth(index);
         elementByRoleAndExactName(suggestion, AriaRole.BUTTON, "Add meal to basket").click();
+        return this;
+    }
+
+    public RecommendationsPage showAlternativeMealIdeas() {
+        elementByRoleAndExactName(AriaRole.BUTTON, "Show more ideas").click();
+        return this;
+    }
+
+    public RecommendationsPage shouldShowMealIdeas(final String... names) {
+        assertThat(page.locator("[data-testid='meal-suggestion'] h3")).hasText(names);
+        return this;
+    }
+
+    RecommendationsPage shouldShowPreparationTime(final String mealName, final String preparationTime) {
+        final Locator suggestion = page.locator("[data-testid='meal-suggestion']")
+                .filter(new Locator.FilterOptions().setHasText(mealName));
+        assertThat(elementByTextAndExactName(suggestion, preparationTime)).isVisible();
+        return this;
+    }
+
+    RecommendationsPage shouldShowServingCount(final String mealName, final int servings) {
+        final Locator suggestion = page.locator("[data-testid='meal-suggestion']")
+                .filter(new Locator.FilterOptions().setHasText(mealName));
+        assertThat(elementByTextAndExactName(suggestion, String.valueOf(servings))).isVisible();
+        return this;
+    }
+
+    public RecommendationsPage shouldNotOfferAlternativeMealIdeas() {
+        assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Show more ideas")).isHidden();
         return this;
     }
 

@@ -9,6 +9,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.Optional;
+
 @Controller
 class WelcomePageController {
 
@@ -27,7 +29,7 @@ class WelcomePageController {
 
     @GetMapping("/")
     String showWelcomePage(@RequestParam(required = false) final String notice, final Model model) {
-        addProducts(model);
+        model.addAttribute("products", productCatalogue.allProducts().stream().map(ProductCard::of).toList());
         if (mealRequestSession.isMissingRequestNotice(notice)) {
             model.addAttribute("informationMessage", mealRequestSession.noActiveRequestMessage());
         }
@@ -39,16 +41,28 @@ class WelcomePageController {
             @RequestParam(required = false) final String mealRequest,
             final HttpServletRequest request,
             final RedirectAttributes redirectAttributes) {
-        final MealRequestResult result = mealSuggestionService.submit(mealRequest);
+        final Optional<String> validationError = MealSuggestionService.validationError(mealRequest);
+        if (validationError.isPresent()) {
+            redirectAttributes.addFlashAttribute("mealRequest", mealRequest);
+            redirectAttributes.addFlashAttribute("validationMessage", validationError.get());
+            return "redirect:/";
+        }
+
+        final String previousConversationId = mealRequestSession.conversationId(request);
+        if (previousConversationId != null) {
+            mealSuggestionService.clearConversation(previousConversationId);
+        }
+        final String conversationId = mealRequestSession.startConversation(request);
+        final MealRequestResult result = mealSuggestionService.submit(conversationId, mealRequest);
 
         return switch (result) {
             case final MappedMealSuggestions mappedSuggestions -> {
                 mealRequestSession.store(request, new SuccessfulMealRequest(mealRequest, mappedSuggestions));
-                yield "redirect:/recommendations";
+                yield mealRequestSession.recommendationsRedirect(conversationId);
             }
             case FailedRequest(final String failedRequest) -> {
                 mealRequestSession.store(request, new FailedMealRequest(failedRequest));
-                yield "redirect:/recommendations";
+                yield mealRequestSession.recommendationsRedirect(conversationId);
             }
             case OutOfScopeRequest(final String outOfScopeRequest) -> {
                 mealRequestSession.clear(request);
@@ -62,9 +76,5 @@ class WelcomePageController {
                 yield "redirect:/";
             }
         };
-    }
-
-    private void addProducts(final Model model) {
-        model.addAttribute("products", productCatalogue.allProducts().stream().map(ProductCard::of).toList());
     }
 }

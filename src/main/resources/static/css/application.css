@@ -167,6 +167,152 @@ button {
     padding-top: 1rem;
 }
 
+.meal-actions {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+}
+
+.meal-actions form {
+    margin: 0;
+}
+
+.meal-suggestion-title-row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+}
+
+.meal-suggestion-title-row h3,
+.meal-metadata p {
+    margin: 0;
+}
+
+.meal-suggestion-dismissed {
+    text-decoration: line-through;
+}
+
+.meal-restore-action {
+    margin: 0 0 0 auto;
+}
+
+.restore-meal-link {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    color: #285a3a;
+    margin: 0;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+}
+
+.restore-meal-link:hover {
+    background: transparent;
+    color: #163d25;
+}
+
+.meal-metadata,
+.meal-preparation-time,
+.meal-serving-count {
+    align-items: center;
+    display: inline-flex;
+}
+
+.meal-metadata {
+    color: #4b6e55;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-left: auto;
+}
+
+.meal-preparation-time,
+.meal-serving-count,
+.meal-estimated-cost {
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.meal-preparation-time,
+.meal-serving-count {
+    gap: 0.25rem;
+}
+
+.meal-metadata-icon {
+    fill: none;
+    height: 1rem;
+    stroke: currentcolor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+    width: 1rem;
+}
+
+.visually-hidden {
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+.meal-product-grid {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+}
+
+.meal-product-card {
+    align-items: center;
+    background: #f4f8f1;
+    border: 1px solid #cadfc4;
+    border-radius: 0.75rem;
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem;
+}
+
+.meal-product-image,
+.meal-product-image-placeholder {
+    aspect-ratio: 1;
+    border: 1px solid #cadfc4;
+    border-radius: 0.5rem;
+    flex: 0 0 4.5rem;
+    width: 4.5rem;
+}
+
+.meal-product-image {
+    background: #ffffff;
+    object-fit: contain;
+}
+
+.meal-product-image-placeholder {
+    background: linear-gradient(135deg, #ffffff, #cadfc4);
+}
+
+.meal-product-details {
+    min-width: 0;
+}
+
+.meal-product-details h5,
+.meal-product-details p {
+    margin: 0;
+}
+
+.meal-product-details p {
+    font-size: 0.875rem;
+}
+
+.meal-product-price {
+    font-size: 1rem !important;
+    font-weight: 700;
+}
+
 .basket {
     border-top: 1px solid #cadfc4;
     margin-top: 2rem;
@@ -239,5 +385,9 @@ button {
     .reset-confirmation-actions {
         align-items: stretch;
         flex-direction: column;
+    }
+
+    .meal-metadata {
+        margin-left: 0;
     }
 }

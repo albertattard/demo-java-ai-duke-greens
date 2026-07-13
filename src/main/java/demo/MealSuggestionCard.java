@@ -8,7 +8,7 @@ import static demo.Strings.formatPrice;
 public record MealSuggestionCard(
         int index,
         String name,
-        int preparationMinutes,
+        String formattedPreparationTime,
         String explanation,
         int servings,
         List<MealProductCard> products,
@@ -18,10 +18,23 @@ public record MealSuggestionCard(
         return new MealSuggestionCard(
                 index,
                 suggestion.name(),
-                suggestion.preparationMinutes(),
+                formatPreparationTime(suggestion.preparationMinutes()),
                 suggestion.explanation(),
                 suggestion.servings(),
                 suggestion.products().stream().map(MealProductCard::of).toList(),
                 formatPrice(suggestion.estimatedCost()));
+    }
+
+    // TODO: Consider moving this to the Strings class
+    static String formatPreparationTime(final int minutes) {
+        final int hours = minutes / 60;
+        final int remainingMinutes = minutes % 60;
+        if (hours == 0) {
+            return minutes + " min";
+        }
+        if (remainingMinutes == 0) {
+            return hours + " hr";
+        }
+        return hours + " hr " + remainingMinutes + " min";
     }
 }

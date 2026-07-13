@@ -32,7 +32,7 @@
             <p class="basket-total" th:text="${'Basket total: ' + basketTotal}">Basket total: 0,00 €</p>
         </section>
         <div class="checkout-actions">
-            <form method="get" th:action="@{/recommendations}">
+            <form method="get" th:action="@{/recommendations/{conversationId}(conversationId=${conversationId})}">
                 <button class="secondary-action" type="submit">Back to basket</button>
             </form>
             <form method="post" th:action="@{/checkout/complete}" th:if="${basketFulfilsSelectedMeals}">

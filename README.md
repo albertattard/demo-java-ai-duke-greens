@@ -101,4 +101,10 @@ With the local API-key file configured, run the opt-in integration check:
 ./mvnw verify --activate-profiles openai-integration
 ```
 
+To run only the conversational-refinement test:
+
+```shell
+./mvnw verify --activate-profiles openai-integration -Dit.test=OpenAiMealSuggestionIT#refineTheRecommendation
+```
+
 It makes one request to OpenAI and verifies that the configured model returns one complete structured meal suggestion. It is excluded from normal verification because it requires credentials and network access and incurs API cost.

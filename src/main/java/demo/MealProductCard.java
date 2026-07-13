@@ -2,14 +2,13 @@ package demo;
 
 import static demo.Strings.formatPrice;
 
-/**
- * Template-facing representation of a catalogue product required by a meal.
- */
+/// Template-facing representation of a catalogue product required by a meal.
 public record MealProductCard(
         int packageCount,
         String name,
         String packageDetail,
-        String formattedPrice) {
+        String formattedPrice,
+        String imageFilename) {
 
     static MealProductCard of(final MappedProduct mappedProduct) {
         final Product product = mappedProduct.product();
@@ -17,6 +16,7 @@ public record MealProductCard(
                 mappedProduct.packageCount(),
                 product.name(),
                 product.packageQuantity() + " " + product.packageUnit().symbol(),
-                formatPrice(product.price()));
+                formatPrice(product.price()),
+                product.imageFilename());
     }
 }

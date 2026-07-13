@@ -195,7 +195,7 @@ class WelcomePageIT {
     }
 
     @Test
-    void consolidatesSelectedMealsIntoAnEditableBasketWithoutLosingSelection() throws Exception {
+    void consolidatesSelectedMealsOnTheDedicatedBasketPage() throws Exception {
         final String request = "Suggest two pasta dinners";
         when(mealSuggestionGenerator.suggest(request(request))).thenReturn(ModelMealRequestResponse.inScope(new ModelMealSuggestions(List.of(
                 new ModelMealSuggestion("First pasta", 20, "A complete dinner.", 1,
@@ -209,19 +209,14 @@ class WelcomePageIT {
                 .addMealToBasket(1)
                 .shouldShowSelectedMeal(0)
                 .shouldShowSelectedMeal(1)
+                .openBasket()
+                .shouldShowMealSelection()
                 .shouldShowBasketLine("Wholewheat spaghetti", 1, "1,49")
-                .changeBasketQuantity("Wholewheat spaghetti", 0)
-                .shouldShowBasketCoverageWarning()
-                .shouldShowSelectedMeal(0)
-                .startOver()
-                .shouldRequireStartOverConfirmation()
-                .keepShopping()
-                .shouldShowSelectedMeal(0)
-                .shouldShowBasketCoverageWarning()
-                .startOver()
-                .shouldRequireStartOverConfirmation()
-                .confirmStartOver()
-                .shouldShowInitialRequestState());
+                .clearMeal("First pasta")
+                .shouldShowBasketLine("Wholewheat spaghetti", 1, "1,49")
+                .clearMeal("Second pasta")
+                .shouldShowEmptyBasket()
+                .backToRecommendations());
     }
 
     @Test
@@ -234,13 +229,12 @@ class WelcomePageIT {
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .submitMealRequest(request)
                 .addMealToBasket(0)
-                .shouldPlaceBasketActionsOnOneRow()
+                .openBasket()
                 .proceedToCheckout()
                 .shouldShowCheckout("1,49")
                 .backToBasket()
-                .shouldShowSelectedMeal(0)
-                .changeBasketQuantity("Wholewheat spaghetti", 0)
-                .shouldShowBasketCoverageWarning());
+                .clearMeal("Pasta")
+                .shouldShowEmptyBasket());
     }
 
     @Test

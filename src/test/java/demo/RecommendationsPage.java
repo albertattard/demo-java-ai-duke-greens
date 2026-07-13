@@ -89,8 +89,9 @@ public final class RecommendationsPage extends PageObject {
 
     public RecommendationsPage shouldShowSelectedMeal(final int index) {
         final Locator suggestion = page.locator("[data-testid='meal-suggestion']").nth(index);
-        assertThat(elementByTextAndExactName(suggestion, "Added to basket")).isVisible();
+        assertThat(elementByRoleAndExactName(suggestion, AriaRole.LINK, "View basket")).isVisible();
         assertThat(elementByRoleAndExactName(suggestion, AriaRole.BUTTON, "Add meal to basket")).isHidden();
+        assertThat(suggestion.locator(".meal-product-grid")).hasCount(0);
         return this;
     }
 
@@ -121,9 +122,15 @@ public final class RecommendationsPage extends PageObject {
         return new CheckoutPage(page);
     }
 
+    public BasketPage openBasket() {
+        elementByRoleAndExactName(AriaRole.LINK, "View basket").first().click();
+        return new BasketPage(page);
+    }
+
     public RecommendationsPage shouldPlaceBasketActionsOnOneRow() {
         assertThat(page.locator(".basket-actions")).hasCSS("display", "flex");
         assertThat(page.locator(".basket-actions")).hasCSS("justify-content", "space-between");
+        assertThat(page.locator(".basket-actions")).hasCSS("margin-top", "32px");
         assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Start over")).hasCSS("background-color", "rgb(255, 255, 255)");
         return this;
     }

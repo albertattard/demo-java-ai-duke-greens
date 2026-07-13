@@ -33,6 +33,7 @@ class RecommendationsPageController {
     String showConversationResults(
             @PathVariable final String conversationId,
             @RequestParam(required = false) final Boolean resetConfirmation,
+            @RequestParam(required = false) final String notice,
             final HttpServletRequest request,
             final HttpServletResponse response,
             final Model model) {
@@ -48,6 +49,7 @@ class RecommendationsPageController {
                 addSuccessfulRequest(model, successfulRequest);
                 model.addAttribute("conversationId", conversationId);
                 model.addAttribute("resetConfirmationRequired", successfulRequest.needsResetConfirmation() && Boolean.TRUE.equals(resetConfirmation));
+                model.addAttribute("basketUnavailable", mealRequestSession.isBasketUnavailableNotice(notice));
                 yield "recommendations";
             }
             case FailedMealRequest failedRequest -> {
@@ -199,28 +201,6 @@ class RecommendationsPageController {
             mealRequestSession.store(request, new FailedRefinementRequest(successfulRequest));
         }
         return mealRequestSession.recommendationsRedirect(request);
-    }
-
-    @PostMapping("/recommendations/{conversationId}/basket/quantity")
-    String changeBasketQuantity(
-            @PathVariable final String conversationId,
-            @RequestParam final String slug,
-            @RequestParam final int quantity,
-            final HttpServletRequest request) {
-
-        if (!mealRequestSession.hasConversation(request, conversationId)) {
-            return mealRequestSession.initialRequestRedirect();
-        }
-
-        final MealRequestSessionState state = mealRequestSession.state(request);
-
-        if (state instanceof final SuccessfulMealRequest successfulRequest
-                && successfulRequest.basket().quantities().containsKey(slug)) {
-            mealRequestSession.store(request, successfulRequest.changeBasketQuantity(slug, quantity));
-            return mealRequestSession.recommendationsRedirect(request);
-        }
-
-        return mealRequestSession.initialRequestRedirect();
     }
 
     private String storeResultAndRedirect(

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Basket | Duke Greens</title>
+    <link rel="stylesheet" th:href="@{/css/application.css}">
+</head>
+<body>
+<main>
+    <section class="welcome-panel">
+        <h1>Your basket</h1>
+        <p>Select the meal ideas you want to include. Products and prices are calculated from those choices.</p>
+        <form class="meal-selection-form" method="post" th:action="@{/basket/{conversationId}(conversationId=${conversationId})}">
+            <fieldset class="meal-selection">
+                <legend>Meals to include</legend>
+                <label class="meal-selection-option" th:each="meal : ${mealChoices}">
+                    <input name="meal" th:checked="${meal.selected}" th:value="${meal.key}" type="checkbox">
+                    <span th:text="${meal.name}">Meal</span>
+                </label>
+            </fieldset>
+            <button type="submit">Update basket</button>
+        </form>
+        <section class="basket" th:if="${basketLines.isEmpty()}">
+            <p>Your basket is empty. Select meals here or add them from recommendations.</p>
+        </section>
+        <section class="basket" th:unless="${basketLines.isEmpty()}">
+            <table class="basket-lines">
+                <thead>
+                    <tr><th scope="col">Product</th><th scope="col">Quantity</th><th scope="col">Total</th></tr>
+                </thead>
+                <tbody>
+                    <tr data-testid="basket-line" th:each="line : ${basketLines}">
+                        <th scope="row" th:text="${line.name}">Product</th>
+                        <td th:text="${line.quantity + ' pack' + (line.quantity == 1 ? '' : 's')}">1 pack</td>
+                        <td th:text="${line.formattedLineTotal}">0,00 €</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr><td colspan="2"></td><td th:text="${basketTotal}">0,00 €</td></tr>
+                </tfoot>
+            </table>
+        </section>
+        <div class="basket-page-actions">
+            <form method="get" th:action="@{/recommendations/{conversationId}(conversationId=${conversationId})}"><button class="secondary-action">Back to recommendations</button></form>
+            <form method="get" th:action="@{/checkout}" th:if="${!basketLines.isEmpty()}"><button>Proceed to checkout</button></form>
+        </div>
+    </section>
+</main>
+</body>
+</html>

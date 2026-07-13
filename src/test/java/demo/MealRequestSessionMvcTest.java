@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import module java.base;
 
-@WebMvcTest({WelcomePageController.class, RecommendationsPageController.class, CheckoutController.class})
+@WebMvcTest({WelcomePageController.class, RecommendationsPageController.class, BasketPageController.class, CheckoutController.class})
 @Import({SecurityConfiguration.class, MealRequestSession.class, BasketPresentation.class})
 @ImportAutoConfiguration({SecurityAutoConfiguration.class, ServletWebSecurityAutoConfiguration.class, SecurityFilterAutoConfiguration.class})
 class MealRequestSessionMvcTest {
@@ -432,6 +432,62 @@ class MealRequestSessionMvcTest {
                 .param("index", "0"))
                 .andExpect(redirectedUrl("/?notice=no-active-meal-request"))
                 .andExpect(request().sessionAttribute("mealRequestState", request));
+
+        verifyNoMoreInteractions(mealSuggestionService);
+    }
+
+    @Test
+    void rejectsMalformedAndStaleBasketPostsWithoutChangingTheActiveConversation() throws Exception {
+        final String activeConversationId = "active-conversation";
+        final SuccessfulMealRequest activeRequest = new SuccessfulMealRequest("Suggest a vegetarian dinner",
+                new MappedMealSuggestions(List.of(new MappedMealSuggestion("Lemon lentil pasta", 25, "A quick dinner.", 1,
+                        List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69)))));
+        final MockHttpSession session = new MockHttpSession();
+        session.setAttribute("mealConversationId", activeConversationId);
+        session.setAttribute("mealRequestState", activeRequest);
+
+        mvc.perform(MockMvcRequestBuilders.post("/basket/not-a-uuid")
+                .with(csrf())
+                .session(session)
+                .param("meal", "0:0"))
+                .andExpect(redirectedUrl("/recommendations/" + activeConversationId + "?notice=basket-unavailable"))
+                .andExpect(request().sessionAttribute("mealRequestState", activeRequest));
+        mvc.perform(MockMvcRequestBuilders.post("/basket/stale-conversation")
+                .with(csrf())
+                .session(session)
+                .param("meal", "0:0"))
+                .andExpect(redirectedUrl("/recommendations/" + activeConversationId + "?notice=basket-unavailable"))
+                .andExpect(request().sessionAttribute("mealRequestState", activeRequest));
+
+        verifyNoMoreInteractions(mealSuggestionService);
+    }
+
+    @Test
+    void rejectsAnotherSessionsBasketPostWithoutChangingThatSessionsState() throws Exception {
+        final String otherConversationId = "other-conversation";
+        final SuccessfulMealRequest otherRequest = new SuccessfulMealRequest("Suggest a vegetarian dinner",
+                new MappedMealSuggestions(List.of(new MappedMealSuggestion("Lemon lentil pasta", 25, "A quick dinner.", 1,
+                        List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69)))));
+        final MockHttpSession otherSession = new MockHttpSession();
+        otherSession.setAttribute("mealConversationId", otherConversationId);
+        otherSession.setAttribute("mealRequestState", otherRequest);
+
+        mvc.perform(MockMvcRequestBuilders.post("/basket/owners-conversation")
+                .with(csrf())
+                .session(otherSession)
+                .param("meal", "0:0"))
+                .andExpect(redirectedUrl("/recommendations/" + otherConversationId + "?notice=basket-unavailable"))
+                .andExpect(request().sessionAttribute("mealRequestState", otherRequest));
+
+        verifyNoMoreInteractions(mealSuggestionService);
+    }
+
+    @Test
+    void rejectsBasketPostsWithoutAnActiveConversation() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.post("/basket/stale-conversation")
+                .with(csrf())
+                .param("meal", "0:0"))
+                .andExpect(redirectedUrl("/?notice=basket-unavailable"));
 
         verifyNoMoreInteractions(mealSuggestionService);
     }

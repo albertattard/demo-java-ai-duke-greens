@@ -1,6 +1,7 @@
 package demo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ class MockMealSuggestionGeneratorTest {
     @Autowired
     private ProductCatalogue productCatalogue;
 
+    @Autowired
+    private MealSuggestionMapper mapper;
+
     @Test
     void suppliesCatalogueValidRecommendationsForArbitraryRequestsWithoutOpenAi() {
         final List<Product> catalogue = productCatalogue.allProducts();
@@ -32,5 +36,8 @@ class MockMealSuggestionGeneratorTest {
                 .flatMap(ModelMealSuggestion::ingredients)
                 .extracting(ModelIngredient::productSlug)
                 .allMatch(slug -> catalogue.stream().map(Product::slug).anyMatch(slug::equals));
+        assertThatCode(() -> MockMealSuggestionGenerator.RECOMMENDATIONS.forEach(recommendation ->
+                mapper.map(new ModelMealSuggestions(List.of(recommendation)), catalogue)))
+                .doesNotThrowAnyException();
     }
 }

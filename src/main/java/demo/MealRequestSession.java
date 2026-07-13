@@ -15,6 +15,8 @@ class MealRequestSession {
     private static final String SIMULATED_ORDER_COMPLETION = "simulatedOrderCompletion";
     private static final String NO_ACTIVE_MEAL_REQUEST = "There is no active meal request to display.";
     private static final String NO_ACTIVE_MEAL_REQUEST_NOTICE = "no-active-meal-request";
+    private static final String BASKET_UNAVAILABLE_NOTICE = "basket-unavailable";
+    private static final String BASKET_UNAVAILABLE = "This basket is no longer available.";
 
     void store(final HttpServletRequest request, final MealRequestSessionState state) {
         request.getSession()
@@ -48,15 +50,15 @@ class MealRequestSession {
                 && conversationId.equals(conversationId(request));
     }
 
-    String recommendationsRedirect(final String conversationId) {
-        return "redirect:/recommendations/" + conversationId;
-    }
-
     String recommendationsRedirect(final HttpServletRequest request) {
         final String conversationId = conversationId(request);
         return conversationId == null
                 ? initialRequestRedirect()
                 : recommendationsRedirect(conversationId);
+    }
+
+    String recommendationsRedirect(final String conversationId) {
+        return "redirect:/recommendations/" + conversationId;
     }
 
     void markSimulatedOrderCompleted(final HttpServletRequest request) {
@@ -90,11 +92,26 @@ class MealRequestSession {
         return "redirect:/?notice=" + NO_ACTIVE_MEAL_REQUEST_NOTICE;
     }
 
+    String unavailableBasketRedirect(final HttpServletRequest request) {
+        final String active = conversationId(request);
+        return (active == null ? "redirect:/" : recommendationsRedirect(active))
+                + "?notice=" + BASKET_UNAVAILABLE_NOTICE;
+    }
+
     boolean isMissingRequestNotice(final String notice) {
-        return NO_ACTIVE_MEAL_REQUEST_NOTICE.equals(notice);
+        return NO_ACTIVE_MEAL_REQUEST_NOTICE.equals(notice)
+                || BASKET_UNAVAILABLE_NOTICE.equals(notice);
     }
 
     String noActiveRequestMessage() {
         return NO_ACTIVE_MEAL_REQUEST;
+    }
+
+    boolean isBasketUnavailableNotice(final String notice) {
+        return BASKET_UNAVAILABLE_NOTICE.equals(notice);
+    }
+
+    String basketUnavailableMessage() {
+        return BASKET_UNAVAILABLE;
     }
 }

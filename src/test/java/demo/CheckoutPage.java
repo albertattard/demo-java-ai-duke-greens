@@ -12,13 +12,13 @@ public final class CheckoutPage extends PageObject {
 
     public CheckoutPage shouldShowCheckout(final String total) {
         assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Checkout")).isVisible();
-        assertThat(elementByTextAndExactName("Basket total: " + total + "\u00a0€")).isVisible();
+        assertThat(page.locator(".basket-lines tfoot td:last-child")).hasText(total + "\u00a0€");
         return this;
     }
 
-    public RecommendationsPage backToBasket() {
+    public BasketPage backToBasket() {
         elementByRoleAndExactName(AriaRole.BUTTON, "Back to basket").click();
-        return new RecommendationsPage(page);
+        return new BasketPage(page);
     }
 
     public ThankYouPage completeSimulatedOrder() {

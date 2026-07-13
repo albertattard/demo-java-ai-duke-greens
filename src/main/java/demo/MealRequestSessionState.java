@@ -2,13 +2,12 @@ package demo;
 
 import static java.util.Objects.requireNonNull;
 
-import static demo.Numbers.requireNonNegative;
-import static demo.Product.requireValidSlug;
 import static demo.Strings.requireNonBlank;
 
 import module java.base;
 
-sealed interface MealRequestSessionState permits SuccessfulMealRequest, FailedMealRequest, FailedRefinementRequest { }
+sealed interface MealRequestSessionState permits SuccessfulMealRequest, FailedMealRequest, FailedRefinementRequest {
+}
 
 // TODO: This class seems to be more complicated than needed. Consider revising
 // it.
@@ -60,7 +59,7 @@ record SuccessfulMealRequest(
         }
         final Set<String> selected = new HashSet<>(selectedMealKeys);
         selected.add(key);
-        return copy(resultSets, selected, basket.addRequirements(List.of(meal(resultSetIndex, mealIndex))), pendingRefinement);
+        return withSelectedMeals(selected);
     }
 
     SuccessfulMealRequest toggleDismissal(final int mealIndex) {
@@ -85,10 +84,11 @@ record SuccessfulMealRequest(
         return copy(updated, selectedMealKeys, basket, null);
     }
 
-    SuccessfulMealRequest changeBasketQuantity(final String slug, final int quantity) {
-        requireValidSlug(slug);
-        requireNonNegative(quantity, "The quantity must be 0 to remove from basket or greater");
-        return copy(resultSets, selectedMealKeys, basket.changeQuantity(slug, quantity), pendingRefinement);
+    SuccessfulMealRequest selectMeals(final Set<String> requestedKeys) {
+        final Set<String> selected = requestedKeys.stream()
+                .filter(this::selectableMeal)
+                .collect(Collectors.toUnmodifiableSet());
+        return withSelectedMeals(selected);
     }
 
     boolean canRefine() {
@@ -122,6 +122,26 @@ record SuccessfulMealRequest(
 
     private SuccessfulMealRequest copy(final List<MealResultSet> sets, final Set<String> selected, final Basket newBasket, final String pending) {
         return new SuccessfulMealRequest(request, sets, selected, newBasket, pending);
+    }
+
+    private SuccessfulMealRequest withSelectedMeals(final Set<String> selected) {
+        final List<MappedMealSuggestion> meals = selected.stream().map(this::mealForKey).toList();
+        return copy(resultSets, selected, Basket.empty().addRequirements(meals), pendingRefinement);
+    }
+
+    private boolean selectableMeal(final String candidate) {
+        try {
+            final String[] parts = candidate.split(":");
+            if (parts.length != 2) {
+                return false;
+            }
+            final int set = Integer.parseInt(parts[0]);
+            final int meal = Integer.parseInt(parts[1]);
+            return validMeal(set, meal)
+                    && !resultSets.get(set).dismissedMealIndexes().contains(meal);
+        } catch (final RuntimeException _) {
+            return false;
+        }
     }
 
     private boolean validMeal(final int set, final int index) {

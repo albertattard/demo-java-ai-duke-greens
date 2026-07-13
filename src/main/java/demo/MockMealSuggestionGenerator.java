@@ -13,7 +13,7 @@ import module java.base;
 @Profile("mock")
 final class MockMealSuggestionGenerator implements MealSuggestionGenerator {
 
-    private static final List<ModelMealSuggestion> RECOMMENDATIONS = List.of(
+    static final List<ModelMealSuggestion> RECOMMENDATIONS = List.of(
             new ModelMealSuggestion("Tomato chickpea pasta", 25, "A quick cupboard-friendly pasta dinner.", 1, List.of(
                     new ModelIngredient("wholewheat-spaghetti-500g", "200", "g"),
                     new ModelIngredient("chickpeas-400g", "200", "g"),
@@ -40,7 +40,7 @@ final class MockMealSuggestionGenerator implements MealSuggestionGenerator {
                     new ModelIngredient("lemons-300g", "50", "g"))),
             new ModelMealSuggestion("Tomato and spinach penne", 25, "An easy pasta dinner with a rich tomato sauce.", 1, List.of(
                     new ModelIngredient("wholewheat-penne-500g", "200", "g"),
-                    new ModelIngredient("passata-700ml", "200", "g"),
+                    new ModelIngredient("passata-700ml", "200", "ml"),
                     new ModelIngredient("baby-spinach-200g", "100", "g"))),
             new ModelMealSuggestion("Sweet potato chickpea curry", 35, "A comforting curry with coconut milk and greens.", 1, List.of(
                     new ModelIngredient("sweet-potatoes-1kg", "300", "g"),

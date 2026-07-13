@@ -12,27 +12,26 @@
         <p class="eyebrow">Basket review</p>
         <h1 id="checkout-heading">Checkout</h1>
         <p>Review your basket before completing a simulated order. No charge will be made.</p>
-        <section aria-live="polite" class="information-message" role="status" th:if="${basketFulfilsSelectedMeals}">
-            <h2>Selected meals covered</h2>
-            <p>Your basket contains enough products for the selected meals.</p>
-        </section>
-        <section aria-live="polite" class="information-message checkout-warning" role="status" th:if="${!basketFulfilsSelectedMeals}">
-            <h2>Selected meals are not fully covered</h2>
-            <p>Your basket no longer contains enough products for all selected meals. Return to the basket to edit it; checkout cannot be completed.</p>
-        </section>
         <section aria-labelledby="checkout-basket-heading" class="basket">
             <h2 id="checkout-basket-heading">Your basket</h2>
-            <ul>
-                <li data-testid="checkout-basket-line" th:each="line : ${basketLines}">
-                    <strong th:text="${line.name}">Product</strong>
-                    <span th:text="${' (' + line.packageDetail + ')'}"> (500 g)</span>
-                    <span th:text="${' — ' + line.quantity + ' pack' + (line.quantity == 1 ? '' : 's') + ' — ' + line.formattedLineTotal}"> — 1 pack — 0,00 €</span>
-                </li>
-            </ul>
-            <p class="basket-total" th:text="${'Basket total: ' + basketTotal}">Basket total: 0,00 €</p>
+            <table class="basket-lines">
+                <thead>
+                    <tr><th scope="col">Product</th><th scope="col">Quantity</th><th scope="col">Total</th></tr>
+                </thead>
+                <tbody>
+                    <tr data-testid="checkout-basket-line" th:each="line : ${basketLines}">
+                        <th scope="row" th:text="${line.name}">Product</th>
+                        <td th:text="${line.quantity + ' pack' + (line.quantity == 1 ? '' : 's')}">1 pack</td>
+                        <td th:text="${line.formattedLineTotal}">0,00 €</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr><td colspan="2"></td><td th:text="${basketTotal}">0,00 €</td></tr>
+                </tfoot>
+            </table>
         </section>
         <div class="checkout-actions">
-            <form method="get" th:action="@{/recommendations/{conversationId}(conversationId=${conversationId})}">
+            <form method="get" th:action="@{/basket/{conversationId}(conversationId=${conversationId})}">
                 <button class="secondary-action" type="submit">Back to basket</button>
             </form>
             <form method="post" th:action="@{/checkout/complete}" th:if="${basketFulfilsSelectedMeals}">

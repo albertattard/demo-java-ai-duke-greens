@@ -18,6 +18,10 @@ The following visitor-facing commitments remain from the original MVP definition
 
 Decide whether the editable basket remains the product direction or whether to restore the original review-only basket. The current change brief deliberately retains basket editing, while allowing simulated completion only when the basket fulfils the selected meals. Restoring review-only behaviour must be an explicit product decision rather than an accidental consequence of completing the original specification.
 
+### Duplicate refinement result sets
+
+Harden basket meal-choice keys against two structurally identical, locked refinement result sets. The current basket-page choice construction derives a result-set index by value lookup, so an identical later result set can receive the earlier set’s meal key and cannot be selected independently. Use the actual result-set position when constructing the keys, and add coverage for repeated identical refinement output. This is distinct from merely showing the same meal in two otherwise different result sets.
+
 ### Already delivered MVP behaviour to retain
 
 Do not regress the existing request and recovery contract while implementing the remaining work: accept requests from 1 through 300 characters; validate complete catalogue-mappable candidates; present one through seven suggestions; show no partial suggestions or provider details; prevent automatic retries; make “Try again” an explicit resubmission; retain active state only in the browser session; and use POST/Redirect/GET so refreshing a result or recovery page does not repeat an AI request.

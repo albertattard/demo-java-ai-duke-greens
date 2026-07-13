@@ -178,6 +178,26 @@ button {
     margin: 0;
 }
 
+.meal-actions form:last-child {
+    margin-left: auto;
+}
+
+.refinement-form {
+    align-items: flex-end;
+    display: flex;
+    flex-direction: column;
+}
+
+.refinement-form label,
+.refinement-form textarea {
+    align-self: stretch;
+}
+
+.thank-you-action {
+    display: flex;
+    justify-content: flex-end;
+}
+
 .meal-suggestion-title-row {
     align-items: center;
     display: flex;
@@ -338,6 +358,110 @@ button {
     padding: 0.4rem;
 }
 
+.basket-lines {
+    border-collapse: collapse;
+    inline-size: 100%;
+}
+
+.basket-lines th,
+.basket-lines td {
+    border-bottom: 1px solid #cadfc4;
+    padding: 0.75rem 0.5rem;
+    text-align: left;
+}
+
+.basket-lines th:first-child,
+.basket-lines td:first-child {
+    padding-left: 0;
+}
+
+.basket-lines th:last-child,
+.basket-lines td:last-child {
+    padding-right: 0;
+    text-align: right;
+}
+
+.basket-lines thead th {
+    color: #4b6e55;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+}
+
+.basket-lines tbody th {
+    font-weight: 700;
+}
+
+.basket-lines tfoot td {
+    border-bottom: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    padding-top: 1rem;
+}
+
+.basket-page-actions {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-top: 2rem;
+}
+
+.basket-page-actions button {
+    margin-top: 0;
+}
+
+.meal-selection {
+    border: 1px solid #cadfc4;
+    border-radius: 0.75rem;
+    margin: 1.5rem 0 0;
+    padding: 0.75rem;
+}
+
+.meal-selection-form {
+    align-items: flex-end;
+    display: flex;
+    flex-direction: column;
+}
+
+.meal-selection-form .meal-selection {
+    box-sizing: border-box;
+    inline-size: 100%;
+}
+
+.meal-selection legend {
+    color: #4b6e55;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 0 0.25rem;
+    text-transform: uppercase;
+}
+
+.meal-selection-option {
+    align-items: center;
+    background: #f4f8f1;
+    border: 1px solid #cadfc4;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    font-weight: 700;
+    gap: 0.75rem;
+    margin: 0.5rem 0 0;
+    padding: 0.875rem 1rem;
+}
+
+.meal-selection-option:first-of-type {
+    margin-top: 0;
+}
+
+.meal-selection-option input {
+    accent-color: #285a3a;
+    block-size: 1.125rem;
+    flex: 0 0 auto;
+    inline-size: 1.125rem;
+    margin: 0;
+}
+
 .basket-warning {
     color: #8a1f11;
     font-weight: 700;
@@ -349,8 +473,13 @@ button {
 }
 
 .basket-total,
-.selected-meal {
+.meal-basket-link {
     font-weight: 700;
+}
+
+.meal-basket-link {
+    color: #285a3a;
+    margin-left: auto;
 }
 
 .checkout-actions {
@@ -370,6 +499,7 @@ button {
     display: flex;
     gap: 1rem;
     justify-content: space-between;
+    margin-top: 2rem;
 }
 
 .reset-confirmation-actions {
@@ -382,6 +512,7 @@ button {
 
     .checkout-actions,
     .basket-actions,
+    .basket-page-actions,
     .reset-confirmation-actions {
         align-items: stretch;
         flex-direction: column;

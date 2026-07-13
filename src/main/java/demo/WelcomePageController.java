@@ -9,7 +9,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import java.util.Optional;
+import module java.base;
 
 @Controller
 class WelcomePageController {
@@ -30,7 +30,9 @@ class WelcomePageController {
     @GetMapping("/")
     String showWelcomePage(@RequestParam(required = false) final String notice, final Model model) {
         model.addAttribute("products", productCatalogue.allProducts().stream().map(ProductCard::of).toList());
-        if (mealRequestSession.isMissingRequestNotice(notice)) {
+        if (mealRequestSession.isBasketUnavailableNotice(notice)) {
+            model.addAttribute("informationMessage", mealRequestSession.basketUnavailableMessage());
+        } else if (mealRequestSession.isMissingRequestNotice(notice)) {
             model.addAttribute("informationMessage", mealRequestSession.noActiveRequestMessage());
         }
         return "welcome";

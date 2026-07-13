@@ -16,9 +16,9 @@ Let a visitor choose which recommended meals are included in a dedicated basket 
 - This slice has no product-level basket editing or standalone product additions. A visitor changes the basket only by changing meal selection.
 - Use one form with an explicit “Update basket” action for the meal checkboxes; do not add JavaScript-driven immediate updates. The action uses POST/Redirect/GET and must not call the model.
 - Keep the recommendations page’s refinement workflow and selected-meal preference context intact. Updating the basket changes the selected-meal positive-preference context used by later refinements.
-- When a visitor adds a meal from recommendations, replace the meal’s add button with a compact, accessible “Added to basket” state and a clear link to the basket page. Do not use an icon as the only indication or action.
+- When a visitor adds a meal from recommendations, collapse its details and replace its add button with a compact, accessible “View basket” link. Do not use an icon as the only indication or action.
 - Removing a meal from the basket page makes its recommendation available to add again. Re-selecting it derives its required products again.
-- Replace the recommendations page’s inline basket with a compact, accessible link to the basket page that shows the number of derived product lines and basket total. It remains available while recommendations are displayed.
+- Do not show a basket summary on the recommendations page. Selected meal cards link to the basket page instead.
 - Show a checkout action on both the recommendations and basket pages when the derived basket is non-empty. Neither page offers checkout when it is empty.
 - The checkout page provides a way back to the active basket page, and the basket page provides a way back to active recommendations.
 - An empty basket page explains that meals can be selected there or added from recommendations and must not offer checkout.
@@ -27,14 +27,14 @@ Let a visitor choose which recommended meals are included in a dedicated basket 
 ## Done when
 
 - A visitor can open a dedicated, session-bound basket page from recommendations and see every selectable recommended meal with its current inclusion state.
-- Selecting or clearing meal checkboxes and submitting “Update basket” updates the selected meals, derived product lines, quantities, total, and recommendation-page basket summary without calling the model.
+- Selecting or clearing meal checkboxes and submitting “Update basket” updates the selected meals, derived product lines, quantities, and total without calling the model.
 - Derived products correctly combine shared ingredient requirements across selected meals before rounding to whole packs.
 - A visitor can remove a selected meal on the basket page and add it again from recommendations; re-selecting it correctly restores its derived product requirements.
 - Meals marked “Not for me” cannot be selected from the basket page.
-- The recommendations page no longer renders editable basket contents, but shows an accessible basket summary link.
+- The recommendations page no longer renders editable basket contents or a basket summary; selected meal cards link accessibly to the basket page.
 - A visitor can proceed to checkout from either recommendations or the basket page when the derived basket is non-empty.
 - A visitor can return from checkout to the active basket, then return to the active recommendations without losing the current meal selection.
-- Adding a meal collapses its recommendation to an “Added to basket” state with a basket link, without calling the model or ending refinement.
+- Adding a meal collapses its recommendation to a “View basket” link, without calling the model or ending refinement.
 - The selected-meal preference context used for a subsequent refinement reflects basket-page selections.
 - A basket POST with a valid active conversation uses POST/Redirect/GET to the active basket or recommendations page. A malformed, stale, or cross-session conversation UUID changes no state and redirects to the active recommendations page, or to the start page when no active conversation exists, with the accessible message “This basket is no longer available.”
 - An empty basket has no checkout action and explains that meals can be selected there or added from recommendations.
@@ -46,3 +46,5 @@ Let a visitor choose which recommended meals are included in a dedicated basket 
 - Run `./mvnw verify` and `git diff --check`.
 
 Baseline verification: `./mvnw verify` passed before this slice began.
+
+Implementation verification: `./mvnw verify` passed after the dedicated basket-page workflow and its browser coverage were added.

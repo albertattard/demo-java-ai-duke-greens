@@ -53,10 +53,10 @@ class BasketTest {
         final SuccessfulMealRequest request = new SuccessfulMealRequest("Suggest dinner", new MappedMealSuggestions(List.of(meal)));
 
         final SuccessfulMealRequest selectedOnce = request.addMeal(0);
-        final SuccessfulMealRequest editedBasket = selectedOnce.changeBasketQuantity(spaghetti.slug(), 0);
+        final SuccessfulMealRequest editedBasket = selectedOnce.selectMeals(Set.of());
 
-        assertThat(editedBasket.selectedMealIndexes()).containsExactly(0);
-        assertThat(editedBasket.addMeal(0)).isEqualTo(editedBasket);
+        assertThat(editedBasket.selectedMealIndexes()).isEmpty();
+        assertThat(editedBasket.addMeal(0).basket().quantityOf(spaghetti.slug())).isOne();
     }
 
     private static MappedMealSuggestion meal(final String name, final MappedProduct product) {

@@ -5,6 +5,7 @@ import java.util.UUID;
 import com.microsoft.playwright.Page;
 
 import demo.CheckoutPage;
+import demo.PageNotFoundPage;
 import demo.TeamAndServicesPage;
 import demo.WelcomePage;
 
@@ -31,6 +32,11 @@ public final class DukeGreens {
     public WelcomePage openRecommendationsWithoutSession() {
         page.navigate(baseUrl + "/recommendations/" + UUID.randomUUID());
         return new WelcomePage(page);
+    }
+
+    public PageNotFoundPage openMissingPage() {
+        page.navigate(baseUrl + "/a-link-that-does-not-exist");
+        return new PageNotFoundPage(page);
     }
 
     public CheckoutPage openCheckout() {

@@ -30,6 +30,21 @@ class ErrorPageMvcTest {
     private MealSuggestionGenerator mealSuggestionGenerator;
 
     @Test
+    void rendersAStyledSafeRecoveryPageForAMissingPage() throws Exception {
+        mvc.perform(get("/error").accept(MediaType.TEXT_HTML)
+                        .requestAttr(RequestDispatcher.ERROR_STATUS_CODE, HttpStatus.NOT_FOUND.value()))
+                .andExpect(status().isNotFound())
+                .andExpect(view().name("error/404"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<title>Page not found | Duke Greens</title>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("This page has wandered off.")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Start a new meal plan")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Exception"))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("a-link-that-does-not-exist"))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("timestamp"))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("trace"))));
+    }
+
+    @Test
     void rendersAStyledSafeRecoveryPageForAnUnexpectedServerError() throws Exception {
         mvc.perform(get("/error").accept(MediaType.TEXT_HTML)
                         .requestAttr(RequestDispatcher.ERROR_STATUS_CODE, HttpStatus.INTERNAL_SERVER_ERROR.value()))

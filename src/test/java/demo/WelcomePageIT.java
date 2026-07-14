@@ -102,6 +102,14 @@ class WelcomePageIT {
     }
 
     @Test
+    void helpsVisitorsRecoverFromAnInvalidLink() throws Exception {
+        browser.openDukeGreens(dukeGreens -> dukeGreens.openMissingPage()
+                .shouldExplainTheMissingPage()
+                .startANewMealPlan()
+                .shouldShowWelcome());
+    }
+
+    @Test
     void highlightsWhyAMissingMealRequestResultReturnedToTheInitialPage() throws Exception {
         browser.openDukeGreens(dukeGreens -> dukeGreens.openRecommendationsWithoutSession()
                 .shouldShowNoActiveMealRequest()

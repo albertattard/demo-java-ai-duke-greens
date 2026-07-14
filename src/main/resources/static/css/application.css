@@ -498,13 +498,29 @@ button {
     padding-left: 1.25rem;
 }
 
-.demo-guide-action .primary-link {
-    background: #ffffff;
+.primary-link {
+    background: #285a3a;
     border-radius: 0.5rem;
+    color: #ffffff;
     display: inline-block;
     margin-top: 0.5rem;
     padding: 0.75rem 1rem;
     text-decoration: none;
+}
+
+.primary-link:hover {
+    background: #163d25;
+    color: #ffffff;
+}
+
+.demo-guide-action .primary-link {
+    background: #ffffff;
+    color: #285a3a;
+}
+
+.demo-guide-action .primary-link:hover {
+    background: #e8f1e5;
+    color: #163d25;
 }
 
 @media (max-width: 40rem) {

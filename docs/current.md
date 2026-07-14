@@ -2,28 +2,30 @@
 
 ## Outcome
 
-Give Duke Greens customers and event visitors a clear, customer-facing “About This Demonstration” page that explains the demo’s limits, responsible AI controls, information boundaries, and the illustrative nature of meal ideas.
+Help a visitor recover safely and confidently when they open an invalid, expired, or unavailable Duke Greens link.
 
 ## Constraints
 
-- Add a public, server-rendered page that covers the agreed demo capabilities and exclusions, responsible-AI controls, visitor-information guidance, the medical and dietary disclaimer, and clearly marked placeholders for an approved privacy notice, data-retention statement, and contact details.
-- Keep catalogue products, package sizes, prices, basket contents, and simulated-order completion under application control; present AI only as a constrained and checked assistant for interpretation, meal ideas, and explanations.
-- Do not invent privacy practices, retention periods, legal claims, regulatory compliance, certifications, security guarantees, or external links.
-- Keep the existing simple, responsive server-rendered presentation and use typographic curly quotation marks and apostrophes in human-facing prose.
+- Use Spring Boot’s conventional `templates/error/404.html` rendering; do not add a controller just for the page.
+- Keep the response free of technical details, routes, session identifiers, stack traces, and application state.
+- Preserve the existing Duke Greens error-page visual language and shared stylesheet.
+- Provide the agreed heading, explanation, home-page action, reassurance that the demo has no real order, payment, or delivery, and a link to the existing “How Duke Greens Creates Value” guide.
+- Use semantic HTML, the title “Page not found | Duke Greens”, an `h1` suitable for UI tests, and typographic curly quotation marks and apostrophes in visitor-facing prose.
 
 ## Done when
 
-- A visitor can open “About this demonstration” from the Duke Greens start page and return to that page.
-- The page visibly contains the agreed summary, “What the demo does”, “What the demo does not do”, “Using AI responsibly”, and “Your information” sections, the three required placeholders, and the illustrative meal-idea disclaimer.
-- Browser coverage verifies navigation, principal content, the placeholders, and the return link.
+- An invalid public URL returns a custom 404 page with the agreed visitor-facing content and no technical error details.
+- The “Start a new meal plan” action returns the visitor to the Duke Greens home page.
+- The page offers a link to “How Duke Greens creates value”.
+- Browser coverage verifies the recovery page content and home-page action.
 
 ## Verification
 
-- Start with a focused failing browser test for navigation and required page content.
+- Start with a focused failing browser test for an invalid URL and recovery action.
 - Run `./mvnw verify` and `git diff --check`.
 
 Baseline verification: `./mvnw verify` passed before this slice began.
 
-Implementation: added the public `/about-this-demonstration` page and start-page link. The page describes the demo’s scope and exclusions, the application-controlled AI safeguards, visitor information boundaries, three explicitly pending information placeholders, and the illustrative meal-idea disclaimer.
+Implementation: added Spring Boot’s conventional `error/404` template, with a safe recovery message, home-page action, and a link to the value guide. The shared primary-link styling now supports a button-like action on error pages without changing the guide page’s existing appearance.
 
-Implementation verification: focused browser coverage verifies navigation, required content, all placeholders, and the return link. `./mvnw verify -Dit.test=WelcomePageIT#explainsTheDemonstrationAndResponsibleAiUseToVisitors` passed. Full verification: `./mvnw verify` passed with 17 browser scenarios.
+Implementation verification: browser coverage verifies the custom 404 content and its return-to-home action. MVC coverage verifies the 404 status and template title and guards against a requested-path, timestamp, trace, or exception leak. `./mvnw verify` passed with 18 browser scenarios.

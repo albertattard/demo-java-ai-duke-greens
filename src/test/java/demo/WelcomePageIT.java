@@ -66,6 +66,13 @@ class WelcomePageIT {
     }
 
     @Test
+    void explainsTheCapabilitiesAndAiApproach() throws Exception {
+        browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
+                .openCapabilitiesAndAiApproach()
+                .shouldExplainCapabilitiesAndAiApproach());
+    }
+
+    @Test
     void explainsHowDukeGreensCreatesValueForCustomers() throws Exception {
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .openDemoGuide()

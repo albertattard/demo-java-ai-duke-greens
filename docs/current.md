@@ -2,23 +2,21 @@
 
 ## Outcome
 
-Give a customer seeing Duke Greens a one-minute guide to what the meal-planning demo does, why it is useful, and how responsibility is divided between AI and the Java application.
+Give customers a concise “Capabilities and AI Approach” page that explains how Duke Greens turns AI ideas into practical Java applications without sacrificing trusted data, control, or delivery practicality.
 
 ## Constraints
 
-- Add a public, server-rendered “How Duke Greens Creates Value” page, linked from the landing page and with a prominent route back to the start of the meal-planning demo.
-- Use the established simple layout, colour palette, typography, and responsive card treatment; do not introduce a client-side framework or new external assets.
-- Explain the three steps: describe household, dietary, time, and meal-style needs; AI proposes and adapts meal ideas; the application validates selections against its curated catalogue and prepares a review-only basket.
-- State plainly that AI recommends and explains, but is not the source of truth for products, package sizes, prices, basket contents, or completed orders; the visitor must explicitly confirm a simulated order; the demo does not take payment, arrange delivery, or create a real order.
-- Describe customer value without unsupported claims: reduced effort, more relevant recommendations, faster decisions, and a credible path from intent to an actionable order.
-- Include the supplied vegetarian-dinners prompt and two further concise prompts.
+- Add a public, server-rendered page with the requested headline, four capability cards, AI approach principles, Duke Greens example, help areas, and discussion call to action.
+- Present Duke Greens as a concrete example, not as a generic AI showcase; do not add unsupported claims, invented metrics, or autonomous-decision promises.
+- Explain that AI interprets meal requests and suggests meals; the Java application validates against the curated catalogue; visitors review the basket and explicitly confirm simulated orders.
+- Use the established simple layout, palette, typography, and responsive card treatment; do not introduce a client-side framework or external assets.
 - Use typographic curly quotation marks and apostrophes in human-facing prose.
 
 ## Done when
 
-- A visitor can open the guide from the welcome page and use its “Try the meal-planning demo” call to action to return to the demo start page.
-- The guide contains the requested introduction, three-step walkthrough, “Why this matters”, “Trust by design”, and “What to try” sections.
-- Browser coverage verifies the navigation, core guide content, trust boundaries, example prompt, and call to action.
+- A visitor can open “Capabilities and AI approach” from the welcome page.
+- The page visibly contains the requested capabilities, approach principles, Duke Greens mapping, help areas, and a customer discussion invitation.
+- Browser coverage verifies navigation and the principal content.
 
 ## Verification
 
@@ -27,6 +25,6 @@ Give a customer seeing Duke Greens a one-minute guide to what the meal-planning 
 
 Baseline verification: `./mvnw verify` passed before this slice began.
 
-Implementation: added the public `/how-duke-greens-creates-value` guide, a landing-page link, a three-step walkthrough, customer value and trust-boundary sections, example prompts, and a prominent return to the meal-planning demo.
+Implementation: added the public `/capabilities-and-ai-approach` page and welcome-page link. The page presents the four delivery capabilities, five trust and control principles, the Duke Greens responsibility boundary, support areas, and a focused customer discussion invitation.
 
-Implementation verification: the focused browser scenario was added before the page implementation, then `./mvnw verify` passed with 14 browser scenarios and `git diff --check` passed.
+Implementation verification: browser coverage was added for navigation and the principal content. `./mvnw verify` passed with 15 browser scenarios and `git diff --check` passed.

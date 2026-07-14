@@ -21,6 +21,11 @@ public final class WelcomePage extends PageObject {
         return new TeamAndServicesPage(page);
     }
 
+    public CapabilitiesAndAiApproachPage openCapabilitiesAndAiApproach() {
+        elementByRoleAndExactName(AriaRole.LINK, "Capabilities and AI approach").click();
+        return new CapabilitiesAndAiApproachPage(page);
+    }
+
     public DemoGuidePage openDemoGuide() {
         elementByRoleAndExactName(AriaRole.LINK, "How Duke Greens creates value").click();
         return new DemoGuidePage(page);

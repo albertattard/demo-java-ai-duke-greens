@@ -23,4 +23,9 @@ public final class CapabilitiesAndAiApproachPage extends PageObject {
         assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Discuss one business journey with us")).isVisible();
         return this;
     }
+
+    public WelcomePage openDukeGreensDemo() {
+        elementByRoleAndExactName(AriaRole.LINK, "Duke Greens demo").click();
+        return new WelcomePage(page);
+    }
 }

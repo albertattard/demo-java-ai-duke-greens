@@ -393,6 +393,59 @@ button {
     color: #ffffff;
 }
 
+.contact-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    margin-top: 1.5rem;
+}
+
+.contact-card {
+    background: #ffffff;
+    border-radius: 0.75rem;
+    color: #193326;
+    padding: 1.25rem;
+}
+
+.contact-card h3,
+.contact-card p {
+    margin: 0;
+}
+
+.contact-card p {
+    line-height: 1.5;
+    margin-top: 0.5rem;
+}
+
+.page-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 2rem 0 0;
+}
+
+.primary-page-link,
+.secondary-page-link {
+    border-radius: 0.5rem;
+    display: inline-block;
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+}
+
+.primary-page-link {
+    background: #ffffff;
+}
+
+.secondary-page-link {
+    border: 1px solid #ffffff;
+    color: #ffffff;
+}
+
+.secondary-page-link:hover {
+    background: #ffffff;
+    color: #163d25;
+}
+
 .guide-steps,
 .trust-by-design ul,
 .prompt-list {

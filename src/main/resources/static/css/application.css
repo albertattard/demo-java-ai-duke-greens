@@ -21,6 +21,22 @@ main {
     padding: 2.5rem;
 }
 
+.welcome-navigation {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+}
+
+a {
+    color: #285a3a;
+    font-weight: 700;
+    text-underline-offset: 0.2em;
+}
+
+a:hover {
+    color: #163d25;
+}
+
 .products-panel {
     margin-top: 2rem;
 }
@@ -279,6 +295,113 @@ button {
     width: 1px;
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
+}
+
+.team-and-services-page {
+    max-width: 64rem;
+}
+
+.page-header,
+.content-section,
+.discussion-panel {
+    background: #ffffff;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 2rem rgb(25 51 38 / 12%);
+    padding: 2.5rem;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    max-width: 18ch;
+}
+
+.page-introduction {
+    font-size: 1.25rem;
+    line-height: 1.5;
+    margin-bottom: 0;
+    max-width: 50rem;
+}
+
+.content-section,
+.discussion-panel {
+    margin-top: 2rem;
+}
+
+.content-section h2,
+.discussion-panel h2 {
+    font-size: 2rem;
+    margin-top: 0;
+}
+
+.service-grid,
+.team-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.service-card,
+.team-card {
+    border: 1px solid #cadfc4;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+}
+
+.service-card h3,
+.team-card h3 {
+    margin-top: 0;
+}
+
+.service-card p,
+.team-card p {
+    line-height: 1.5;
+    margin-bottom: 0;
+}
+
+.how-we-work ul {
+    display: grid;
+    gap: 0.75rem;
+    line-height: 1.5;
+    margin-bottom: 0;
+    padding-left: 1.25rem;
+}
+
+.duke-greens-story {
+    border-left: 0.375rem solid #285a3a;
+}
+
+.team-photo-placeholder {
+    align-items: center;
+    aspect-ratio: 4 / 3;
+    background: linear-gradient(0deg, #f4f8f1, #cadfc4);
+    border-radius: 0.5rem;
+    color: #4b6e55;
+    display: flex;
+    font-weight: 700;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+.discussion-panel {
+    background: #285a3a;
+    color: #ffffff;
+}
+
+@media (max-width: 40rem) {
+    main {
+        padding: 2rem 1rem;
+    }
+
+    .welcome-panel,
+    .page-header,
+    .content-section,
+    .discussion-panel {
+        padding: 1.5rem;
+    }
 }
 
 .meal-product-grid {

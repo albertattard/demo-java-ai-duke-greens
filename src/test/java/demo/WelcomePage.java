@@ -16,6 +16,11 @@ public final class WelcomePage extends PageObject {
         return this;
     }
 
+    public TeamAndServicesPage openTeamAndServices() {
+        elementByRoleAndExactName(AriaRole.LINK, "Team and services").click();
+        return new TeamAndServicesPage(page);
+    }
+
     public WelcomePage shouldShowNoActiveMealRequest() {
         assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Meal request unavailable")).isVisible();
         final Locator informationMessage = page.locator(".information-message");

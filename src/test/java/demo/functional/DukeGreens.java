@@ -5,6 +5,7 @@ import java.util.UUID;
 import com.microsoft.playwright.Page;
 
 import demo.CheckoutPage;
+import demo.TeamAndServicesPage;
 import demo.WelcomePage;
 
 public final class DukeGreens {
@@ -20,6 +21,11 @@ public final class DukeGreens {
     public WelcomePage openWelcomePage() {
         page.navigate(baseUrl);
         return new WelcomePage(page);
+    }
+
+    public TeamAndServicesPage openTeamAndServicesPage() {
+        page.navigate(baseUrl + "/team-and-services");
+        return new TeamAndServicesPage(page);
     }
 
     public WelcomePage openRecommendationsWithoutSession() {

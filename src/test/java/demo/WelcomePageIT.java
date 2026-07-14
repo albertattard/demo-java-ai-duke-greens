@@ -59,6 +59,13 @@ class WelcomePageIT {
     }
 
     @Test
+    void introducesTheJavaValueEngineeringTeamAndServices() throws Exception {
+        browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
+                .openTeamAndServices()
+                .shouldIntroduceTheTeamAndServices());
+    }
+
+    @Test
     void highlightsWhyAMissingMealRequestResultReturnedToTheInitialPage() throws Exception {
         browser.openDukeGreens(dukeGreens -> dukeGreens.openRecommendationsWithoutSession()
                 .shouldShowNoActiveMealRequest()

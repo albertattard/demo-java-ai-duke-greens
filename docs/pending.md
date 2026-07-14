@@ -44,6 +44,10 @@ Do not present an allergy filter or claim that a meal is allergy-safe until Duke
 
 Evaluate adding a curated recipe catalogue as an additional recommendation source without changing the existing catalogue-product mapping boundary.
 
+## OpenAI API key management
+
+Retrieve the OpenAI API key from an OCI Vault secret at application startup or through a deliberately defined refresh strategy. Do not store the key in source control, application configuration, container images, or client-visible browser data. Before implementation, decide the OCI authentication mechanism, secret identifier configuration, failure behaviour when Vault is unavailable, and how the key will be supplied for local development without weakening deployed-secret handling.
+
 ## Meal-suggestion failure metrics
 
 Add application metrics for meal-suggestion failures with stable categories:

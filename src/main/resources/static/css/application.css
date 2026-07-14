@@ -1,9 +1,26 @@
 :root {
-    color: #193326;
+    --color-text: #193326;
+    --color-text-muted: #4b6e55;
+    --color-brand: #285a3a;
+    --color-brand-hover: #163d25;
+    --color-surface: #ffffff;
+    --color-surface-muted: #f4f8f1;
+    --color-action-hover: #e8f1e5;
+    --color-border: #cadfc4;
+    --color-control-border: #78907d;
+    --color-danger: #8a1f11;
+    --panel-radius: 1rem;
+    --card-radius: 0.75rem;
+    --control-radius: 0.5rem;
+    --panel-shadow: 0 0.5rem 2rem rgb(25 51 38 / 12%);
+    --action-padding: 0.75rem 1rem;
+    --message-radius: 0.5rem;
+    --message-padding: 1rem 1.25rem;
     --site-frame-padding: 1.5rem;
     --site-frame-width: 72rem;
+    color: var(--color-text);
     font-family: system-ui, sans-serif;
-    background: #f4f8f1;
+    background: var(--color-surface-muted);
 }
 
 body {
@@ -238,10 +255,20 @@ main {
     }
 }
 
-.welcome-panel {
-    background: #ffffff;
-    border-radius: 1rem;
-    box-shadow: 0 0.5rem 2rem rgb(25 51 38 / 12%);
+.welcome-panel,
+.product-card,
+.page-header,
+.content-section,
+.discussion-panel {
+    background: var(--color-surface);
+    border-radius: var(--panel-radius);
+    box-shadow: var(--panel-shadow);
+}
+
+.welcome-panel,
+.page-header,
+.content-section,
+.discussion-panel {
     padding: 2.5rem;
 }
 
@@ -254,13 +281,13 @@ main {
 }
 
 a {
-    color: #285a3a;
+    color: var(--color-brand);
     font-weight: 700;
     text-underline-offset: 0.2em;
 }
 
 a:hover {
-    color: #163d25;
+    color: var(--color-brand-hover);
 }
 
 .products-panel {
@@ -278,9 +305,6 @@ a:hover {
 }
 
 .product-card {
-    background: #ffffff;
-    border-radius: 1rem;
-    box-shadow: 0 0.5rem 2rem rgb(25 51 38 / 12%);
     padding: 1.25rem;
 }
 
@@ -294,17 +318,16 @@ a:hover {
 
 .product-image-placeholder {
     aspect-ratio: 4 / 3;
-    border: 1px solid #cadfc4;
-    border-radius: 0.5rem;
-    background: linear-gradient(0deg, #f4f8f1, #cadfc4);
-    border-radius: 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--control-radius);
+    background: linear-gradient(0deg, var(--color-surface-muted), var(--color-border));
 }
 
 .product-image {
     aspect-ratio: 4 / 3;
-    border: 1px solid #cadfc4;
-    border-radius: 0.5rem;
-    background: linear-gradient(180deg, #f4f8f1, #cadfc4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--control-radius);
+    background: linear-gradient(180deg, var(--color-surface-muted), var(--color-border));
     box-sizing: border-box;
     display: block;
     object-fit: contain;
@@ -336,11 +359,15 @@ label {
     margin-top: 2rem;
 }
 
-textarea {
-    border: 1px solid #78907d;
-    border-radius: 0.5rem;
+textarea,
+.demo-access-form input {
+    border: 1px solid var(--color-control-border);
+    border-radius: var(--control-radius);
     box-sizing: border-box;
     font: inherit;
+}
+
+textarea {
     margin-top: 0.5rem;
     padding: 0.75rem;
     resize: vertical;
@@ -348,15 +375,15 @@ textarea {
 }
 
 button {
-    background: #285a3a;
+    background: var(--color-brand);
     border: 0;
-    border-radius: 0.5rem;
-    color: #ffffff;
+    border-radius: var(--control-radius);
+    color: var(--color-surface);
     cursor: pointer;
     font: inherit;
     font-weight: 700;
     margin-top: 1rem;
-    padding: 0.75rem 1rem;
+    padding: var(--action-padding);
 }
 
 .demo-access-form {
@@ -381,10 +408,6 @@ button {
 }
 
 .demo-access-form input {
-    border: 1px solid #78907d;
-    border-radius: 0.5rem;
-    box-sizing: border-box;
-    font: inherit;
     height: 2.625rem;
     padding: 0 4.75rem 0 0.75rem;
     width: 100%;
@@ -393,7 +416,7 @@ button {
 .access-code-toggle {
     background: transparent;
     border-radius: 0.375rem;
-    color: #285a3a;
+    color: var(--color-brand);
     height: calc(100% - 0.25rem);
     margin: 0.125rem;
     padding: 0 0.625rem;
@@ -403,14 +426,14 @@ button {
 }
 
 .access-code-toggle:hover {
-    background: #e8f1e5;
-    color: #163d25;
+    background: var(--color-action-hover);
+    color: var(--color-brand-hover);
 }
 
 .access-help {
-    background: #ffffff;
-    border: 1px solid #cadfc4;
-    border-radius: 0.75rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--card-radius);
     margin-top: 2rem;
     padding: 1.5rem;
 }
@@ -436,28 +459,28 @@ button {
 }
 
 .secondary-action {
-    background: #ffffff;
-    border: 1px solid #285a3a;
-    color: #285a3a;
+    background: var(--color-surface);
+    border: 1px solid var(--color-brand);
+    color: var(--color-brand);
 }
 
 .secondary-action:hover {
-    background: #e8f1e5;
+    background: var(--color-action-hover);
 }
 
 .validation-message,
 .meal-request-error {
-    color: #8a1f11;
+    color: var(--color-danger);
     font-weight: 700;
 }
 
 .information-message {
     background: #fff3cf;
     border-left: 0.375rem solid #b45f06;
-    border-radius: 0.5rem;
+    border-radius: var(--message-radius);
     color: #5d3500;
     margin: 1.5rem 0;
-    padding: 1rem 1.25rem;
+    padding: var(--message-padding);
 }
 
 .information-message h2 {
@@ -475,7 +498,7 @@ button {
 }
 
 .meal-suggestion {
-    border-top: 1px solid #cadfc4;
+    border-top: 1px solid var(--color-border);
     margin-top: 1rem;
     padding-top: 1rem;
 }
@@ -594,15 +617,6 @@ button {
     white-space: nowrap;
 }
 
-.page-header,
-.content-section,
-.discussion-panel {
-    background: #ffffff;
-    border-radius: 1rem;
-    box-shadow: 0 0.5rem 2rem rgb(25 51 38 / 12%);
-    padding: 2.5rem;
-}
-
 .back-link {
     display: inline-block;
     margin-bottom: 2rem;
@@ -639,8 +653,8 @@ button {
 
 .service-card,
 .team-card {
-    border: 1px solid #cadfc4;
-    border-radius: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--card-radius);
     padding: 1.25rem;
 }
 
@@ -664,15 +678,15 @@ button {
 }
 
 .duke-greens-story {
-    border-left: 0.375rem solid #285a3a;
+    border-left: 0.375rem solid var(--color-brand);
 }
 
 .team-photo-placeholder {
     align-items: center;
     aspect-ratio: 4 / 3;
-    background: linear-gradient(0deg, #f4f8f1, #cadfc4);
-    border-radius: 0.5rem;
-    color: #4b6e55;
+    background: linear-gradient(0deg, var(--color-surface-muted), var(--color-border));
+    border-radius: var(--control-radius);
+    color: var(--color-text-muted);
     display: flex;
     font-weight: 700;
     justify-content: center;
@@ -680,8 +694,8 @@ button {
 }
 
 .discussion-panel {
-    background: #285a3a;
-    color: #ffffff;
+    background: var(--color-brand);
+    color: var(--color-surface);
 }
 
 .contact-grid {
@@ -692,9 +706,9 @@ button {
 }
 
 .contact-card {
-    background: #ffffff;
-    border-radius: 0.75rem;
-    color: #193326;
+    background: var(--color-surface);
+    border-radius: var(--card-radius);
+    color: var(--color-text);
     padding: 1.25rem;
 }
 
@@ -717,24 +731,24 @@ button {
 
 .primary-page-link,
 .secondary-page-link {
-    border-radius: 0.5rem;
+    border-radius: var(--control-radius);
     display: inline-block;
-    padding: 0.75rem 1rem;
+    padding: var(--action-padding);
     text-decoration: none;
 }
 
 .primary-page-link {
-    background: #ffffff;
+    background: var(--color-surface);
 }
 
 .secondary-page-link {
-    border: 1px solid #ffffff;
-    color: #ffffff;
+    border: 1px solid var(--color-surface);
+    color: var(--color-surface);
 }
 
 .secondary-page-link:hover {
-    background: #ffffff;
-    color: #163d25;
+    background: var(--color-surface);
+    color: var(--color-brand-hover);
 }
 
 .guide-steps,
@@ -753,8 +767,8 @@ button {
 
 .guide-step {
     align-items: flex-start;
-    border: 1px solid #cadfc4;
-    border-radius: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--card-radius);
     display: flex;
     gap: 1rem;
     padding: 1.25rem;
@@ -770,9 +784,9 @@ button {
 
 .step-number {
     align-items: center;
-    background: #285a3a;
+    background: var(--color-brand);
     border-radius: 50%;
-    color: #ffffff;
+    color: var(--color-surface);
     display: flex;
     flex: 0 0 2rem;
     font-weight: 700;
@@ -781,7 +795,7 @@ button {
 }
 
 .trust-by-design {
-    border-left: 0.375rem solid #285a3a;
+    border-left: 0.375rem solid var(--color-brand);
 }
 
 .trust-by-design ul,
@@ -790,28 +804,28 @@ button {
 }
 
 .primary-link {
-    background: #285a3a;
-    border-radius: 0.5rem;
-    color: #ffffff;
+    background: var(--color-brand);
+    border-radius: var(--control-radius);
+    color: var(--color-surface);
     display: inline-block;
     margin-top: 0.5rem;
-    padding: 0.75rem 1rem;
+    padding: var(--action-padding);
     text-decoration: none;
 }
 
 .primary-link:hover {
-    background: #163d25;
-    color: #ffffff;
+    background: var(--color-brand-hover);
+    color: var(--color-surface);
 }
 
 .demo-guide-action .primary-link {
-    background: #ffffff;
-    color: #285a3a;
+    background: var(--color-surface);
+    color: var(--color-brand);
 }
 
 .demo-guide-action .primary-link:hover {
-    background: #e8f1e5;
-    color: #163d25;
+    background: var(--color-action-hover);
+    color: var(--color-brand-hover);
 }
 
 @media (max-width: 40rem) {
@@ -835,9 +849,9 @@ button {
 
 .meal-product-card {
     align-items: center;
-    background: #f4f8f1;
-    border: 1px solid #cadfc4;
-    border-radius: 0.75rem;
+    background: var(--color-surface-muted);
+    border: 1px solid var(--color-border);
+    border-radius: var(--card-radius);
     display: flex;
     gap: 0.75rem;
     padding: 0.75rem;
@@ -846,19 +860,19 @@ button {
 .meal-product-image,
 .meal-product-image-placeholder {
     aspect-ratio: 1;
-    border: 1px solid #cadfc4;
-    border-radius: 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--control-radius);
     flex: 0 0 4.5rem;
     width: 4.5rem;
 }
 
 .meal-product-image {
-    background: #ffffff;
+    background: var(--color-surface);
     object-fit: contain;
 }
 
 .meal-product-image-placeholder {
-    background: linear-gradient(135deg, #ffffff, #cadfc4);
+    background: linear-gradient(135deg, var(--color-surface), var(--color-border));
 }
 
 .meal-product-details {
@@ -880,7 +894,7 @@ button {
 }
 
 .basket {
-    border-top: 1px solid #cadfc4;
+    border-top: 1px solid var(--color-border);
     margin-top: 2rem;
     padding-top: 1rem;
 }
@@ -911,7 +925,7 @@ button {
 
 .basket-lines th,
 .basket-lines td {
-    border-bottom: 1px solid #cadfc4;
+    border-bottom: 1px solid var(--color-border);
     padding: 0.75rem 0.5rem;
     text-align: left;
 }
@@ -957,8 +971,8 @@ button {
 }
 
 .meal-selection {
-    border: 1px solid #cadfc4;
-    border-radius: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--card-radius);
     margin: 1.5rem 0 0;
     padding: 0.75rem;
 }
@@ -985,9 +999,9 @@ button {
 
 .meal-selection-option {
     align-items: center;
-    background: #f4f8f1;
-    border: 1px solid #cadfc4;
-    border-radius: 0.5rem;
+    background: var(--color-surface-muted);
+    border: 1px solid var(--color-border);
+    border-radius: var(--control-radius);
     cursor: pointer;
     display: flex;
     font-weight: 700;
@@ -1001,7 +1015,7 @@ button {
 }
 
 .meal-selection-option input {
-    accent-color: #285a3a;
+    accent-color: var(--color-brand);
     block-size: 1.125rem;
     flex: 0 0 auto;
     inline-size: 1.125rem;
@@ -1009,12 +1023,12 @@ button {
 }
 
 .basket-warning {
-    color: #8a1f11;
+    color: var(--color-danger);
     font-weight: 700;
 }
 
 .checkout-warning {
-    border-left-color: #8a1f11;
+    border-left-color: var(--color-danger);
     color: #6b180e;
 }
 

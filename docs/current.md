@@ -19,4 +19,6 @@ Keep Duke Greens’ styling maintainable while retaining its current single styl
 
 ## Verification
 
-- No implementation has been requested for this decision record.
+- The baseline suite passed before the refactoring: `./mvnw test` (98 tests).
+- `application.css` now defines semantic design custom properties and shares the common panel, card, action, form-control, and message values without adding a build pipeline or another stylesheet.
+- The full suite passed after the refactoring: `./mvnw test` (98 tests). No automated visual-regression harness exists; the refactoring preserves the prior CSS values and selectors, so browser verification remains the appropriate check for visual parity.

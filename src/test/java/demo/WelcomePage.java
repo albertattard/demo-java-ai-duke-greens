@@ -31,6 +31,11 @@ public final class WelcomePage extends PageObject {
         return new LetsTalkPage(page);
     }
 
+    public DemoNoticeAndResponsibleAiPage openDemoNoticeAndResponsibleAi() {
+        elementByRoleAndExactName(AriaRole.LINK, "About this demonstration").click();
+        return new DemoNoticeAndResponsibleAiPage(page);
+    }
+
     public DemoGuidePage openDemoGuide() {
         elementByRoleAndExactName(AriaRole.LINK, "How Duke Greens creates value").click();
         return new DemoGuidePage(page);

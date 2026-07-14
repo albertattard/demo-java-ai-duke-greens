@@ -84,6 +84,15 @@ class WelcomePageIT {
     }
 
     @Test
+    void explainsTheDemonstrationAndResponsibleAiUseToVisitors() throws Exception {
+        browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
+                .openDemoNoticeAndResponsibleAi()
+                .shouldExplainTheDemonstration()
+                .returnToDukeGreensDemo()
+                .shouldShowWelcome());
+    }
+
+    @Test
     void explainsHowDukeGreensCreatesValueForCustomers() throws Exception {
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .openDemoGuide()

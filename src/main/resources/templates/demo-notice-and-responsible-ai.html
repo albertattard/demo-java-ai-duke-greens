@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>About This Demonstration | Duke Greens</title>
+    <link rel="stylesheet" th:href="@{/css/application.css}">
+</head>
+<body>
+<main class="team-and-services-page">
+    <header class="page-header">
+        <a class="back-link" th:href="@{/}">Duke Greens demo</a>
+        <p class="eyebrow">Demo notice</p>
+        <h1>About This Demonstration</h1>
+        <p class="page-introduction">Duke Greens is a demonstration of an AI-assisted Java application for meal planning and virtual grocery baskets. It is not a production shopping service.</p>
+    </header>
+
+    <section aria-labelledby="does-heading" class="content-section how-we-work">
+        <h2 id="does-heading">What the demo does</h2>
+        <ul>
+            <li>Accepts a meal-planning request.</li>
+            <li>Uses AI to suggest and explain possible meals.</li>
+            <li>Validates suggested ingredients against a curated product catalogue.</li>
+            <li>Creates a review-only virtual basket.</li>
+        </ul>
+    </section>
+
+    <section aria-labelledby="does-not-heading" class="content-section how-we-work">
+        <h2 id="does-not-heading">What the demo does not do</h2>
+        <ul>
+            <li>It does not accept payments.</li>
+            <li>It does not create a real order, reserve stock, arrange delivery, or create a customer account.</li>
+            <li>Product availability, prices, and recommendations are illustrative and may not reflect real-world conditions.</li>
+        </ul>
+    </section>
+
+    <section aria-labelledby="responsible-ai-heading" class="content-section trust-by-design">
+        <h2 id="responsible-ai-heading">Using AI responsibly</h2>
+        <ul>
+            <li>AI is used to interpret requests, recommend meal ideas, and explain alternatives.</li>
+            <li>The application, not the AI model, remains the source of truth for catalogue products, package sizes, prices, basket contents, and simulated-order completion.</li>
+            <li>AI output is constrained and checked before it is used in the visitor journey.</li>
+            <li>The visitor explicitly confirms the simulated order; the application does not complete it autonomously.</li>
+        </ul>
+    </section>
+
+    <section aria-labelledby="information-heading" class="content-section how-we-work">
+        <h2 id="information-heading">Your information</h2>
+        <p>Please do not enter personal, confidential, sensitive, health, payment, or account information.</p>
+        <p>Keep requests limited to general meal-planning preferences.</p>
+        <aside aria-label="Privacy and contact details pending approval" class="information-message">
+            <h3>Information notice pending approval</h3>
+            <p>Approved privacy notice placeholder</p>
+            <p>Approved data-retention statement placeholder</p>
+            <p>Required contact details placeholder</p>
+        </aside>
+    </section>
+
+    <section aria-labelledby="disclaimer-heading" class="discussion-panel">
+        <h2 id="disclaimer-heading">Meal ideas are illustrative</h2>
+        <p>Meal ideas are illustrative and are not medical, dietary, allergy, or nutritional advice.</p>
+        <p class="page-links"><a class="primary-page-link" th:href="@{/}">Return to the Duke Greens demo</a></p>
+    </section>
+</main>
+</body>
+</html>

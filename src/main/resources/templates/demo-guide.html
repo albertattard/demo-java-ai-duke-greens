@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>How Duke Greens Creates Value | Duke Greens</title>
+    <link rel="stylesheet" th:href="@{/css/application.css}">
+</head>
+<body>
+<main class="demo-guide-page">
+    <header class="page-header">
+        <a class="back-link" th:href="@{/}">Duke Greens demo</a>
+        <p class="eyebrow">A one-minute guide</p>
+        <h1>How Duke Greens creates value</h1>
+        <p class="page-introduction">Duke Greens demonstrates how a Java application can turn a shopper’s natural-language meal-planning request into suitable meal ideas and a review-only virtual grocery basket.</p>
+    </header>
+
+    <section aria-labelledby="how-it-works-heading" class="content-section">
+        <h2 id="how-it-works-heading">What you will see</h2>
+        <ol class="guide-steps">
+            <li class="guide-step">
+                <span aria-hidden="true" class="step-number">1</span>
+                <div>
+                    <h3>Tell us what you need</h3>
+                    <p>Describe your household size, dietary preferences, time available, and the kind of meals you want to make.</p>
+                </div>
+            </li>
+            <li class="guide-step">
+                <span aria-hidden="true" class="step-number">2</span>
+                <div>
+                    <h3>AI proposes suitable meals</h3>
+                    <p>AI interprets your request, explains its suggestions, and adapts them when you ask for alternatives.</p>
+                </div>
+            </li>
+            <li class="guide-step">
+                <span aria-hidden="true" class="step-number">3</span>
+                <div>
+                    <h3>The application validates and prepares the basket</h3>
+                    <p>Duke Greens maps the ingredients from the meals you select to its own curated product catalogue and prepares a virtual basket for you to review.</p>
+                </div>
+            </li>
+        </ol>
+    </section>
+
+    <section aria-labelledby="why-this-matters-heading" class="content-section">
+        <h2 id="why-this-matters-heading">Why this matters</h2>
+        <p>Meal planning can take time and attention. Duke Greens reduces the effort of turning a rough idea into a practical starting point, giving shoppers more relevant recommendations and helping them decide faster.</p>
+        <p>It also shows a credible path from customer intent to an actionable order: suggestions are connected to products the application can validate, then collected in a basket the shopper can review before taking the next step.</p>
+    </section>
+
+    <section aria-labelledby="trust-by-design-heading" class="content-section trust-by-design">
+        <p class="eyebrow">Clear responsibilities</p>
+        <h2 id="trust-by-design-heading">Trust by design</h2>
+        <ul>
+            <li>AI recommends and explains. It is not the source of truth for products, package sizes, prices, basket contents, or completed orders.</li>
+            <li>The Java application validates recommendations against its own catalogue.</li>
+            <li>You must explicitly confirm the simulated order.</li>
+            <li>This demo does not take payment, arrange delivery, or create a real order.</li>
+        </ul>
+    </section>
+
+    <section aria-labelledby="what-to-try-heading" class="content-section">
+        <h2 id="what-to-try-heading">What to try</h2>
+        <p>Start with one of these requests, then ask for a change if you want to see how the suggestions adapt.</p>
+        <ul class="prompt-list">
+            <li>“I live alone and need three light vegetarian dinners that I can prepare in 25 minutes after work.”</li>
+            <li>“We are a family of four and need two quick dinners with chicken and plenty of vegetables.”</li>
+            <li>“Suggest three meat-free meals for two people that feel comforting on a cold evening.”</li>
+        </ul>
+    </section>
+
+    <section aria-labelledby="start-demo-heading" class="discussion-panel demo-guide-action">
+        <h2 id="start-demo-heading">Ready to see it in action?</h2>
+        <p>Try a meal-planning request and review the basket Duke Greens prepares from your choices.</p>
+        <a class="primary-link" th:href="@{/}">Try the meal-planning demo</a>
+    </section>
+</main>
+</body>
+</html>

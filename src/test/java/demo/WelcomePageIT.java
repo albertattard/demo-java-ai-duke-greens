@@ -66,6 +66,15 @@ class WelcomePageIT {
     }
 
     @Test
+    void explainsHowDukeGreensCreatesValueForCustomers() throws Exception {
+        browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
+                .openDemoGuide()
+                .shouldExplainHowDukeGreensCreatesValue()
+                .tryTheMealPlanningDemo()
+                .shouldShowInitialRequestState());
+    }
+
+    @Test
     void highlightsWhyAMissingMealRequestResultReturnedToTheInitialPage() throws Exception {
         browser.openDukeGreens(dukeGreens -> dukeGreens.openRecommendationsWithoutSession()
                 .shouldShowNoActiveMealRequest()

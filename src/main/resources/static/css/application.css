@@ -23,6 +23,8 @@ main {
 
 .welcome-navigation {
     display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
     justify-content: flex-end;
     margin-bottom: 1rem;
 }
@@ -389,6 +391,67 @@ button {
 .discussion-panel {
     background: #285a3a;
     color: #ffffff;
+}
+
+.guide-steps,
+.trust-by-design ul,
+.prompt-list {
+    display: grid;
+    gap: 1rem;
+    line-height: 1.5;
+    margin-bottom: 0;
+}
+
+.guide-steps {
+    list-style: none;
+    padding: 0;
+}
+
+.guide-step {
+    align-items: flex-start;
+    border: 1px solid #cadfc4;
+    border-radius: 0.75rem;
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+}
+
+.guide-step h3 {
+    margin: 0;
+}
+
+.guide-step p {
+    margin: 0.5rem 0 0;
+}
+
+.step-number {
+    align-items: center;
+    background: #285a3a;
+    border-radius: 50%;
+    color: #ffffff;
+    display: flex;
+    flex: 0 0 2rem;
+    font-weight: 700;
+    height: 2rem;
+    justify-content: center;
+}
+
+.trust-by-design {
+    border-left: 0.375rem solid #285a3a;
+}
+
+.trust-by-design ul,
+.prompt-list {
+    padding-left: 1.25rem;
+}
+
+.demo-guide-action .primary-link {
+    background: #ffffff;
+    border-radius: 0.5rem;
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.75rem 1rem;
+    text-decoration: none;
 }
 
 @media (max-width: 40rem) {

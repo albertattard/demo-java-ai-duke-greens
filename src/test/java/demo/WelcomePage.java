@@ -21,6 +21,11 @@ public final class WelcomePage extends PageObject {
         return new TeamAndServicesPage(page);
     }
 
+    public DemoGuidePage openDemoGuide() {
+        elementByRoleAndExactName(AriaRole.LINK, "How Duke Greens creates value").click();
+        return new DemoGuidePage(page);
+    }
+
     public WelcomePage shouldShowNoActiveMealRequest() {
         assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Meal request unavailable")).isVisible();
         final Locator informationMessage = page.locator(".information-message");

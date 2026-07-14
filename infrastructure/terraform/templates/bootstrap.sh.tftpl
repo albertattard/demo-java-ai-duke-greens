@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Install the Oracle Java runtime and public HTTPS reverse proxy prerequisites.
+dnf install --assumeyes 'dnf-command(copr)' jdk-25-headless
+dnf copr enable --assumeyes @caddy/caddy
+dnf install --assumeyes caddy
+
+# Return success only when all supplied Falcon validation checks pass.
+# See: https://confluence.oraclecorp.com/confluence/display/NIT/Falcon+Heartbeat+Findings+Resolution+-+Scripts
+falcon_is_healthy() {
+    rpm --quiet --query falcon-sensor &&
+        systemctl is-active --quiet falcon-sensor &&
+        ss --processes --tcp --numeric state established | grep --ignore-case --quiet falcon &&
+        /opt/CrowdStrike/falconctl -g --rfm-state | grep --extended-regexp --quiet 'rfm-state=false\.?$'
+}
+
+# Install or repair Falcon only if it fails the supplied validation checks.
+if ! falcon_is_healthy; then
+    dnf install --assumeyes curl python3 python3-pip
+    (
+        falcon_installer=/tmp/install_falcon.py
+        trap 'rm --force "$falcon_installer"' EXIT
+        curl --fail --location --retry 3 --output "$falcon_installer" 'https://objectstorage.us-ashburn-1.oraclecloud.com/p/wpj0M57XjIImf1jZcEsGhqdP1ZyUY27tr1eL6NAqsXVpapFp468aredx6whaWinG/n/orasenatdpltintegration03/b/FalconSupport-donotdelete/o/install_falcon.py'
+        python3 "$falcon_installer"
+    )
+fi
+
+falcon_is_healthy || {
+    echo 'Falcon Heartbeat validation failed after installation.' >&2
+    exit 1
+}
+
+# Allow public web traffic through the VM's host firewall.
+firewall-cmd --permanent --add-service=http
+firewall-cmd --permanent --add-service=https
+firewall-cmd --reload
+
+# Create the unprivileged application account and its writable directories.
+if ! id --user duke-greens >/dev/null 2>&1; then
+    useradd --system --home-dir /opt/duke-greens --shell /usr/sbin/nologin duke-greens
+fi
+install --directory --owner=duke-greens --group=duke-greens --mode=0750 /opt/duke-greens
+install --directory --owner=root --group=duke-greens --mode=0750 /etc/duke-greens
+
+# Configure Caddy to terminate HTTPS and proxy only to the loopback application.
+cat > /etc/caddy/Caddyfile <<'EOF'
+${domain_name} {
+    encode zstd gzip
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+
+    reverse_proxy 127.0.0.1:8080
+}
+EOF
+
+# Define the managed application service and its runtime security settings.
+cat > /etc/systemd/system/duke-greens.service <<'EOF'
+[Unit]
+Description=Duke Greens application
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/duke-greens
+Environment="SERVER_ADDRESS=127.0.0.1"
+Environment="SERVER_FORWARD_HEADERS_STRATEGY=framework"
+Environment="SERVER_SERVLET_SESSION_COOKIE_SECURE=true"
+Environment="SERVER_SERVLET_SESSION_COOKIE_HTTP_ONLY=true"
+Environment="SERVER_SERVLET_SESSION_COOKIE_SAME_SITE=lax"
+ExecStart=/usr/sbin/runuser -u duke-greens -- /usr/bin/java -Xmx512m -jar /opt/duke-greens/duke-greens.jar --spring.config.additional-location=optional:file:/etc/duke-greens/application.yml
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=5
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/duke-greens
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Activate the refreshed service definitions and proxy configuration.
+systemctl daemon-reload
+systemctl enable caddy.service
+systemctl restart caddy.service

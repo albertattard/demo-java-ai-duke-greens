@@ -155,7 +155,7 @@
                         <configuration>
                             <groups>openai-integration</groups>
                             <systemPropertyVariables>
-                                <spring.config.import>optional:file:${user.home}/.openai/openai-api.yml</spring.config.import>
+                                <spring.config.import>optional:file:${user.home}/.demo/demo-java-ai-duke-greens.yml</spring.config.import>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>

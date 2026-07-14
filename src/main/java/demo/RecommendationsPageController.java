@@ -29,7 +29,7 @@ class RecommendationsPageController {
         this.basketPresentation = basketPresentation;
     }
 
-    @GetMapping("/recommendations/{conversationId}")
+    @GetMapping("/demo/recommendations/{conversationId}")
     String showConversationResults(
             @PathVariable final String conversationId,
             @RequestParam(required = false) final Boolean resetConfirmation,
@@ -71,7 +71,7 @@ class RecommendationsPageController {
         };
     }
 
-    @PostMapping("/recommendations/{conversationId}/retry")
+    @PostMapping("/demo/recommendations/{conversationId}/retry")
     String retryMealRequest(
             @PathVariable final String conversationId,
             final HttpServletRequest request,
@@ -100,7 +100,7 @@ class RecommendationsPageController {
         };
     }
 
-    @PostMapping("/recommendations/{conversationId}/reset")
+    @PostMapping("/demo/recommendations/{conversationId}/reset")
     String resetMealRequest(
             @PathVariable final String conversationId,
             @RequestParam(required = false) final Boolean confirmed,
@@ -120,10 +120,10 @@ class RecommendationsPageController {
 
         mealSuggestionService.clearConversation(conversationId);
         mealRequestSession.clear(request);
-        return "redirect:/";
+        return "redirect:/demo";
     }
 
-    @PostMapping("/recommendations/{conversationId}/meals")
+    @PostMapping("/demo/recommendations/{conversationId}/meals")
     String addMealToBasket(
             @PathVariable final String conversationId,
             @RequestParam final int index,
@@ -144,7 +144,7 @@ class RecommendationsPageController {
         return mealRequestSession.initialRequestRedirect();
     }
 
-    @PostMapping("/recommendations/{conversationId}/meals/dismissal")
+    @PostMapping("/demo/recommendations/{conversationId}/meals/dismissal")
     String toggleDismissal(
             @PathVariable final String conversationId,
             @RequestParam final int index,
@@ -164,7 +164,7 @@ class RecommendationsPageController {
         return mealRequestSession.initialRequestRedirect();
     }
 
-    @PostMapping("/recommendations/{conversationId}/refine")
+    @PostMapping("/demo/recommendations/{conversationId}/refine")
     String refine(
             @PathVariable final String conversationId,
             @RequestParam final String refinement,
@@ -230,7 +230,7 @@ class RecommendationsPageController {
                 mealRequestSession.clear(request);
                 redirectAttributes.addFlashAttribute("mealRequest", outOfScopeRequest);
                 redirectAttributes.addFlashAttribute("outOfScopeMessage", "Duke Greens helps you find meal ideas. Tell us what you’d like to cook, such as a quick vegetarian dinner for two.");
-                yield "redirect:/";
+                yield "redirect:/demo";
             }
             case InvalidRequest(_) ->
                 throw new IllegalStateException("A retained meal request must remain valid");

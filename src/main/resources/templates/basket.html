@@ -10,7 +10,7 @@
     <section class="welcome-panel">
         <h1>Your basket</h1>
         <p>Select the meal ideas you want to include. Products and prices are calculated from those choices.</p>
-        <form class="meal-selection-form" method="post" th:action="@{/basket/{conversationId}(conversationId=${conversationId})}">
+        <form class="meal-selection-form" method="post" th:action="@{/demo/basket/{conversationId}(conversationId=${conversationId})}">
             <fieldset class="meal-selection">
                 <legend>Meals to include</legend>
                 <label class="meal-selection-option" th:each="meal : ${mealChoices}">
@@ -41,8 +41,8 @@
             </table>
         </section>
         <div class="basket-page-actions">
-            <form method="get" th:action="@{/recommendations/{conversationId}(conversationId=${conversationId})}"><button class="secondary-action">Back to recommendations</button></form>
-            <form method="get" th:action="@{/checkout}" th:if="${!basketLines.isEmpty()}"><button>Proceed to checkout</button></form>
+            <form method="get" th:action="@{/demo/recommendations/{conversationId}(conversationId=${conversationId})}"><button class="secondary-action">Back to recommendations</button></form>
+            <form method="get" th:action="@{/demo/checkout}" th:if="${!basketLines.isEmpty()}"><button>Proceed to checkout</button></form>
         </div>
     </section>
 </main>

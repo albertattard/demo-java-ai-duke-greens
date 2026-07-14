@@ -48,13 +48,18 @@ spring:
   ai:
     openai:
       api-key: "..."
+duke-greens:
+  demo-access:
+    access-code-hash: "a BCrypt hash from your secret manager"
 ```
+
+The access-code hash is required for every profile, including `mock`. Generate and store it in a secret manager or untracked local configuration; do not use the access code itself as the property value.
 
 Start the local application with an explicit Spring configuration import:
 
 ```shell
 ./mvnw \
-  -Dspring-boot.run.jvmArguments="-Dspring.config.import=optional:file:${HOME}/.openai/openai-api.yml" \
+  -Dspring-boot.run.jvmArguments="-Dspring.config.import=optional:file:${HOME}/.demo/demo-java-ai-duke-greens.yml" \
   spring-boot:run
 ```
 
@@ -68,6 +73,18 @@ java \
 
 Production has no fake model: without a configured API key, its OpenAI client cannot start. The `test` profile uses a deterministic generator and a test-only key, so normal verification neither reads the home-directory secret nor calls OpenAI.
 
+## Demo access and production safeguards
+
+The interactive workflow at `/demo` requires one shared access code. Supply its BCrypt hash through deployment configuration; do not place the code or its hash in application configuration, source control, templates, logs, command history, or support material.
+
+```yaml
+duke-greens:
+  demo-access:
+    access-code-hash: "supplied-by-the-deployment-secret-store"
+```
+
+Before deploying beyond local HTTP, terminate and enforce TLS, set the session cookie’s `Secure`, `HttpOnly`, and explicitly chosen `SameSite` attributes, and configure forwarded headers safely for the chosen proxy. Apply edge rate limits to access-code attempts and AI-triggering requests. Configure OpenAI budget limits and usage alerts. The shared code protects demonstration access only; it is not a complete abuse defence.
+
 Stop it with `Ctrl+C`.
 
 ## Offline manual testing
@@ -76,6 +93,7 @@ Start the application without OpenAI credentials or network access by using the 
 
 ```shell
 ./mvnw \
+  -Dspring-boot.run.jvmArguments="-Dspring.config.import=optional:file:${HOME}/.openai/openai-api.yml" \
   -Dspring-boot.run.arguments="--spring.profiles.active=mock" \
   spring-boot:run
 ```

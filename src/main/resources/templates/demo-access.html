@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Demo access | Duke Greens</title>
+    <link rel="stylesheet" th:href="@{/css/application.css}">
+</head>
+<body>
+<main>
+    <section aria-labelledby="demo-access-heading" class="welcome-panel">
+        <h1 id="demo-access-heading">Demo access</h1>
+        <p>Enter the access code shared by your presenter to continue.</p>
+        <p aria-live="polite" class="validation-message" th:if="${param.error}">The access code could not be verified. Please try again.</p>
+        <form class="demo-access-form" method="post" th:action="@{/demo-access}">
+            <label for="access-code">Access code</label>
+            <input autocomplete="current-password" id="access-code" name="accessCode" required type="password">
+            <button type="submit">Continue</button>
+        </form>
+        <p><a th:href="@{/}">Return to Duke Greens</a></p>
+    </section>
+</main>
+</body>
+</html>

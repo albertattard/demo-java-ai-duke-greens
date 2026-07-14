@@ -23,7 +23,7 @@ class BasketPageController {
         this.presentation = presentation;
     }
 
-    @GetMapping("/basket/{conversationId}")
+    @GetMapping("/demo/basket/{conversationId}")
     String show(
             @PathVariable final String conversationId,
             final HttpServletRequest request,
@@ -48,7 +48,7 @@ class BasketPageController {
         return "basket";
     }
 
-    @PostMapping("/basket/{conversationId}")
+    @PostMapping("/demo/basket/{conversationId}")
     String update(
             @PathVariable final String conversationId,
             @RequestParam(required = false, name = "meal") final java.util.Set<String> meals,
@@ -59,6 +59,6 @@ class BasketPageController {
         }
 
         session.store(request, successful.selectMeals(meals == null ? java.util.Set.of() : meals));
-        return "redirect:/basket/" + conversationId;
+        return "redirect:/demo/basket/" + conversationId;
     }
 }

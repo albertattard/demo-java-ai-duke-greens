@@ -19,7 +19,7 @@ class CheckoutController {
         this.basketPresentation = basketPresentation;
     }
 
-    @GetMapping("/checkout")
+    @GetMapping("/demo/checkout")
     String showCheckout(final HttpServletRequest request, final HttpServletResponse response, final Model model) {
         final MealRequestSessionState state = mealRequestSession.state(request);
         if (!(state instanceof SuccessfulMealRequest successfulRequest) || successfulRequest.basket().isEmpty()) {
@@ -32,7 +32,7 @@ class CheckoutController {
         return "checkout";
     }
 
-    @PostMapping("/checkout/complete")
+    @PostMapping("/demo/checkout/complete")
     String completeCheckout(final HttpServletRequest request) {
         final MealRequestSessionState state = mealRequestSession.state(request);
         if (!(state instanceof SuccessfulMealRequest successfulRequest)
@@ -43,10 +43,10 @@ class CheckoutController {
 
         mealRequestSession.clear(request);
         mealRequestSession.markSimulatedOrderCompleted(request);
-        return "redirect:/thank-you";
+        return "redirect:/demo/thank-you";
     }
 
-    @GetMapping("/thank-you")
+    @GetMapping("/demo/thank-you")
     String showThankYou(final HttpServletRequest request, final HttpServletResponse response) {
         if (!mealRequestSession.consumeSimulatedOrderCompletion(request)) {
             return mealRequestSession.initialRequestRedirect();

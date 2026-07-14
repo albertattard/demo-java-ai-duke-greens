@@ -27,13 +27,16 @@
             <h2>Meal request unavailable</h2>
             <p th:text="${informationMessage}"></p>
         </section>
-        <form method="post" th:action="@{/meal-request}">
+        <form method="post" th:action="@{/demo/meal-request}">
             <label for="meal-request">Describe the meals you want</label>
             <textarea id="meal-request" maxlength="300" name="mealRequest" placeholder="For example: three quick vegetarian dinners for one person." rows="5" th:text="${mealRequest}"></textarea>
             <p aria-live="polite" class="validation-message" th:if="${validationMessage}" th:text="${validationMessage}"></p>
             <button class="meal-request-submit" type="submit">Get meal ideas</button>
         </form>
     </section>
+    <form method="post" th:action="@{/demo/logout}">
+        <button class="secondary-action" type="submit">Log out</button>
+    </form>
     <section aria-labelledby="products-heading" class="products-panel">
         <h2 id="products-heading">Products</h2>
         <div class="product-grid">

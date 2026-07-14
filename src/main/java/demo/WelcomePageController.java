@@ -27,7 +27,7 @@ class WelcomePageController {
         this.mealRequestSession = mealRequestSession;
     }
 
-    @GetMapping("/")
+    @GetMapping("/demo")
     String showWelcomePage(@RequestParam(required = false) final String notice, final Model model) {
         model.addAttribute("products", productCatalogue.allProducts().stream().map(ProductCard::of).toList());
         if (mealRequestSession.isBasketUnavailableNotice(notice)) {
@@ -38,7 +38,7 @@ class WelcomePageController {
         return "welcome";
     }
 
-    @PostMapping("/meal-request")
+    @PostMapping("/demo/meal-request")
     String submitMealRequest(
             @RequestParam(required = false) final String mealRequest,
             final HttpServletRequest request,
@@ -47,7 +47,7 @@ class WelcomePageController {
         if (validationError.isPresent()) {
             redirectAttributes.addFlashAttribute("mealRequest", mealRequest);
             redirectAttributes.addFlashAttribute("validationMessage", validationError.get());
-            return "redirect:/";
+            return "redirect:/demo";
         }
 
         final String previousConversationId = mealRequestSession.conversationId(request);
@@ -70,12 +70,12 @@ class WelcomePageController {
                 mealRequestSession.clear(request);
                 redirectAttributes.addFlashAttribute("mealRequest", outOfScopeRequest);
                 redirectAttributes.addFlashAttribute("outOfScopeMessage", "Duke Greens helps you find meal ideas. Tell us what you’d like to cook, such as a quick vegetarian dinner for two.");
-                yield "redirect:/";
+                yield "redirect:/demo";
             }
             case InvalidRequest(final String message) -> {
                 redirectAttributes.addFlashAttribute("mealRequest", mealRequest);
                 redirectAttributes.addFlashAttribute("validationMessage", message);
-                yield "redirect:/";
+                yield "redirect:/demo";
             }
         };
     }

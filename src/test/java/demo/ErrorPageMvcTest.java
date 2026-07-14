@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -21,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@ContextConfiguration(initializers = TestDemoAccess.class)
 class ErrorPageMvcTest {
 
     @Autowired
@@ -68,7 +70,7 @@ class ErrorPageMvcTest {
 
     @Test
     void rendersTheFriendlyRecoveryPageWhenCsrfRejectsAMealRequest() throws Exception {
-        mvc.perform(post("/meal-request").accept(MediaType.TEXT_HTML)
+        mvc.perform(post("/demo/meal-request").accept(MediaType.TEXT_HTML)
                         .param("mealRequest", "Suggest a vegetarian dinner"))
                 .andExpect(status().isForbidden())
                 .andExpect(forwardedUrl("/error"));

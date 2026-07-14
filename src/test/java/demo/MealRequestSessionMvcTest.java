@@ -15,11 +15,16 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.web.servlet.SecurityFilterAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.MockMvcBuilderCustomizer;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockHttpSession;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -35,9 +40,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import module java.base;
 
 @WebMvcTest({WelcomePageController.class, RecommendationsPageController.class, BasketPageController.class, CheckoutController.class})
-@Import({SecurityConfiguration.class, MealRequestSession.class, BasketPresentation.class})
+@Import({SecurityConfiguration.class, MealRequestSession.class, BasketPresentation.class, MealRequestSessionMvcTest.AuthenticatedVisitorConfiguration.class})
 @ImportAutoConfiguration({SecurityAutoConfiguration.class, ServletWebSecurityAutoConfiguration.class, SecurityFilterAutoConfiguration.class})
+@ContextConfiguration(initializers = TestDemoAccess.class)
 class MealRequestSessionMvcTest {
+
+    @TestConfiguration(proxyBeanMethods = false)
+    static class AuthenticatedVisitorConfiguration {
+
+        @Bean
+        MockMvcBuilderCustomizer authenticatedVisitor() {
+            return builder -> builder.defaultRequest(MockMvcRequestBuilders.get("/").with(user("demo-visitor").authorities(() -> "DEMO_VISITOR")));
+        }
+    }
 
     @Autowired
     private MockMvc mvc;
@@ -54,7 +69,7 @@ class MealRequestSessionMvcTest {
                 new Product("wholewheat-spaghetti-500g", "Wholewheat spaghetti", 500, MeasurementUnit.GRAM, BigDecimal.valueOf(1.49), "pasta-photo.png"),
                 new Product("red-peppers-500g", "Red peppers", 500, MeasurementUnit.GRAM, BigDecimal.valueOf(2.49), null)));
 
-        mvc.perform(MockMvcRequestBuilders.get("/"))
+        mvc.perform(MockMvcRequestBuilders.get("/demo"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string(containsString("/images/300/pasta-photo.png")))
                 .andExpect(MockMvcResultMatchers.content().string(containsString("alt=\"Wholewheat spaghetti\"")))
@@ -75,7 +90,7 @@ class MealRequestSessionMvcTest {
                 new MappedMealSuggestions(List.of(new MappedMealSuggestion("Pepper pasta", 25, "A quick dinner.", 1,
                         List.of(new MappedProduct(productWithoutImage, 1)), BigDecimal.valueOf(2.49))))));
 
-        mvc.perform(MockMvcRequestBuilders.get("/recommendations/" + conversationId).session(session))
+        mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/" + conversationId).session(session))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string(containsString("class=\"meal-product-image-placeholder\" role=\"img\"")))
                 .andExpect(MockMvcResultMatchers.content().string(containsString("aria-label=\"Product image unavailable\"")));
@@ -85,7 +100,7 @@ class MealRequestSessionMvcTest {
 
     @Test
     void rejectsAMealRequestSubmissionWithoutACsrfToken() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.post("/meal-request")
+        mvc.perform(MockMvcRequestBuilders.post("/demo/meal-request")
                 .param("mealRequest", "Suggest a vegetarian dinner"))
                 .andExpect(status().isForbidden());
 
@@ -96,13 +111,13 @@ class MealRequestSessionMvcTest {
     void redirectsAnInvalidMealRequestToTheWelcomePageWithItsValidationMessage() throws Exception {
         final String mealRequest = "   ";
         final RequestBuilder request = MockMvcRequestBuilders
-                .post("/meal-request")
+                .post("/demo/meal-request")
                 .with(csrf())
                 .param("mealRequest", mealRequest);
         final MvcResult result = mvc.perform(request)
-                .andExpect(redirectedUrl("/"))
+                .andExpect(redirectedUrl("/demo"))
                 .andReturn();
-        mvc.perform(MockMvcRequestBuilders.get("/").flashAttrs(result.getFlashMap()))
+        mvc.perform(MockMvcRequestBuilders.get("/demo").flashAttrs(result.getFlashMap()))
                 .andExpect(MockMvcResultMatchers.view().name("welcome"))
                 .andExpect(model().attribute("validationMessage", "Describe at least one meal you want."))
                 .andExpect(model().attribute("mealRequest", mealRequest));
@@ -120,8 +135,8 @@ class MealRequestSessionMvcTest {
         session.setAttribute("mealConversationId", conversationId);
         session.setAttribute("mealRequestState", activeRequest);
 
-        mvc.perform(MockMvcRequestBuilders.post("/meal-request").with(csrf()).session(session).param("mealRequest", "   "))
-                .andExpect(redirectedUrl("/"))
+        mvc.perform(MockMvcRequestBuilders.post("/demo/meal-request").with(csrf()).session(session).param("mealRequest", "   "))
+                .andExpect(redirectedUrl("/demo"))
                 .andExpect(request().sessionAttribute("mealConversationId", conversationId))
                 .andExpect(request().sessionAttribute("mealRequestState", activeRequest));
 
@@ -139,8 +154,8 @@ class MealRequestSessionMvcTest {
                 List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69))));
         when(mealSuggestionService.submit(anyString(), eq(mealRequest))).thenReturn(suggestions);
 
-        mvc.perform(MockMvcRequestBuilders.post("/meal-request").with(csrf()).session(session).param("mealRequest", mealRequest))
-                .andExpect(redirectedUrlPattern("/recommendations/*"));
+        mvc.perform(MockMvcRequestBuilders.post("/demo/meal-request").with(csrf()).session(session).param("mealRequest", mealRequest))
+                .andExpect(redirectedUrlPattern("/demo/recommendations/*"));
 
         final String newConversationId = (String) session.getAttribute("mealConversationId");
         assertThat(newConversationId).isNotEqualTo(previousConversationId);
@@ -159,19 +174,19 @@ class MealRequestSessionMvcTest {
                 .thenReturn(suggestions);
 
         final RequestBuilder request = MockMvcRequestBuilders
-                .post("/meal-request")
+                .post("/demo/meal-request")
                 .with(csrf())
                 .session(session).param("mealRequest", mealRequest);
 
         final MvcResult result = mvc.perform(request)
-                .andExpect(redirectedUrlPattern("/recommendations/*"))
+                .andExpect(redirectedUrlPattern("/demo/recommendations/*"))
                 .andExpect(request().sessionAttribute("mealRequestState", new SuccessfulMealRequest(mealRequest, suggestions)))
                 .andReturn();
 
         final String conversationId = (String) session.getAttribute("mealConversationId");
-        assertThat(result.getResponse().getRedirectedUrl()).isEqualTo("/recommendations/" + conversationId);
+        assertThat(result.getResponse().getRedirectedUrl()).isEqualTo("/demo/recommendations/" + conversationId);
 
-        mvc.perform(MockMvcRequestBuilders.get("/recommendations/" + conversationId).session(session))
+        mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/" + conversationId).session(session))
                 .andExpect(MockMvcResultMatchers.view().name("recommendations"))
                 .andExpect(model().attributeExists("suggestions"))
                 .andExpect(header().string("Cache-Control", "no-store"));
@@ -188,19 +203,19 @@ class MealRequestSessionMvcTest {
         when(mealSuggestionService.submit(anyString(), eq(mealRequest)))
                 .thenReturn(new FailedRequest(mealRequest));
 
-        final RequestBuilder request = MockMvcRequestBuilders.post("/meal-request")
+        final RequestBuilder request = MockMvcRequestBuilders.post("/demo/meal-request")
                 .with(csrf())
                 .session(session)
                 .param("mealRequest", mealRequest);
         final MvcResult result = mvc.perform(request)
-                .andExpect(redirectedUrlPattern("/recommendations/*"))
+                .andExpect(redirectedUrlPattern("/demo/recommendations/*"))
                 .andExpect(request().sessionAttribute("mealRequestState", new FailedMealRequest(mealRequest)))
                 .andReturn();
         final String conversationId = (String) session.getAttribute("mealConversationId");
 
-        assertThat(result.getResponse().getRedirectedUrl()).isEqualTo("/recommendations/" + conversationId);
+        assertThat(result.getResponse().getRedirectedUrl()).isEqualTo("/demo/recommendations/" + conversationId);
 
-        mvc.perform(MockMvcRequestBuilders.get("/recommendations/" + conversationId).session(session))
+        mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/" + conversationId).session(session))
                 .andExpect(MockMvcResultMatchers.view().name("recommendations"))
                 .andExpect(model().attribute("failed", true))
                 .andExpect(header().string("Cache-Control", "no-store"));
@@ -219,15 +234,15 @@ class MealRequestSessionMvcTest {
                 .thenReturn(new OutOfScopeRequest(mealRequest));
 
         final RequestBuilder request = MockMvcRequestBuilders
-                .post("/meal-request")
+                .post("/demo/meal-request")
                 .with(csrf())
                 .session(session)
                 .param("mealRequest", mealRequest);
         final MvcResult result = mvc.perform(request)
-                .andExpect(redirectedUrl("/"))
+                .andExpect(redirectedUrl("/demo"))
                 .andExpect(request().sessionAttributeDoesNotExist("mealRequestState"))
                 .andReturn();
-        mvc.perform(MockMvcRequestBuilders.get("/").session(session).flashAttrs(result.getFlashMap()))
+        mvc.perform(MockMvcRequestBuilders.get("/demo").session(session).flashAttrs(result.getFlashMap()))
                 .andExpect(MockMvcResultMatchers.view().name("welcome"))
                 .andExpect(model().attribute("outOfScopeMessage", "Duke Greens helps you find meal ideas. Tell us what you’d like to cook, such as a quick vegetarian dinner for two."))
                 .andExpect(model().attribute("mealRequest", mealRequest));
@@ -238,12 +253,11 @@ class MealRequestSessionMvcTest {
 
     @Test
     void returnsToTheInitialPageWhenAResultRouteHasNoSessionState() throws Exception {
-        final MvcResult result = mvc.perform(MockMvcRequestBuilders.get("/recommendations/no-active-conversation"))
-                .andExpect(redirectedUrl("/?notice=no-active-meal-request"))
-                .andReturn();
+        mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/no-active-conversation"))
+                .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"))
+                .andExpect(request().sessionAttributeDoesNotExist("mealRequestState"));
 
-        assertThat(result.getRequest().getSession(false)).isNull();
-        mvc.perform(MockMvcRequestBuilders.get("/").param("notice", "no-active-meal-request"))
+        mvc.perform(MockMvcRequestBuilders.get("/demo").param("notice", "no-active-meal-request"))
                 .andExpect(MockMvcResultMatchers.view().name("welcome"))
                 .andExpect(model().attribute("informationMessage", "There is no active meal request to display."));
 
@@ -259,10 +273,10 @@ class MealRequestSessionMvcTest {
                 new MappedMealSuggestions(List.of(new MappedMealSuggestion("Lemon lentil pasta", 25, "A quick dinner.", 1,
                         List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69))))));
 
-        mvc.perform(MockMvcRequestBuilders.post("/recommendations/" + conversationId + "/reset").with(csrf()).session(session))
-                .andExpect(redirectedUrl("/"));
-        mvc.perform(MockMvcRequestBuilders.get("/recommendations/" + conversationId).session(session))
-                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
+        mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/reset").with(csrf()).session(session))
+                .andExpect(redirectedUrl("/demo"));
+        mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/" + conversationId).session(session))
+                .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"));
 
         verify(mealSuggestionService).clearConversation(conversationId);
         verifyNoMoreInteractions(mealSuggestionService);
@@ -279,10 +293,10 @@ class MealRequestSessionMvcTest {
                         List.of(new MappedProduct(lentils, 1)), BigDecimal.valueOf(1.69)))), Set.of(0), Basket.empty());
         session.setAttribute("mealRequestState", request);
 
-        mvc.perform(MockMvcRequestBuilders.post("/recommendations/" + conversationId + "/reset").with(csrf()).session(session))
-                .andExpect(redirectedUrl("/recommendations/" + conversationId + "?resetConfirmation=true"))
+        mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/reset").with(csrf()).session(session))
+                .andExpect(redirectedUrl("/demo/recommendations/" + conversationId + "?resetConfirmation=true"))
                 .andExpect(request().sessionAttribute("mealRequestState", request));
-        mvc.perform(MockMvcRequestBuilders.get("/recommendations/" + conversationId).param("resetConfirmation", "true").session(session))
+        mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/" + conversationId).param("resetConfirmation", "true").session(session))
                 .andExpect(MockMvcResultMatchers.view().name("recommendations"))
                 .andExpect(model().attribute("resetConfirmationRequired", true));
 
@@ -299,8 +313,8 @@ class MealRequestSessionMvcTest {
         final MappedMealSuggestions suggestions = new MappedMealSuggestions(List.of(new MappedMealSuggestion("Lemon lentil pasta", 25, "A quick dinner.", 1, List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69))));
         when(mealSuggestionService.submit(eq(conversationId), eq(mealRequest))).thenReturn(suggestions);
 
-        mvc.perform(MockMvcRequestBuilders.post("/recommendations/" + conversationId + "/retry").with(csrf()).session(session))
-                .andExpect(redirectedUrlPattern("/recommendations/*"))
+        mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/retry").with(csrf()).session(session))
+                .andExpect(redirectedUrlPattern("/demo/recommendations/*"))
                 .andExpect(request().sessionAttribute("mealRequestState", new SuccessfulMealRequest(mealRequest, suggestions)));
 
         verify(mealSuggestionService).submit(eq(conversationId), eq(mealRequest));
@@ -321,8 +335,8 @@ class MealRequestSessionMvcTest {
         when(mealSuggestionService.refine(eq(conversationId), eq(refinement), any(), any()))
                 .thenReturn(new FailedRequest(refinement));
 
-        mvc.perform(MockMvcRequestBuilders.post("/recommendations/" + conversationId + "/retry").with(csrf()).session(session))
-                .andExpect(redirectedUrl("/recommendations/" + conversationId));
+        mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/retry").with(csrf()).session(session))
+                .andExpect(redirectedUrl("/demo/recommendations/" + conversationId));
 
         verify(mealSuggestionService).refine(eq(conversationId), eq(refinement), any(), any());
         verifyNoMoreInteractions(mealSuggestionService);
@@ -337,11 +351,11 @@ class MealRequestSessionMvcTest {
         session.setAttribute("mealRequestState", new FailedMealRequest(mealRequest));
         when(mealSuggestionService.submit(eq(conversationId), eq(mealRequest))).thenReturn(new OutOfScopeRequest(mealRequest));
 
-        final MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/recommendations/" + conversationId + "/retry").with(csrf()).session(session))
-                .andExpect(redirectedUrl("/"))
+        final MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/retry").with(csrf()).session(session))
+                .andExpect(redirectedUrl("/demo"))
                 .andExpect(request().sessionAttributeDoesNotExist("mealRequestState"))
                 .andReturn();
-        mvc.perform(MockMvcRequestBuilders.get("/").session(session).flashAttrs(result.getFlashMap()))
+        mvc.perform(MockMvcRequestBuilders.get("/demo").session(session).flashAttrs(result.getFlashMap()))
                 .andExpect(MockMvcResultMatchers.view().name("welcome"))
                 .andExpect(model().attribute("outOfScopeMessage", "Duke Greens helps you find meal ideas. Tell us what you’d like to cook, such as a quick vegetarian dinner for two."))
                 .andExpect(model().attribute("mealRequest", mealRequest));
@@ -357,9 +371,9 @@ class MealRequestSessionMvcTest {
         firstSession.setAttribute("mealConversationId", conversationId);
         firstSession.setAttribute("mealRequestState", new SuccessfulMealRequest("Suggest a vegetarian dinner", new MappedMealSuggestions(List.of(new MappedMealSuggestion("Lemon lentil pasta", 25, "A quick dinner.", 1, List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69))))));
 
-        mvc.perform(MockMvcRequestBuilders.get("/recommendations/" + conversationId).session(new MockHttpSession()))
-                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
-        mvc.perform(MockMvcRequestBuilders.get("/recommendations/" + conversationId).session(firstSession))
+        mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/" + conversationId).session(new MockHttpSession()))
+                .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"));
+        mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/" + conversationId).session(firstSession))
                 .andExpect(MockMvcResultMatchers.view().name("recommendations"));
 
         verifyNoMoreInteractions(mealSuggestionService);
@@ -372,10 +386,10 @@ class MealRequestSessionMvcTest {
         ownerSession.setAttribute("mealConversationId", conversationId);
         ownerSession.setAttribute("mealRequestState", new SuccessfulMealRequest("Suggest a vegetarian dinner", new MappedMealSuggestions(List.of(new MappedMealSuggestion("Lemon lentil pasta", 25, "A quick dinner.", 1, List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69))))));
 
-        mvc.perform(MockMvcRequestBuilders.get("/recommendations/" + conversationId).session(ownerSession))
+        mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/" + conversationId).session(ownerSession))
                 .andExpect(MockMvcResultMatchers.view().name("recommendations"));
-        mvc.perform(MockMvcRequestBuilders.get("/recommendations/" + conversationId).session(new MockHttpSession()))
-                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
+        mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/" + conversationId).session(new MockHttpSession()))
+                .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"));
 
         verifyNoMoreInteractions(mealSuggestionService);
     }
@@ -389,16 +403,16 @@ class MealRequestSessionMvcTest {
         when(mealSuggestionService.refine(eq(conversationId), eq("Make it quicker"), any(), any()))
                 .thenReturn(new InvalidRequest("Describe how you want to refine the meal ideas."));
 
-        mvc.perform(MockMvcRequestBuilders.post("/recommendations/" + conversationId + "/refine")
+        mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/refine")
                 .with(csrf())
                 .session(session)
                 .param("refinement", "Make it quicker"))
-                .andExpect(redirectedUrl("/recommendations/" + conversationId));
-        mvc.perform(MockMvcRequestBuilders.get("/recommendations/" + conversationId).session(session))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("action=\"/recommendations/" + conversationId + "/refine\"")))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("action=\"/recommendations/" + conversationId + "/meals\"")))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("action=\"/recommendations/" + conversationId + "/meals/dismissal\"")))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("action=\"/recommendations/" + conversationId + "/reset\"")));
+                .andExpect(redirectedUrl("/demo/recommendations/" + conversationId));
+        mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/" + conversationId).session(session))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("action=\"/demo/recommendations/" + conversationId + "/refine\"")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("action=\"/demo/recommendations/" + conversationId + "/meals\"")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("action=\"/demo/recommendations/" + conversationId + "/meals/dismissal\"")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("action=\"/demo/recommendations/" + conversationId + "/reset\"")));
 
         verify(mealSuggestionService).refine(eq(conversationId), eq("Make it quicker"), any(), any());
     }
@@ -409,11 +423,11 @@ class MealRequestSessionMvcTest {
         session.setAttribute("mealConversationId", "active-conversation");
         session.setAttribute("mealRequestState", new SuccessfulMealRequest("Suggest a vegetarian dinner", new MappedMealSuggestions(List.of(new MappedMealSuggestion("Lemon lentil pasta", 25, "A quick dinner.", 1, List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69))))));
 
-        mvc.perform(MockMvcRequestBuilders.post("/recommendations/other-conversation/refine")
+        mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/other-conversation/refine")
                 .with(csrf())
                 .session(session)
                 .param("refinement", "Make it quicker"))
-                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
+                .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"));
 
         verifyNoMoreInteractions(mealSuggestionService);
     }
@@ -426,11 +440,11 @@ class MealRequestSessionMvcTest {
         session.setAttribute("mealConversationId", "active-conversation");
         session.setAttribute("mealRequestState", request);
 
-        mvc.perform(MockMvcRequestBuilders.post("/recommendations/other-conversation/meals")
+        mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/other-conversation/meals")
                 .with(csrf())
                 .session(session)
                 .param("index", "0"))
-                .andExpect(redirectedUrl("/?notice=no-active-meal-request"))
+                .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"))
                 .andExpect(request().sessionAttribute("mealRequestState", request));
 
         verifyNoMoreInteractions(mealSuggestionService);
@@ -446,17 +460,17 @@ class MealRequestSessionMvcTest {
         session.setAttribute("mealConversationId", activeConversationId);
         session.setAttribute("mealRequestState", activeRequest);
 
-        mvc.perform(MockMvcRequestBuilders.post("/basket/not-a-uuid")
+        mvc.perform(MockMvcRequestBuilders.post("/demo/basket/not-a-uuid")
                 .with(csrf())
                 .session(session)
                 .param("meal", "0:0"))
-                .andExpect(redirectedUrl("/recommendations/" + activeConversationId + "?notice=basket-unavailable"))
+                .andExpect(redirectedUrl("/demo/recommendations/" + activeConversationId + "?notice=basket-unavailable"))
                 .andExpect(request().sessionAttribute("mealRequestState", activeRequest));
-        mvc.perform(MockMvcRequestBuilders.post("/basket/stale-conversation")
+        mvc.perform(MockMvcRequestBuilders.post("/demo/basket/stale-conversation")
                 .with(csrf())
                 .session(session)
                 .param("meal", "0:0"))
-                .andExpect(redirectedUrl("/recommendations/" + activeConversationId + "?notice=basket-unavailable"))
+                .andExpect(redirectedUrl("/demo/recommendations/" + activeConversationId + "?notice=basket-unavailable"))
                 .andExpect(request().sessionAttribute("mealRequestState", activeRequest));
 
         verifyNoMoreInteractions(mealSuggestionService);
@@ -472,11 +486,11 @@ class MealRequestSessionMvcTest {
         otherSession.setAttribute("mealConversationId", otherConversationId);
         otherSession.setAttribute("mealRequestState", otherRequest);
 
-        mvc.perform(MockMvcRequestBuilders.post("/basket/owners-conversation")
+        mvc.perform(MockMvcRequestBuilders.post("/demo/basket/owners-conversation")
                 .with(csrf())
                 .session(otherSession)
                 .param("meal", "0:0"))
-                .andExpect(redirectedUrl("/recommendations/" + otherConversationId + "?notice=basket-unavailable"))
+                .andExpect(redirectedUrl("/demo/recommendations/" + otherConversationId + "?notice=basket-unavailable"))
                 .andExpect(request().sessionAttribute("mealRequestState", otherRequest));
 
         verifyNoMoreInteractions(mealSuggestionService);
@@ -484,10 +498,10 @@ class MealRequestSessionMvcTest {
 
     @Test
     void rejectsBasketPostsWithoutAnActiveConversation() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.post("/basket/stale-conversation")
+        mvc.perform(MockMvcRequestBuilders.post("/demo/basket/stale-conversation")
                 .with(csrf())
                 .param("meal", "0:0"))
-                .andExpect(redirectedUrl("/?notice=basket-unavailable"));
+                .andExpect(redirectedUrl("/demo?notice=basket-unavailable"));
 
         verifyNoMoreInteractions(mealSuggestionService);
     }
@@ -503,7 +517,7 @@ class MealRequestSessionMvcTest {
                 Set.of(0), new Basket(Map.of(lentils.slug(), 2, spaghetti.slug(), 1))));
         when(productCatalogue.allProducts()).thenReturn(List.of(lentils, spaghetti));
 
-        mvc.perform(MockMvcRequestBuilders.get("/checkout").session(session))
+        mvc.perform(MockMvcRequestBuilders.get("/demo/checkout").session(session))
                 .andExpect(MockMvcResultMatchers.view().name("checkout"))
                 .andExpect(model().attribute("basketLines", org.hamcrest.Matchers.hasSize(2)))
                 .andExpect(model().attribute("basketTotal", "4,87\u00a0€"))
@@ -524,7 +538,7 @@ class MealRequestSessionMvcTest {
                 Set.of(0), new Basket(Map.of(spaghetti.slug(), 1))));
         when(productCatalogue.allProducts()).thenReturn(List.of(lentils, spaghetti));
 
-        mvc.perform(MockMvcRequestBuilders.get("/checkout").session(session))
+        mvc.perform(MockMvcRequestBuilders.get("/demo/checkout").session(session))
                 .andExpect(MockMvcResultMatchers.view().name("checkout"))
                 .andExpect(model().attribute("basketFulfilsSelectedMeals", false));
 
@@ -540,12 +554,12 @@ class MealRequestSessionMvcTest {
                 new MappedMealSuggestions(List.of(new MappedMealSuggestion("Lentil pasta", 25, "A quick dinner.", 1,
                         List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69))))));
 
-        mvc.perform(MockMvcRequestBuilders.get("/checkout"))
-                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
-        mvc.perform(MockMvcRequestBuilders.get("/checkout").session(failedSession))
-                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
-        mvc.perform(MockMvcRequestBuilders.get("/checkout").session(emptyBasketSession))
-                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
+        mvc.perform(MockMvcRequestBuilders.get("/demo/checkout"))
+                .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"));
+        mvc.perform(MockMvcRequestBuilders.get("/demo/checkout").session(failedSession))
+                .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"));
+        mvc.perform(MockMvcRequestBuilders.get("/demo/checkout").session(emptyBasketSession))
+                .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"));
 
         verifyNoMoreInteractions(mealSuggestionService);
     }
@@ -559,15 +573,15 @@ class MealRequestSessionMvcTest {
                         List.of(new MappedProduct(lentils, 1)), BigDecimal.valueOf(1.69)))),
                 Set.of(0), new Basket(Map.of(lentils.slug(), 1))));
 
-        mvc.perform(MockMvcRequestBuilders.post("/checkout/complete").with(csrf()).session(session))
-                .andExpect(redirectedUrl("/thank-you"));
-        mvc.perform(MockMvcRequestBuilders.get("/thank-you").session(session))
+        mvc.perform(MockMvcRequestBuilders.post("/demo/checkout/complete").with(csrf()).session(session))
+                .andExpect(redirectedUrl("/demo/thank-you"));
+        mvc.perform(MockMvcRequestBuilders.get("/demo/thank-you").session(session))
                 .andExpect(MockMvcResultMatchers.view().name("thank-you"))
                 .andExpect(header().string("Cache-Control", "no-store"));
-        mvc.perform(MockMvcRequestBuilders.get("/recommendations/no-longer-active").session(session))
-                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
-        mvc.perform(MockMvcRequestBuilders.get("/thank-you").session(session))
-                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
+        mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/no-longer-active").session(session))
+                .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"));
+        mvc.perform(MockMvcRequestBuilders.get("/demo/thank-you").session(session))
+                .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"));
 
         verifyNoMoreInteractions(mealSuggestionService);
     }
@@ -582,10 +596,10 @@ class MealRequestSessionMvcTest {
                         List.of(new MappedProduct(lentils, 1)), BigDecimal.valueOf(1.69)))),
                 Set.of(0), new Basket(Map.of(spaghetti.slug(), 1))));
 
-        mvc.perform(MockMvcRequestBuilders.post("/checkout/complete").with(csrf()).session(session))
-                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
-        mvc.perform(MockMvcRequestBuilders.get("/thank-you").session(session))
-                .andExpect(redirectedUrl("/?notice=no-active-meal-request"));
+        mvc.perform(MockMvcRequestBuilders.post("/demo/checkout/complete").with(csrf()).session(session))
+                .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"));
+        mvc.perform(MockMvcRequestBuilders.get("/demo/thank-you").session(session))
+                .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"));
 
         verifyNoMoreInteractions(mealSuggestionService);
     }

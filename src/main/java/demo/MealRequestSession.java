@@ -58,7 +58,7 @@ class MealRequestSession {
     }
 
     String recommendationsRedirect(final String conversationId) {
-        return "redirect:/recommendations/" + conversationId;
+        return "redirect:/demo/recommendations/" + conversationId;
     }
 
     void markSimulatedOrderCompleted(final HttpServletRequest request) {
@@ -89,12 +89,12 @@ class MealRequestSession {
     }
 
     String initialRequestRedirect() {
-        return "redirect:/?notice=" + NO_ACTIVE_MEAL_REQUEST_NOTICE;
+        return "redirect:/demo?notice=" + NO_ACTIVE_MEAL_REQUEST_NOTICE;
     }
 
     String unavailableBasketRedirect(final HttpServletRequest request) {
         final String active = conversationId(request);
-        return (active == null ? "redirect:/" : recommendationsRedirect(active))
+        return (active == null ? "redirect:/demo" : recommendationsRedirect(active))
                 + "?notice=" + BASKET_UNAVAILABLE_NOTICE;
     }
 

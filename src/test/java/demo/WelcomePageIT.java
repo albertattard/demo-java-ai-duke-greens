@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import demo.functional.browser.BrowserHarness;
@@ -25,6 +26,7 @@ import module java.base;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@ContextConfiguration(initializers = TestDemoAccess.class)
 class WelcomePageIT {
 
     @LocalServerPort
@@ -56,6 +58,19 @@ class WelcomePageIT {
                 .shouldShowProducts(productCatalogue.allProducts().size())
                 .shouldShowProduct("Wholewheat spaghetti", "500 g", "1,49")
                 .shouldShowProduct("Chickpeas", "400 g", "0,99"));
+    }
+
+    @Test
+    void takesVisitorsFromPublicInformationToTheProtectedDemo() throws Exception {
+        browser.openDukeGreens(dukeGreens -> dukeGreens.openPublicLandingAndStartDemo()
+                .shouldShowWelcome()
+                .shouldProvideMealRequestInput());
+    }
+
+    @Test
+    void givesTheDemoAccessCodeAndContinueControlsEqualHeight() throws Exception {
+        browser.openDukeGreens(dukeGreens -> dukeGreens.openDemoAccessPage()
+                .shouldGiveTheAccessControlsEqualHeight());
     }
 
     @Test

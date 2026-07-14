@@ -32,3 +32,10 @@ Let a presenter share a Duke Greens demo access code with intended visitors whil
 
 - Start with focused failing security and browser tests for the public/protected boundary and PIN flow.
 - Run `./mvnw verify` and `git diff --check`.
+
+## Delivered
+
+- Moved the interactive journey beneath `/demo`, added public information landing and PIN-entry pages, protected the demo namespace with one Spring Security chain, retained CSRF protection, and added session-invalidating logout.
+- Added MVC coverage for public and protected routes, HTMX redirect handling, valid and invalid PIN submission, CSRF, and logout. Updated the existing journey coverage for the `/demo` namespace.
+- Documented deployment-provided BCrypt access-code configuration and the required TLS, session-cookie, rate-limit, and OpenAI usage controls.
+- Verification passed: `./mvnw verify` and `git diff --check`.

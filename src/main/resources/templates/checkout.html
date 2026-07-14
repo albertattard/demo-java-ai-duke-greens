@@ -31,10 +31,10 @@
             </table>
         </section>
         <div class="checkout-actions">
-            <form method="get" th:action="@{/basket/{conversationId}(conversationId=${conversationId})}">
+            <form method="get" th:action="@{/demo/basket/{conversationId}(conversationId=${conversationId})}">
                 <button class="secondary-action" type="submit">Back to basket</button>
             </form>
-            <form method="post" th:action="@{/checkout/complete}" th:if="${basketFulfilsSelectedMeals}">
+            <form method="post" th:action="@{/demo/checkout/complete}" th:if="${basketFulfilsSelectedMeals}">
                 <button type="submit">Complete simulated order</button>
             </form>
         </div>

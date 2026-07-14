@@ -1,12 +1,11 @@
 <!doctype html>
-<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
     <title>Basket | Duke Greens</title>
-    <link rel="stylesheet" th:href="@{/css/application.css}">
 </head>
 <body>
-<main>
+<main layout:fragment="content">
     <section class="welcome-panel">
         <h1>Your basket</h1>
         <p>Select the meal ideas you want to include. Products and prices are calculated from those choices.</p>

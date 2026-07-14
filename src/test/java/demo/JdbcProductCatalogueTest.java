@@ -10,8 +10,10 @@ import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.test.context.ContextConfiguration;
 
 @JdbcTest
+@ContextConfiguration(initializers = TestDemoAccess.class)
 @Import(JdbcProductCatalogue.class)
 class JdbcProductCatalogueTest {
 

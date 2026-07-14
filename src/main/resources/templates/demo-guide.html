@@ -1,15 +1,14 @@
 <!doctype html>
-<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <title>How Duke Greens Creates Value | Duke Greens</title>
-    <link rel="stylesheet" th:href="@{/css/application.css}">
 </head>
 <body>
-<main class="demo-guide-page">
+<main class="demo-guide-page" layout:fragment="content">
     <header class="page-header">
-        <a class="back-link" th:href="@{/}">Duke Greens demo</a>
+        <a class="back-link" th:href="@{/demo}">Duke Greens demo</a>
         <p class="eyebrow">A one-minute guide</p>
         <h1>How Duke Greens creates value</h1>
         <p class="page-introduction">Duke Greens demonstrates how a Java application can turn a shopper’s natural-language meal-planning request into suitable meal ideas and a review-only virtual grocery basket.</p>

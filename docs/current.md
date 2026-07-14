@@ -2,40 +2,54 @@
 
 ## Outcome
 
-Let a presenter share a Duke Greens demo access code with intended visitors while keeping the public explanatory pages available and preventing unauthenticated visitors from using the AI-powered shopping workflow.
+Give Duke Greens a consistent, branded page layout and a public landing page that clearly introduces the existing meal-idea-to-basket demonstration. Make the protected demo entry point self-explanatory by clarifying how to enter and obtain its access code.
 
 ## Constraints
 
-- Treat this as enabling work for the demonstrable shopping journey: it protects access to the AI workflow but does not itself create visitor-facing business value.
-- Move every interactive shopping route beneath `/demo`, including the demo landing page, meal-request submission, recommendations, retry, reset, refinement, meal selection and dismissal, basket, checkout, completion, and thank-you routes. Do not leave an alternative root-level route that can invoke AI work, read visitor workflow state, or change basket or simulated-order state.
-- Keep `/`, `/about-this-demonstration`, `/how-duke-greens-creates-value`, `/capabilities-and-ai-approach`, `/team-and-services`, and `/lets-talk` public. Keep static assets and conventional error rendering available as required for those pages.
-- Require an authenticated session for `/demo` and `/demo/**`. An unauthenticated browser request must be sent to a public PIN-entry page; an unauthenticated HTMX request must receive a response that reliably moves the full browser to that page.
-- Authenticate with one shared demo access code supplied only through deployment configuration. Store and compare a one-way password hash, not a plaintext PIN; do not commit, render, log, or expose the access code or its hash.
-- Preserve CSRF protection for every state-changing request, including PIN submission and logout. A successful PIN entry returns the visitor to the originally requested protected page when safe; an invalid entry has a generic visitor-facing failure message.
-- Provide a logout action that invalidates the HTTP session, including its retained conversation and basket state.
-- Retain the existing security error rendering and CSRF behaviour for public and protected routes. Do not create a second security filter chain solely for `/demo/**`.
-- Do not represent the shared access code as a complete abuse defence. Before public deployment, configure TLS, secure session-cookie attributes, edge rate limiting for PIN attempts and AI-triggering requests, and OpenAI budget and usage alerts; document the required deployment configuration without committing secrets.
+- Use the Café Voyage layout as inspiration only: create Duke Greens branding, copy, and styling rather than reproducing its identity or text.
+- Provide a shared page frame, with a responsive header containing only Home, Demo, and About, a main content area, and a two-sided footer with Java resource links, Terms of Use, and the current-year Duke Greens copyright, for public information pages and the protected demo journey.
+- Keep the header, main content area, and footer aligned to one shared responsive frame width on every page.
+- The landing page must state only today’s capability: visitors describe a meal idea and Duke Greens suggests meals before the application prepares a reviewable virtual basket from its catalogue.
+- Do not promise structured weekly planning, course planning, budgets, allergy-aware recommendations, stock-aware recommendations, or a traditional browsing journey.
+- Preserve every existing public route and the `/demo` authentication boundary. Do not change the meal-request, recommendation, basket, checkout, or simulated-order behaviour.
 - Keep visitor-facing prose free of technical security details and use typographic curly quotation marks and apostrophes.
+- On the demo-access page, remove the return-to-home link; provide a meaningful access-code placeholder and an accessible control that reveals or hides only the code the visitor has entered.
+- Explain how to obtain an access code by providing the two contacts and their email and Slack links from the supplied Café Voyage reference, without adding its sidebar or exposing the configured access code.
+- Keep the access-code input and its controls on one row while making the input comfortably wide on desktop; present the access-request guidance in its own card.
 
 ## Done when
 
-- A visitor can open every named public page without entering the access code, while `/demo` and all interactive descendants require it.
-- The public landing page has a clear action that starts the protected demo, and existing public-page links remain valid.
-- Every former interactive root-level URL either has moved beneath `/demo` or cannot perform its previous interactive function.
-- A valid access code authenticates the visitor and returns them to the requested demo destination; an invalid code does not authenticate them or disclose whether any part of the code was correct.
-- Protected full-page and HTMX requests made without a session consistently lead to the PIN-entry page rather than rendering an unusable fragment or leaking protected content.
-- Logging out removes access and retained visitor workflow state.
-- Automated MVC coverage proves the public/protected boundary, valid and invalid PIN handling, safe post-login return, logout/session invalidation, CSRF rejection, and the absence of unprotected AI-triggering or state-changing routes. Browser coverage proves the public-information-to-protected-demo journey.
-- Documentation identifies the required production secret, TLS and cookie settings, edge rate limits, and OpenAI budget/usage controls without containing secret values.
+- The public landing page presents the Duke Greens story with a clear action that starts the protected demonstration.
+- Public information pages and the protected demo pages share the same branded header and footer without breaking their existing content or actions.
+- Header navigation gives visitors access to Home, the protected demo, and About, while the footer provides Java resource links, Terms of Use, and the Duke Greens copyright.
+- The layout remains usable on narrow viewports.
+- The header, main content area, and footer share the same outer width on public, protected, and information pages.
+- The landing hero’s two-line heading is visually balanced, clearly differentiated, and readable on narrow viewports.
+- Automated coverage protects the landing-page and protected-demo navigation journey.
+- The demo-access page has no return-to-home link, clearly prompts for an access code, lets a visitor reveal and hide their entered code, and explains how to request access.
+- On desktop, the access-code input is at least 30rem wide and the access-request guidance is visually separate from the entry form.
 
 ## Verification
 
-- Start with focused failing security and browser tests for the public/protected boundary and PIN flow.
+- Start with a failing browser test for the public landing-page-to-demo journey.
 - Run `./mvnw verify` and `git diff --check`.
+- Start with a failing browser test for the clarified demo-access flow.
 
 ## Delivered
 
-- Moved the interactive journey beneath `/demo`, added public information landing and PIN-entry pages, protected the demo namespace with one Spring Security chain, retained CSRF protection, and added session-invalidating logout.
-- Added MVC coverage for public and protected routes, HTMX redirect handling, valid and invalid PIN submission, CSRF, and logout. Updated the existing journey coverage for the `/demo` namespace.
-- Documented deployment-provided BCrypt access-code configuration and the required TLS, session-cookie, rate-limit, and OpenAI usage controls.
-- Verification passed: `./mvnw verify` and `git diff --check`.
+- Added a central Thymeleaf Layout Dialect `layout.html` that owns the Duke Greens header, footer, document shell, and stylesheet; every public, protected, and error page now decorates it with only its page content.
+- Rebuilt the public landing page as a Duke Greens-branded hero with clear demonstration and explanatory actions.
+- Updated demo-return links to use the protected `/demo` journey and scoped browser-page navigation helpers to the primary navigation.
+- Added browser coverage for the landing page’s header, footer, branded home link, and protected-demo action.
+- Replaced the footer’s detailed-information links with the requested Java resource links, Terms of Use, and a current-year Duke Greens copyright; external links open in a new tab with opener protection.
+- Added a public Terms of Use page that describes the demonstration without making unverified data-retention claims, and browser coverage that follows the footer link to it.
+- Unified the header, main-content, and footer frame around shared width and horizontal-padding values, removing page-specific width caps that broke alignment.
+- Added browser coverage that verifies the shared frame width on public, protected, and information pages.
+- Styled the landing hero’s second heading as a compact supporting line with subtle rules, preserving a clear hierarchy below “Java & AI” and readability at narrow widths.
+- Replaced the demo-access return-to-home link with an access-code field that has a clear placeholder and an accessible reveal/hide control for the visitor’s entered code; it does not expose the configured access code.
+- Added a compact “Need access?” section with the requested Albert Attard and Jae Hahn email and Slack contact options, without a sidebar.
+- Added browser coverage for the access-code placeholder, reveal/hide interaction, access-request contacts, and absence of the removed return link.
+- Widened the desktop access-code input to 30rem while preserving a one-row form and a narrow-viewport fallback, and restyled the access-request guidance as a separate card.
+- Extended browser coverage to enforce the desktop input width.
+- Corrected the active landing-page test to expect its delivered “Try the demo” action.
+- Verified with `./mvnw clean verify` and `git diff --check`.

@@ -38,7 +38,7 @@ class DemoAccessMvcTest {
     void keepsInformationalPagesPublicAndSendsAnonymousVisitorsToDemoAccess() throws Exception {
         mvc.perform(get("/"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Start the demonstration")));
+                .andExpect(content().string(containsString("Try the demo")));
         mvc.perform(get("/about-this-demonstration")).andExpect(status().isOk());
         mvc.perform(get("/how-duke-greens-creates-value")).andExpect(status().isOk());
         mvc.perform(get("/capabilities-and-ai-approach")).andExpect(status().isOk());

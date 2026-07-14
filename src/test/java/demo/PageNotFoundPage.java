@@ -14,7 +14,7 @@ public final class PageNotFoundPage extends PageObject {
         assertThat(elementByRoleAndExactName(AriaRole.HEADING, "This page has wandered off.")).isVisible();
         assertThat(elementByTextAndExactName("We couldn’t find the page you were looking for. It may have moved, the link may be incomplete, or your demo session may have expired.")).isVisible();
         assertThat(elementByTextAndExactName("Starting again is safe: this is only a demonstration—no real order, payment, or delivery is involved.")).isVisible();
-        assertThat(elementByRoleAndExactName(AriaRole.LINK, "How Duke Greens creates value")).isVisible();
+        assertThat(elementByRoleAndExactName(page.locator("main"), AriaRole.LINK, "How Duke Greens creates value")).isVisible();
         return this;
     }
 

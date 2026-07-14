@@ -1,19 +1,18 @@
 <!doctype html>
-<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <title>Let’s start fresh | Duke Greens</title>
-    <link rel="stylesheet" th:href="@{/css/application.css}">
 </head>
 <body>
-<main>
+<main layout:fragment="content">
     <section aria-labelledby="error-heading" class="welcome-panel">
         <p class="eyebrow">A small garden gate detour</p>
         <h1 id="error-heading">Let’s start fresh</h1>
         <p>This page has expired, which can happen after Duke Greens restarts. Nothing has been changed.</p>
         <p>Please return to Duke Greens and try your meal request again.</p>
-        <form method="get" th:action="@{/}">
+        <form method="get" th:action="@{/demo}">
             <button type="submit">Return to welcome page</button>
         </form>
     </section>

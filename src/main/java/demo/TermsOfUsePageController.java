@@ -4,10 +4,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-class PublicLandingPageController {
+class TermsOfUsePageController {
 
-    @GetMapping("/")
-    String show() {
-        return "index";
+    @GetMapping("/terms")
+    String showTermsOfUsePage() {
+        return "terms";
     }
 }

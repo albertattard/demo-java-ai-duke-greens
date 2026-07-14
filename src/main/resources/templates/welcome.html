@@ -1,20 +1,12 @@
 <!doctype html>
-<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <title>Duke Greens</title>
-    <link rel="stylesheet" th:href="@{/css/application.css}">
 </head>
 <body>
-<main>
-    <nav aria-label="Duke Greens information" class="welcome-navigation">
-        <a th:href="@{/how-duke-greens-creates-value}">How Duke Greens creates value</a>
-        <a th:href="@{/capabilities-and-ai-approach}">Capabilities and AI approach</a>
-        <a th:href="@{/about-this-demonstration}">About this demonstration</a>
-        <a th:href="@{/lets-talk}">Let’s Talk</a>
-        <a th:href="@{/team-and-services}">Team and services</a>
-    </nav>
+<main layout:fragment="content">
     <section aria-labelledby="welcome-heading" class="welcome-panel">
         <p class="eyebrow">Next generation green supermarket</p>
         <h1 id="welcome-heading">Duke Greens</h1>

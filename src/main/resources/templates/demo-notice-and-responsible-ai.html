@@ -1,15 +1,14 @@
 <!doctype html>
-<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <title>About This Demonstration | Duke Greens</title>
-    <link rel="stylesheet" th:href="@{/css/application.css}">
 </head>
 <body>
-<main class="team-and-services-page">
+<main class="team-and-services-page" layout:fragment="content">
     <header class="page-header">
-        <a class="back-link" th:href="@{/}">Duke Greens demo</a>
+        <a class="back-link" th:href="@{/demo}">Duke Greens demo</a>
         <p class="eyebrow">Demo notice</p>
         <h1>About This Demonstration</h1>
         <p class="page-introduction">Duke Greens is a demonstration of an AI-assisted Java application for meal planning and virtual grocery baskets. It is not a production shopping service.</p>
@@ -59,7 +58,7 @@
     <section aria-labelledby="disclaimer-heading" class="discussion-panel">
         <h2 id="disclaimer-heading">Meal ideas are illustrative</h2>
         <p>Meal ideas are illustrative and are not medical, dietary, allergy, or nutritional advice.</p>
-        <p class="page-links"><a class="primary-page-link" th:href="@{/}">Return to the Duke Greens demo</a></p>
+        <p class="page-links"><a class="primary-page-link" th:href="@{/demo}">Return to the Duke Greens demo</a></p>
     </section>
 </main>
 </body>

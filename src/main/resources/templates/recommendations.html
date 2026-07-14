@@ -1,13 +1,12 @@
 <!doctype html>
-<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <title>Recommendations | Duke Greens</title>
-    <link rel="stylesheet" th:href="@{/css/application.css}">
 </head>
 <body>
-<main>
+<main layout:fragment="content">
     <section aria-labelledby="recommendations-heading" class="welcome-panel">
         <p class="eyebrow">Meal planning</p>
         <h1 id="recommendations-heading">Recommendations</h1>

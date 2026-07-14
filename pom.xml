@@ -21,6 +21,7 @@
         <java.version>25</java.version>
 
         <spring-ai.version>2.0.0</spring-ai.version>
+        <thymeleaf-layout-dialect.version>3.4.0</thymeleaf-layout-dialect.version>
         <playwright.version>1.61.0</playwright.version>
         <mockito.version>5.23.0</mockito.version>
 
@@ -36,6 +37,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>nz.net.ultraq.thymeleaf</groupId>
+            <artifactId>thymeleaf-layout-dialect</artifactId>
+            <version>${thymeleaf-layout-dialect.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

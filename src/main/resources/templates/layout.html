@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title layout:title-pattern="$CONTENT_TITLE">Duke Greens</title>
+    <link rel="stylesheet" th:href="@{/css/application.css}">
+</head>
+<body>
+<header class="site-header">
+    <div class="site-header-content">
+        <a aria-label="Duke Greens" class="site-brand" th:href="@{/}">
+            <span aria-hidden="true" class="site-brand-mark">DG</span>
+            <span>
+                <strong>Duke Greens</strong>
+                <small>Java and AI for thoughtful grocery shopping</small>
+            </span>
+        </a>
+        <nav aria-label="Duke Greens navigation" class="site-navigation">
+            <a th:href="@{/}">Home</a>
+            <a th:href="@{/demo}">Demo</a>
+            <a th:href="@{/about-this-demonstration}">About</a>
+        </nav>
+    </div>
+</header>
+
+<main layout:fragment="content"></main>
+
+<footer class="site-footer">
+    <div class="site-footer-content">
+        <nav aria-label="Java resources" class="site-footer-links">
+            <a href="https://learn.java" rel="noopener noreferrer" target="_blank">learn.java</a>
+            <a href="https://dev.java" rel="noopener noreferrer" target="_blank">dev.java</a>
+            <a href="https://inside.java" rel="noopener noreferrer" target="_blank">inside.java</a>
+            <a href="https://ops.java" rel="noopener noreferrer" target="_blank">ops.java</a>
+        </nav>
+        <div class="site-footer-legal">
+            <a th:href="@{/terms}">Terms of Use</a>
+            <span>© <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}"></span> Demo Duke Greens</span>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Duke Greens</title>
+</head>
+<body>
+<main class="landing-page" layout:fragment="content">
+    <section aria-labelledby="welcome-heading" class="landing-hero">
+        <p class="eyebrow">Next-generation green supermarket</p>
+        <h1 id="welcome-heading">Java &amp; AI</h1>
+        <h2>together deliver real value</h2>
+        <p>Duke Greens helps shoppers discover new meal ideas and turn them into a ready-to-review shopping basket in seconds. By reducing the effort of meal planning and grocery shopping, it makes it easier to find inspiration and complete a purchase.</p>
+        <div class="landing-actions">
+            <a class="landing-primary-action" th:href="@{/demo}">Try the demo</a>
+            <a class="landing-secondary-action" href="https://www.oracle.com/java/java-se-subscription/value-engineering/" rel="noreferrer noopener" target="_blank">Reach out</a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

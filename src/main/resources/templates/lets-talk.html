@@ -1,15 +1,14 @@
 <!doctype html>
-<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <title>Let’s Talk | Duke Greens</title>
-    <link rel="stylesheet" th:href="@{/css/application.css}">
 </head>
 <body>
-<main class="team-and-services-page">
+<main class="team-and-services-page" layout:fragment="content">
     <header class="page-header">
-        <a class="back-link" th:href="@{/}">Duke Greens demo</a>
+        <a class="back-link" th:href="@{/demo}">Duke Greens demo</a>
         <p class="eyebrow">Java and AI delivery</p>
         <h1>Let’s explore your next AI opportunity.</h1>
         <p class="page-introduction">We help customers identify a focused business journey where Java and AI can create practical, measurable value. The aim is to make the opportunity concrete enough to discuss, test, and learn from together.</p>
@@ -79,7 +78,7 @@
                 <p>Internal collaboration channel placeholder</p>
             </article>
         </div>
-        <p class="page-links"><a class="secondary-page-link" th:href="@{/capabilities-and-ai-approach}">Capabilities and AI approach</a><a class="primary-page-link" th:href="@{/}">Return to the Duke Greens demo</a></p>
+        <p class="page-links"><a class="secondary-page-link" th:href="@{/capabilities-and-ai-approach}">Capabilities and AI approach</a><a class="primary-page-link" th:href="@{/demo}">Return to the Duke Greens demo</a></p>
     </section>
 </main>
 </body>

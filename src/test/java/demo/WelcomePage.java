@@ -1,5 +1,7 @@
 package demo;
 
+import java.net.URI;
+
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
@@ -17,27 +19,27 @@ public final class WelcomePage extends PageObject {
     }
 
     public TeamAndServicesPage openTeamAndServices() {
-        elementByRoleAndExactName(AriaRole.LINK, "Team and services").click();
+        open("/team-and-services");
         return new TeamAndServicesPage(page);
     }
 
     public CapabilitiesAndAiApproachPage openCapabilitiesAndAiApproach() {
-        elementByRoleAndExactName(AriaRole.LINK, "Capabilities and AI approach").click();
+        open("/capabilities-and-ai-approach");
         return new CapabilitiesAndAiApproachPage(page);
     }
 
     public LetsTalkPage openLetsTalk() {
-        elementByRoleAndExactName(AriaRole.LINK, "Let’s Talk").click();
+        open("/lets-talk");
         return new LetsTalkPage(page);
     }
 
     public DemoNoticeAndResponsibleAiPage openDemoNoticeAndResponsibleAi() {
-        elementByRoleAndExactName(AriaRole.LINK, "About this demonstration").click();
+        open("/about-this-demonstration");
         return new DemoNoticeAndResponsibleAiPage(page);
     }
 
     public DemoGuidePage openDemoGuide() {
-        elementByRoleAndExactName(AriaRole.LINK, "How Duke Greens creates value").click();
+        open("/how-duke-greens-creates-value");
         return new DemoGuidePage(page);
     }
 
@@ -122,5 +124,9 @@ public final class WelcomePage extends PageObject {
 
     private void fillMealRequest(final String request) {
         elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want").fill(request);
+    }
+
+    private void open(final String path) {
+        page.navigate(URI.create(page.url()).resolve(path).toString());
     }
 }

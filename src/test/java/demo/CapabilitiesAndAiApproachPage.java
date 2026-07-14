@@ -25,7 +25,7 @@ public final class CapabilitiesAndAiApproachPage extends PageObject {
     }
 
     public WelcomePage openDukeGreensDemo() {
-        elementByRoleAndExactName(AriaRole.LINK, "Duke Greens demo").click();
+        primaryNavigationLink("Demo").click();
         return new WelcomePage(page);
     }
 }

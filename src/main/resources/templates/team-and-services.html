@@ -1,15 +1,14 @@
 <!doctype html>
-<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <title>Team and Services | Duke Greens</title>
-    <link rel="stylesheet" th:href="@{/css/application.css}">
 </head>
 <body>
-<main class="team-and-services-page">
+<main class="team-and-services-page" layout:fragment="content">
     <header class="page-header">
-        <a class="back-link" th:href="@{/}">Duke Greens demo</a>
+        <a class="back-link" th:href="@{/demo}">Duke Greens demo</a>
         <p class="eyebrow">Java Value Engineering</p>
         <h1>Turn AI opportunities into practical Java solutions</h1>
         <p class="page-introduction">We help customers identify, validate, and deliver business value with Java and AI. Together, we turn a promising idea into a solution that works in the real world.</p>

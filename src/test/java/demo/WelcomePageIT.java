@@ -68,9 +68,30 @@ class WelcomePageIT {
     }
 
     @Test
+    void explainsTheTermsOfUse() throws Exception {
+        browser.openDukeGreens(dukeGreens -> dukeGreens.openPublicLandingAndTermsOfUse()
+                .shouldExplainTermsOfUse());
+    }
+
+    @Test
     void givesTheDemoAccessCodeAndContinueControlsEqualHeight() throws Exception {
         browser.openDukeGreens(dukeGreens -> dukeGreens.openDemoAccessPage()
                 .shouldGiveTheAccessControlsEqualHeight());
+    }
+
+    @Test
+    void makesDemoAccessAndItsAccessRequestProcessClear() throws Exception {
+        browser.openDukeGreens(dukeGreens -> dukeGreens.openDemoAccessPage()
+                .shouldMakeAccessCodeEntryAndAccessRequestsClear());
+    }
+
+    @Test
+    void usesOneSharedFrameWidthAcrossPublicProtectedAndInformationPages() throws Exception {
+        browser.openDukeGreens(dukeGreens -> {
+            dukeGreens.openPublicLandingPage().shouldUseOneSharedFrameWidth();
+            dukeGreens.openDemoAccessPage().shouldUseOneSharedFrameWidth();
+            dukeGreens.openTeamAndServicesPage().shouldUseOneSharedFrameWidth();
+        });
     }
 
     @Test

@@ -1,17 +1,241 @@
 :root {
     color: #193326;
+    --site-frame-padding: 1.5rem;
+    --site-frame-width: 72rem;
     font-family: system-ui, sans-serif;
     background: #f4f8f1;
 }
 
 body {
+    background: #eef8f4;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
     margin: 0;
 }
 
 main {
+    box-sizing: border-box;
+    flex: 1;
     margin: 0 auto;
-    max-width: 48rem;
-    padding: 4rem 1.5rem;
+    max-width: var(--site-frame-width);
+    padding: 4rem var(--site-frame-padding);
+    width: 100%;
+}
+
+.site-header {
+    background: #ffffff;
+    border-bottom: 1px solid #d7e6df;
+    box-shadow: 0 0.125rem 0.5rem rgb(25 51 38 / 6%);
+}
+
+.site-header-content,
+.site-footer-content {
+    align-items: center;
+    display: flex;
+    gap: 1.5rem;
+    justify-content: space-between;
+    margin: 0 auto;
+    box-sizing: border-box;
+    max-width: var(--site-frame-width);
+    padding: 1.25rem var(--site-frame-padding);
+    width: 100%;
+}
+
+.site-brand {
+    align-items: center;
+    color: #193326;
+    display: inline-flex;
+    gap: 0.75rem;
+    text-decoration: none;
+}
+
+.site-brand:hover {
+    color: #193326;
+}
+
+.site-brand-mark {
+    align-items: center;
+    background: linear-gradient(135deg, #80bb63, #285a3a);
+    border-radius: 50% 50% 50% 12%;
+    color: #ffffff;
+    display: inline-flex;
+    font-size: 0.8rem;
+    font-weight: 800;
+    height: 2.75rem;
+    justify-content: center;
+    letter-spacing: 0.02em;
+    transform: rotate(-20deg);
+    width: 2.75rem;
+}
+
+.site-brand strong,
+.site-brand small {
+    display: block;
+}
+
+.site-brand strong {
+    color: #285a3a;
+    font-size: 1.5rem;
+    line-height: 1.1;
+}
+
+.site-brand small {
+    color: #4b6e55;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 0.25rem;
+}
+
+.site-navigation {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    justify-content: flex-end;
+}
+
+.site-navigation a {
+    font-size: 0.875rem;
+    text-decoration: none;
+}
+
+.site-navigation a:hover {
+    text-decoration: underline;
+}
+
+.site-footer {
+    border-top: 1px solid #d7e6df;
+    color: #4b6e55;
+    font-size: 0.875rem;
+}
+
+.site-footer-links,
+.site-footer-legal {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.site-footer a {
+    font-weight: 600;
+}
+
+.landing-page {
+    display: grid;
+    min-height: 39rem;
+    place-items: center;
+}
+
+.landing-hero {
+    background: linear-gradient(120deg, #2f7f4b, #193f31);
+    box-shadow: 0 1rem 3rem rgb(25 51 38 / 20%);
+    box-sizing: border-box;
+    color: #ffffff;
+    padding: clamp(3rem, 8vw, 6rem);
+    text-align: center;
+    width: 100%;
+}
+
+.landing-hero .eyebrow {
+    color: #cceac5;
+}
+
+.landing-hero h1 {
+    font-size: clamp(2.75rem, 6vw, 5rem);
+    line-height: 1.06;
+    margin: 1rem auto 0.5rem;
+    max-width: 16ch;
+}
+
+.landing-hero h2 {
+    align-items: center;
+    color: #d9ebd1;
+    display: flex;
+    font-size: clamp(1.125rem, 2.25vw, 1.625rem);
+    font-weight: 700;
+    gap: 0.75rem;
+    justify-content: center;
+    letter-spacing: 0.035em;
+    line-height: 1.25;
+    margin: 0 auto 2rem;
+    max-width: 34rem;
+}
+
+.landing-hero h2::before,
+.landing-hero h2::after {
+    background: #9dca8c;
+    content: "";
+    height: 1px;
+    max-width: 4rem;
+    opacity: 0.8;
+    width: 12vw;
+}
+
+.landing-hero > p:not(.eyebrow) {
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    line-height: 1.55;
+    margin: 0 auto;
+    max-width: 46rem;
+}
+
+.landing-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2.5rem;
+}
+
+.landing-primary-action,
+.landing-secondary-action {
+    border: 1px solid transparent;
+    border-radius: 0.625rem;
+    font-size: 1.125rem;
+    padding: 0.875rem 1.5rem;
+    text-decoration: none;
+}
+
+.landing-primary-action {
+    background: #ffffff;
+    color: #285a3a;
+}
+
+.landing-primary-action:hover {
+    background: #e8f1e5;
+    color: #163d25;
+}
+
+.landing-secondary-action {
+    border-color: #cceac5;
+    color: #ffffff;
+}
+
+.landing-secondary-action:hover {
+    background: rgb(255 255 255 / 12%);
+    color: #ffffff;
+}
+
+@media (max-width: 48rem) {
+    .site-header-content,
+    .site-footer-content {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .site-navigation {
+        justify-content: flex-start;
+    }
+
+    .landing-page {
+        min-height: auto;
+        padding: 2rem var(--site-frame-padding);
+    }
+
+    .landing-hero {
+        padding: 3rem 1.5rem;
+    }
 }
 
 .welcome-panel {
@@ -138,7 +362,7 @@ button {
 .demo-access-form {
     display: grid;
     gap: 1rem 0.5rem;
-    grid-template-columns: minmax(0, 13.5rem) max-content;
+    grid-template-columns: minmax(0, 30rem) max-content;
 }
 
 .demo-access-form label {
@@ -146,9 +370,14 @@ button {
 }
 
 .demo-access-form input,
-.demo-access-form button {
+.demo-access-form > button {
     height: 2.625rem;
     margin-top: 0;
+}
+
+.access-code-entry {
+    grid-column: 1;
+    position: relative;
 }
 
 .demo-access-form input {
@@ -156,8 +385,49 @@ button {
     border-radius: 0.5rem;
     box-sizing: border-box;
     font: inherit;
-    padding: 0 0.75rem;
+    height: 2.625rem;
+    padding: 0 4.75rem 0 0.75rem;
     width: 100%;
+}
+
+.access-code-toggle {
+    background: transparent;
+    border-radius: 0.375rem;
+    color: #285a3a;
+    height: calc(100% - 0.25rem);
+    margin: 0.125rem;
+    padding: 0 0.625rem;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.access-code-toggle:hover {
+    background: #e8f1e5;
+    color: #163d25;
+}
+
+.access-help {
+    background: #ffffff;
+    border: 1px solid #cadfc4;
+    border-radius: 0.75rem;
+    margin-top: 2rem;
+    padding: 1.5rem;
+}
+
+.access-help h2 {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.access-help p {
+    max-width: 54rem;
+}
+
+@media (max-width: 40rem) {
+    .demo-access-form {
+        grid-template-columns: minmax(0, 1fr) max-content;
+    }
 }
 
 .meal-request-submit {
@@ -322,10 +592,6 @@ button {
     width: 1px;
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
-}
-
-.team-and-services-page {
-    max-width: 64rem;
 }
 
 .page-header,
@@ -550,7 +816,7 @@ button {
 
 @media (max-width: 40rem) {
     main {
-        padding: 2rem 1rem;
+        padding: 2rem var(--site-frame-padding);
     }
 
     .welcome-panel,

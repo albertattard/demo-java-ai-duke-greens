@@ -23,11 +23,6 @@ public final class WelcomePage extends PageObject {
         return new TeamAndServicesPage(page);
     }
 
-    public LetsTalkPage openLetsTalk() {
-        open("/lets-talk");
-        return new LetsTalkPage(page);
-    }
-
     public AboutPage openAboutPage() {
         open("/about");
         return new AboutPage(page);

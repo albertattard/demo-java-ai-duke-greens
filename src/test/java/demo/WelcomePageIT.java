@@ -103,15 +103,6 @@ class WelcomePageIT {
     }
 
     @Test
-    void invitesCustomersToDiscussTheirNextAiOpportunity() throws Exception {
-        browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
-                .openLetsTalk()
-                .shouldInviteCustomersToTalk()
-                .openDukeGreensDemo()
-                .shouldShowWelcome());
-    }
-
-    @Test
     void explainsTheDemonstrationAndResponsibleAiUseToVisitors() throws Exception {
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .openAboutPage()

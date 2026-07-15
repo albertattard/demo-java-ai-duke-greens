@@ -1,4 +1,0 @@
-interface:
-  display_name: "Review Current Changes"
-  short_description: "Review the current implementation changes."
-  default_prompt: "Use $review-current-changes to review the current changes for the task reference in my request."

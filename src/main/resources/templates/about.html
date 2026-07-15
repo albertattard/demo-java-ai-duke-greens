@@ -8,13 +8,12 @@
 <body>
 <main class="team-and-services-page" layout:fragment="content">
     <header class="page-header">
-        <a class="back-link" th:href="@{/demo}">Duke Greens demo</a>
-        <p class="eyebrow">Demo notice</p>
         <h1>About This Demonstration</h1>
-        <p class="page-introduction">Duke Greens is a demonstration of an AI-assisted Java application for meal planning and virtual grocery baskets. It is not a production shopping service.</p>
+        <p>Duke Greens demonstrates how AI can make meal planning and grocery shopping simpler, faster, and more inspiring. Instead of spending time deciding what to cook and creating a shopping list, users can discover personalized meal ideas and instantly generate a virtual grocery basket that’s ready for review. By reducing the effort involved in planning meals, Duke Greens helps turn inspiration into action.</p>
+        <p>While the experience showcases the potential of AI-powered shopping, Duke Greens is a technology demonstration rather than a production shopping service. It illustrates how modern Java technologies and generative AI can work together to create intuitive, intelligent retail experiences without processing real purchases or fulfilling grocery orders.</p>
     </header>
 
-    <section aria-labelledby="does-heading" class="content-section how-we-work">
+    <section aria-labelledby="does-heading" class="content-section">
         <h2 id="does-heading">What the demo does</h2>
         <ul>
             <li>Accepts a meal-planning request.</li>
@@ -24,7 +23,7 @@
         </ul>
     </section>
 
-    <section aria-labelledby="does-not-heading" class="content-section how-we-work">
+    <section aria-labelledby="does-not-heading" class="content-section">
         <h2 id="does-not-heading">What the demo does not do</h2>
         <ul>
             <li>It does not accept payments.</li>
@@ -33,7 +32,7 @@
         </ul>
     </section>
 
-    <section aria-labelledby="responsible-ai-heading" class="content-section trust-by-design">
+    <section aria-labelledby="responsible-ai-heading" class="content-section">
         <h2 id="responsible-ai-heading">Using AI responsibly</h2>
         <ul>
             <li>AI is used to interpret requests, recommend meal ideas, and explain alternatives.</li>
@@ -43,22 +42,18 @@
         </ul>
     </section>
 
-    <section aria-labelledby="information-heading" class="content-section how-we-work">
+    <section aria-labelledby="information-heading" class="content-section">
         <h2 id="information-heading">Your information</h2>
-        <p>Please do not enter personal, confidential, sensitive, health, payment, or account information.</p>
-        <p>Keep requests limited to general meal-planning preferences.</p>
-        <aside aria-label="Privacy and contact details pending approval" class="information-message">
-            <h3>Information notice pending approval</h3>
-            <p>Approved privacy notice placeholder</p>
-            <p>Approved data-retention statement placeholder</p>
-            <p>Required contact details placeholder</p>
-        </aside>
+        <ul>
+            <li>Please do not enter personal, confidential, sensitive, health, payment, or account information.</li>
+            <li>Keep requests limited to general meal-planning preferences.</li>
+        </ul>
     </section>
 
     <section aria-labelledby="disclaimer-heading" class="discussion-panel">
         <h2 id="disclaimer-heading">Meal ideas are illustrative</h2>
         <p>Meal ideas are illustrative and are not medical, dietary, allergy, or nutritional advice.</p>
-        <p class="page-links"><a class="primary-page-link" th:href="@{/demo}">Return to the Duke Greens demo</a></p>
+        <p class="page-links"><a class="primary-page-link" th:href="@{/demo}">Try the demo</a></p>
     </section>
 </main>
 </body>

@@ -27,8 +27,18 @@ body {
     background: #eef8f4;
     display: flex;
     flex-direction: column;
+    line-height: 1.5;
     min-height: 100vh;
     margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    line-height: 1.15;
 }
 
 main {
@@ -255,21 +265,22 @@ main {
     }
 }
 
+.page-header,
+.content-section,
+.discussion-panel,
 .welcome-panel,
 .product-card,
-.page-header,
-.content-section,
-.discussion-panel {
+.access-help,
+.service-card,
+.team-card,
+.contact-card,
+.guide-step,
+.meal-product-card {
     background: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: var(--panel-radius);
     box-shadow: var(--panel-shadow);
-}
-
-.welcome-panel,
-.page-header,
-.content-section,
-.discussion-panel {
-    padding: 2.5rem;
+    padding: 1.5rem;
 }
 
 .welcome-navigation {
@@ -302,10 +313,6 @@ a:hover {
     display: grid;
     gap: 1rem;
     grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-}
-
-.product-card {
-    padding: 1.25rem;
 }
 
 .product-card h3 {
@@ -365,6 +372,7 @@ textarea,
     border-radius: var(--control-radius);
     box-sizing: border-box;
     font: inherit;
+    line-height: normal;
 }
 
 textarea {
@@ -382,6 +390,7 @@ button {
     cursor: pointer;
     font: inherit;
     font-weight: 700;
+    line-height: normal;
     margin-top: 1rem;
     padding: var(--action-padding);
 }
@@ -431,20 +440,12 @@ button {
 }
 
 .access-help {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--card-radius);
     margin-top: 2rem;
-    padding: 1.5rem;
 }
 
 .access-help h2 {
     font-size: 1.5rem;
     margin: 0;
-}
-
-.access-help p {
-    max-width: 54rem;
 }
 
 @media (max-width: 40rem) {
@@ -637,11 +638,10 @@ button {
     max-width: 18ch;
 }
 
-.page-introduction {
+.page-header p {
     font-size: 1.25rem;
     line-height: 1.5;
     margin-bottom: 0;
-    max-width: 50rem;
 }
 
 .content-section,
@@ -662,13 +662,6 @@ button {
     grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
 }
 
-.service-card,
-.team-card {
-    border: 1px solid var(--color-border);
-    border-radius: var(--card-radius);
-    padding: 1.25rem;
-}
-
 .service-card h3,
 .team-card h3 {
     margin-top: 0;
@@ -678,14 +671,6 @@ button {
 .team-card p {
     line-height: 1.5;
     margin-bottom: 0;
-}
-
-.how-we-work ul {
-    display: grid;
-    gap: 0.75rem;
-    line-height: 1.5;
-    margin-bottom: 0;
-    padding-left: 1.25rem;
 }
 
 .duke-greens-story {
@@ -717,10 +702,7 @@ button {
 }
 
 .contact-card {
-    background: var(--color-surface);
-    border-radius: var(--card-radius);
     color: var(--color-text);
-    padding: 1.25rem;
 }
 
 .contact-card h3,
@@ -763,7 +745,6 @@ button {
 }
 
 .guide-steps,
-.trust-by-design ul,
 .prompt-list {
     display: grid;
     gap: 1rem;
@@ -778,11 +759,8 @@ button {
 
 .guide-step {
     align-items: flex-start;
-    border: 1px solid var(--color-border);
-    border-radius: var(--card-radius);
     display: flex;
     gap: 1rem;
-    padding: 1.25rem;
 }
 
 .guide-step h3 {
@@ -805,11 +783,6 @@ button {
     justify-content: center;
 }
 
-.trust-by-design {
-    border-left: 0.375rem solid var(--color-brand);
-}
-
-.trust-by-design ul,
 .prompt-list {
     padding-left: 1.25rem;
 }
@@ -843,13 +816,6 @@ button {
     main {
         padding: 2rem var(--site-frame-padding);
     }
-
-    .welcome-panel,
-    .page-header,
-    .content-section,
-    .discussion-panel {
-        padding: 1.5rem;
-    }
 }
 
 .meal-product-grid {
@@ -860,12 +826,8 @@ button {
 
 .meal-product-card {
     align-items: center;
-    background: var(--color-surface-muted);
-    border: 1px solid var(--color-border);
-    border-radius: var(--card-radius);
     display: flex;
     gap: 0.75rem;
-    padding: 0.75rem;
 }
 
 .meal-product-image,

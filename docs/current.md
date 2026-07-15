@@ -2,23 +2,21 @@
 
 ## Outcome
 
-Visitors can submit a meal request and log out from one aligned action row inside the Duke Greens meal-request card.
+Visitors can use a simplified `/about` page with clearer demo-value messaging and a consistent card-based visual treatment across the site.
 
 ## Constraints
 
-- Keep meal-request submission and logout as separate POST forms so their existing CSRF protection and actions remain unchanged.
-- Place both actions in the meal-request card and align them horizontally at wider viewports, with “Log out” left and “Get meal ideas” right.
-- Retain the agreed card and typography treatments.
+- Replace the former `/about-this-demonstration` route with `/about`.
+- Retain the responsible-AI, information, and disclaimer guidance while removing the pending-approval placeholder details.
+- Apply the aligned visual treatment without changing the demo’s business behaviour.
 
 ## Done when
 
-- The meal-request card contains both “Log out” and “Get meal ideas”.
-- The two actions share one horizontal action row at wider viewports, with “Log out” left and “Get meal ideas” right.
-- The “Log out” and “Get meal ideas” controls still submit their respective existing POST actions.
+- The site navigation opens the `/about` page.
+- The About page explains the demonstration, its responsible-AI approach, visitor information, and its illustrative nature.
+- Existing visitor-facing pages use the aligned visual treatment.
 
 ## Verification
 
 - Baseline: `./mvnw verify` passed, including 23 tests.
-- The new browser assertion failed before implementation because the meal-request action row did not exist.
-- `./mvnw verify` passed after implementation, including 23 tests.
-- `./mvnw verify` passed after aligning “Log out” left and “Get meal ideas” right, including 23 tests.
+- `./mvnw verify` passed with the completed UI changes, including 23 tests.

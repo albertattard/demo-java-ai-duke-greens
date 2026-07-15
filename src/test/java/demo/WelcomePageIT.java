@@ -123,7 +123,7 @@ class WelcomePageIT {
     @Test
     void explainsTheDemonstrationAndResponsibleAiUseToVisitors() throws Exception {
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
-                .openDemoNoticeAndResponsibleAi()
+                .openAboutPage()
                 .shouldExplainTheDemonstration()
                 .returnToDukeGreensDemo()
                 .shouldShowWelcome());

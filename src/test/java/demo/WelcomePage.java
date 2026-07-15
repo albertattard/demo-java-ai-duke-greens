@@ -33,9 +33,9 @@ public final class WelcomePage extends PageObject {
         return new LetsTalkPage(page);
     }
 
-    public DemoNoticeAndResponsibleAiPage openDemoNoticeAndResponsibleAi() {
-        open("/about-this-demonstration");
-        return new DemoNoticeAndResponsibleAiPage(page);
+    public AboutPage openAboutPage() {
+        open("/about");
+        return new AboutPage(page);
     }
 
     public DemoGuidePage openDemoGuide() {

@@ -2,19 +2,17 @@ package demo;
 
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.containsString;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpSession;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.hamcrest.Matchers.containsString;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -39,7 +37,7 @@ class DemoAccessMvcTest {
         mvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Try the demo")));
-        mvc.perform(get("/about-this-demonstration")).andExpect(status().isOk());
+        mvc.perform(get("/about")).andExpect(status().isOk());
         mvc.perform(get("/how-duke-greens-creates-value")).andExpect(status().isOk());
         mvc.perform(get("/capabilities-and-ai-approach")).andExpect(status().isOk());
         mvc.perform(get("/team-and-services")).andExpect(status().isOk());

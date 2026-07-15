@@ -91,15 +91,7 @@ class WelcomePageIT {
         browser.openDukeGreens(dukeGreens -> {
             dukeGreens.openPublicLandingPage().shouldUseOneSharedFrameWidth();
             dukeGreens.openDemoAccessPage().shouldUseOneSharedFrameWidth();
-            dukeGreens.openTeamAndServicesPage().shouldUseOneSharedFrameWidth();
         });
-    }
-
-    @Test
-    void introducesTheJavaValueEngineeringTeamAndServices() throws Exception {
-        browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
-                .openTeamAndServices()
-                .shouldIntroduceTheTeamAndServices());
     }
 
     @Test

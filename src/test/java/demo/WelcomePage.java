@@ -18,11 +18,6 @@ public final class WelcomePage extends PageObject {
         return this;
     }
 
-    public TeamAndServicesPage openTeamAndServices() {
-        open("/team-and-services");
-        return new TeamAndServicesPage(page);
-    }
-
     public AboutPage openAboutPage() {
         open("/about");
         return new AboutPage(page);

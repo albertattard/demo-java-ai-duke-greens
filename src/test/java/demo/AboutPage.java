@@ -18,8 +18,10 @@ public final class AboutPage extends PageObject {
         assertThat(elementByRoleAndExactName(AriaRole.HEADING, "What this demo is showing")).isVisible();
         assertThat(elementByRoleAndExactName(AriaRole.HEADING, "What the demo does not do")).isVisible();
         assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Your information")).isVisible();
-        assertThat(elementByRoleAndExactName(AriaRole.HEADING, "See the demonstration in action")).isVisible();
-        assertThat(elementByTextAndExactName("The best way to understand the pattern is to try it: describe a meal, review the suggestions, and see how the application keeps trusted data and confirmation in your control.")).isVisible();
+        assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Try the pattern or discuss your opportunity")).isVisible();
+        assertThat(elementByTextAndExactName("Try the demonstration to see how Duke Greens translates a meal request into suggestions while the application keeps trusted data and confirmation in your control.")).isVisible();
+        assertThat(elementByRoleAndExactName(AriaRole.LINK, "Discuss an opportunity")).hasAttribute("href", "https://www.oracle.com/java/java-se-subscription/value-engineering/");
+        assertThat(elementByRoleAndExactName(AriaRole.LINK, "Discuss an opportunity")).hasAttribute("target", "_blank");
         return this;
     }
 

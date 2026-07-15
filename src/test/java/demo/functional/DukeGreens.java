@@ -10,7 +10,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import demo.CheckoutPage;
 import demo.TestDemoAccess;
 import demo.PageNotFoundPage;
-import demo.TeamAndServicesPage;
 import demo.TermsOfUsePage;
 import demo.WelcomePage;
 
@@ -114,11 +113,6 @@ public final class DukeGreens {
         page.navigate(baseUrl);
         page.getByRole(com.microsoft.playwright.options.AriaRole.LINK, new Page.GetByRoleOptions().setName("Terms of Use").setExact(true)).click();
         return new TermsOfUsePage(page);
-    }
-
-    public TeamAndServicesPage openTeamAndServicesPage() {
-        page.navigate(baseUrl + "/team-and-services");
-        return new TeamAndServicesPage(page);
     }
 
     public WelcomePage openRecommendationsWithoutSession() {

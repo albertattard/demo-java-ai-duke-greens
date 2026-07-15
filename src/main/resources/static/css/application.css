@@ -272,7 +272,6 @@ main {
 .welcome-panel,
 .product-card,
 .access-help,
-.team-card,
 .contact-card,
 .guide-step,
 .meal-product-card {
@@ -655,38 +654,19 @@ button {
     margin-top: 0;
 }
 
-.service-grid,
-.team-grid {
+.service-grid {
     display: grid;
     gap: 1rem;
     grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
 }
 
-.service-card h3,
-.team-card h3 {
+.service-card h3 {
     margin-top: 0;
 }
 
-.service-card p,
-.team-card p {
+.service-card p {
     line-height: 1.5;
     margin-bottom: 0;
-}
-
-.duke-greens-story {
-    border-left: 0.375rem solid var(--color-brand);
-}
-
-.team-photo-placeholder {
-    align-items: center;
-    aspect-ratio: 4 / 3;
-    background: linear-gradient(0deg, var(--color-surface-muted), var(--color-border));
-    border-radius: var(--control-radius);
-    color: var(--color-text-muted);
-    display: flex;
-    font-weight: 700;
-    justify-content: center;
-    margin-bottom: 1.25rem;
 }
 
 .discussion-panel {

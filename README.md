@@ -6,8 +6,8 @@ The first implementation is text-based. Future iterations may add push-to-talk i
 
 ## Repository guide
 
-- [`AGENTS.md`](AGENTS.md) contains the collaboration, quality, commit-message, and documentation conventions for contributors and agents.
 - [`docs/`](docs/README.md) contains product and engineering documentation.
+- [`infrastructure/`](infrastructure/README.md) contains the OCI deployment runbook and Terraform configuration.
 
 The project vision and MVP boundaries are in [`docs/product/vision.md`](docs/product/vision.md).
 

@@ -453,9 +453,20 @@ button {
     }
 }
 
-.meal-request-submit {
-    display: block;
-    margin-left: auto;
+.meal-request-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.meal-request-actions form {
+    margin: 0;
+}
+
+.meal-request-actions button {
+    margin-top: 0;
 }
 
 .secondary-action {

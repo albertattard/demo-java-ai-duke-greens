@@ -55,6 +55,7 @@ class WelcomePageIT {
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .shouldShowWelcome()
                 .shouldProvideMealRequestInput()
+                .shouldPlaceMealRequestActionsOnOneRow()
                 .shouldShowProducts(productCatalogue.allProducts().size())
                 .shouldShowProduct("Wholewheat spaghetti", "500 g", "1,49")
                 .shouldShowProduct("Chickpeas", "400 g", "0,99"));

@@ -107,6 +107,15 @@ public final class WelcomePage extends PageObject {
         return this;
     }
 
+    WelcomePage shouldPlaceMealRequestActionsOnOneRow() {
+        final Locator actions = page.locator(".meal-request-actions");
+        assertThat(actions).isVisible();
+        assertThat(elementByRoleAndExactName(actions, AriaRole.BUTTON, "Log out")).isVisible();
+        assertThat(elementByRoleAndExactName(actions, AriaRole.BUTTON, "Get meal ideas")).isVisible();
+        org.assertj.core.api.Assertions.assertThat(actions.evaluate("element => getComputedStyle(element).justifyContent")).isEqualTo("space-between");
+        return this;
+    }
+
     public WelcomePage shouldShowProducts(final int count) {
         assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Products")).isVisible();
         assertThat(page.locator("[data-testid='product-card']")).hasCount(count);

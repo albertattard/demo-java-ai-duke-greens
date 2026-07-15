@@ -8,8 +8,8 @@
 </head>
 <body>
 <main layout:fragment="content">
-    <section aria-labelledby="demo-access-heading" class="page-header">
-        <h1 id="demo-access-heading">Demo access</h1>
+    <section class="page-header">
+        <h1>Demo access</h1>
         <p aria-live="polite" class="validation-message" th:if="${param.error}">The access code could not be verified. Please try again.</p>
         <form class="demo-access-form" method="post" th:action="@{/demo-access}">
             <div class="access-code-entry">
@@ -21,7 +21,7 @@
         <p>Enter the access code shared by your presenter to continue.</p>
     </section>
     <section class="content-section">
-        <h2 id="access-help-heading">Need access?</h2>
+        <h2>Need access?</h2>
         <p>If you do not have an access code, please contact Albert Attard at <a href="mailto:albert.attard@oracle.com">albert.attard@oracle.com</a> or via <a href="https://oracle.enterprise.slack.com/team/U03ME35M0AH" rel="noopener noreferrer" target="_blank">Slack at @aattard</a> or Jae Hahn at <a href="mailto:jae.hahn@oracle.com">jae.hahn@oracle.com</a> or via <a href="https://oracle.enterprise.slack.com/team/WQW7ZRA90" rel="noopener noreferrer" target="_blank">Slack at @jahahn</a>.</p>
     </section>
 </main>

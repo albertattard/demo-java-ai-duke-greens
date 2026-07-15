@@ -25,7 +25,7 @@ public final class DukeGreens {
 
     public WelcomePage openWelcomePage() {
         page.navigate(baseUrl + "/demo");
-        page.getByLabel("Access code").fill(TestDemoAccess.accessCode());
+        page.locator("#access-code").fill(TestDemoAccess.accessCode());
         page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Continue").setExact(true)).click();
         return new WelcomePage(page);
     }
@@ -51,9 +51,9 @@ public final class DukeGreens {
     }
 
     public DukeGreens shouldGiveTheAccessControlsEqualHeight() {
-        final Number accessCodeHeight = (Number) page.getByLabel("Access code").evaluate("element => element.getBoundingClientRect().height");
+        final Number accessCodeHeight = (Number) page.locator("#access-code").evaluate("element => element.getBoundingClientRect().height");
         final Number continueHeight = (Number) page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Continue").setExact(true)).evaluate("element => element.getBoundingClientRect().height");
-        final Number accessCodeWidth = (Number) page.getByLabel("Access code").evaluate("element => element.getBoundingClientRect().width");
+        final Number accessCodeWidth = (Number) page.locator("#access-code").evaluate("element => element.getBoundingClientRect().width");
         final Number continueWidth = (Number) page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Continue").setExact(true)).evaluate("element => element.getBoundingClientRect().width");
 
         assertThat(accessCodeHeight.doubleValue()).isEqualTo(continueHeight.doubleValue());
@@ -63,7 +63,7 @@ public final class DukeGreens {
     }
 
     public DukeGreens shouldMakeAccessCodeEntryAndAccessRequestsClear() {
-        final var accessCode = page.getByLabel("Access code");
+        final var accessCode = page.locator("#access-code");
         PlaywrightAssertions.assertThat(accessCode).hasAttribute("placeholder", "Enter access code");
         PlaywrightAssertions.assertThat(accessCode).hasAttribute("type", "password");
 
@@ -104,7 +104,7 @@ public final class DukeGreens {
         PlaywrightAssertions.assertThat(page.getByRole(com.microsoft.playwright.options.AriaRole.LINK, new Page.GetByRoleOptions().setName("Reach out").setExact(true)))
                 .hasAttribute("target", "_blank");
         page.getByRole(com.microsoft.playwright.options.AriaRole.LINK, new Page.GetByRoleOptions().setName("Try the demo").setExact(true)).click();
-        page.getByLabel("Access code").fill(TestDemoAccess.accessCode());
+        page.locator("#access-code").fill(TestDemoAccess.accessCode());
         page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Continue").setExact(true)).click();
         return new WelcomePage(page);
     }

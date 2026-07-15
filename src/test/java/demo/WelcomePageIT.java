@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.Timeout;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -23,6 +24,7 @@ import demo.functional.browser.PlaywrightBrowserHarness;
 import module java.base;
 
 @Tag("e2e")
+@Timeout(value = 10, unit = TimeUnit.SECONDS)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -41,6 +43,7 @@ class WelcomePageIT {
     private BrowserHarness browser;
 
     @BeforeAll
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     void launchBrowser() {
         browser = new PlaywrightBrowserHarness("http://localhost:" + port);
     }

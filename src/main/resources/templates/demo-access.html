@@ -8,20 +8,19 @@
 </head>
 <body>
 <main layout:fragment="content">
-    <section aria-labelledby="demo-access-heading" class="welcome-panel">
+    <section aria-labelledby="demo-access-heading" class="page-header">
         <h1 id="demo-access-heading">Demo access</h1>
-        <p>Enter the access code shared by your presenter to continue.</p>
         <p aria-live="polite" class="validation-message" th:if="${param.error}">The access code could not be verified. Please try again.</p>
         <form class="demo-access-form" method="post" th:action="@{/demo-access}">
-            <label for="access-code">Access code</label>
             <div class="access-code-entry">
                 <input autocomplete="current-password" id="access-code" name="accessCode" placeholder="Enter access code" required type="password">
                 <button aria-label="Reveal entered code" aria-pressed="false" class="access-code-toggle" id="toggle-access-code" type="button">Show</button>
             </div>
             <button type="submit">Continue</button>
         </form>
+        <p>Enter the access code shared by your presenter to continue.</p>
     </section>
-    <section aria-labelledby="access-help-heading" class="access-help">
+    <section class="content-section">
         <h2 id="access-help-heading">Need access?</h2>
         <p>If you do not have an access code, please contact Albert Attard at <a href="mailto:albert.attard@oracle.com">albert.attard@oracle.com</a> or via <a href="https://oracle.enterprise.slack.com/team/U03ME35M0AH" rel="noopener noreferrer" target="_blank">Slack at @aattard</a> or Jae Hahn at <a href="mailto:jae.hahn@oracle.com">jae.hahn@oracle.com</a> or via <a href="https://oracle.enterprise.slack.com/team/WQW7ZRA90" rel="noopener noreferrer" target="_blank">Slack at @jahahn</a>.</p>
     </section>

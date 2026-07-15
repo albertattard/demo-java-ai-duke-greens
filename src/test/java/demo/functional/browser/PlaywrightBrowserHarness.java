@@ -7,7 +7,11 @@ import com.microsoft.playwright.Playwright;
 
 import demo.functional.DukeGreens;
 
+import module java.base;
+
 public final class PlaywrightBrowserHarness implements BrowserHarness {
+
+    private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(2);
 
     private final String baseUrl;
     private final Playwright playwright;
@@ -16,13 +20,22 @@ public final class PlaywrightBrowserHarness implements BrowserHarness {
     public PlaywrightBrowserHarness(final String baseUrl) {
         this.baseUrl = baseUrl;
         this.playwright = Playwright.create();
-        this.browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
+        this.browser = playwright.chromium()
+                .launch(new BrowserType.LaunchOptions()
+                        .setHeadless(true)
+                        .setTimeout(DEFAULT_TIMEOUT.toMillis()));
     }
 
     @Override
     public void openDukeGreens(final BrowserConsumer<DukeGreens> consumer) throws Exception {
+        withPage(page -> consumer.accept(new DukeGreens(baseUrl, page)));
+    }
+
+    private void withPage(final BrowserConsumer<Page> consumer) throws Exception {
         try (final Page page = browser.newPage()) {
-            consumer.accept(new DukeGreens(baseUrl, page));
+            page.setDefaultTimeout(DEFAULT_TIMEOUT.toMillis());
+            page.setDefaultNavigationTimeout(DEFAULT_TIMEOUT.toMillis());
+            consumer.accept(page);
         }
     }
 

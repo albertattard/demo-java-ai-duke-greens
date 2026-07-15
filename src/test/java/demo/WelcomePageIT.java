@@ -121,15 +121,6 @@ class WelcomePageIT {
     }
 
     @Test
-    void explainsHowDukeGreensCreatesValueForCustomers() throws Exception {
-        browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
-                .openDemoGuide()
-                .shouldExplainHowDukeGreensCreatesValue()
-                .tryTheMealPlanningDemo()
-                .shouldShowInitialRequestState());
-    }
-
-    @Test
     void helpsVisitorsRecoverFromAnInvalidLink() throws Exception {
         browser.openDukeGreens(dukeGreens -> dukeGreens.openMissingPage()
                 .shouldExplainTheMissingPage()

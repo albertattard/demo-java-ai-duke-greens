@@ -802,16 +802,6 @@ button {
     color: var(--color-surface);
 }
 
-.demo-guide-action .primary-link {
-    background: var(--color-surface);
-    color: var(--color-brand);
-}
-
-.demo-guide-action .primary-link:hover {
-    background: var(--color-action-hover);
-    color: var(--color-brand-hover);
-}
-
 @media (max-width: 40rem) {
     main {
         padding: 2rem var(--site-frame-padding);

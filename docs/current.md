@@ -2,21 +2,22 @@
 
 ## Outcome
 
-Visitors can use a simplified `/about` page with clearer demo-value messaging and a consistent card-based visual treatment across the site.
+Visitors can understand, in concrete terms, how Duke Greens divides responsibility between AI and the application, without a separate capabilities-and-AI-approach page.
 
 ## Constraints
 
-- Replace the former `/about-this-demonstration` route with `/about`.
-- Retain the responsible-AI, information, and disclaimer guidance while removing the pending-approval placeholder details.
-- Apply the aligned visual treatment without changing the demo’s business behaviour.
+- Keep the About page focused on the Duke Greens demonstration; do not add consultancy or “Where we can help” messaging.
+- AI may suggest meals, but the application must remain responsible for catalogue validation, basket contents, and simulated-order completion.
+- Do not change the demo’s business behaviour.
+- Remove the obsolete `/capabilities-and-ai-approach` page and do not leave links or routes to it.
 
 ## Done when
 
-- The site navigation opens the `/about` page.
-- The About page explains the demonstration, its responsible-AI approach, visitor information, and its illustrative nature.
-- Existing visitor-facing pages use the aligned visual treatment.
+- The About page explains that AI suggests meals while the application validates catalogue items and controls the basket and simulated order.
+- The existing responsible-AI, visitor-information, and illustrative-use guidance remains available.
+- The former capabilities-and-AI-approach page, its route, its link from Let’s Talk, and dedicated tests no longer exist.
 
 ## Verification
 
-- Baseline: `./mvnw verify` passed, including 23 tests.
-- `./mvnw verify` passed with the completed UI changes, including 23 tests.
+- Baseline: `./mvnw verify` passed, including 23 end-to-end tests.
+- `./mvnw verify` passed after implementation, including 22 end-to-end tests.

@@ -3,24 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
-    <title>About This Demonstration</title>
+    <title>About Duke Greens</title>
 </head>
 <body>
 <main layout:fragment="content">
     <header class="page-header">
         <h1>About This Demonstration</h1>
-        <p>Duke Greens demonstrates how AI can make meal planning and grocery shopping simpler, faster, and more inspiring. Instead of spending time deciding what to cook and creating a shopping list, users can discover personalized meal ideas and instantly generate a virtual grocery basket that’s ready for review. By reducing the effort involved in planning meals, Duke Greens helps turn inspiration into action.</p>
-        <p>While the experience showcases the potential of AI-powered shopping, Duke Greens is a technology demonstration rather than a production shopping service. It illustrates how modern Java technologies and generative AI can work together to create intuitive, intelligent retail experiences without processing real purchases or fulfilling grocery orders.</p>
+        <p>Duke Greens demonstrates how modern Java applications can use generative AI to solve a real business problem: translating what a user wants to eat into a shopping basket the application can validate, explain, and refine.</p>
+        <p>Instead of simply adding a chatbot, this demo shows how AI can create business value by helping enterprise applications bridge the gap between natural language intent and structured product data.</p>
     </header>
 
     <section class="content-section">
-        <h2>What the demo does</h2>
+        <h2>The business problem</h2>
+        <p>Customers often know the outcome they want, but not the exact products they need. In grocery shopping, that can sound like:</p>
+        <p><em>"I want something healthy for four people that takes less than 30 minutes to prepare."</em></p>
+        <p>Businesses, on the other hand, operate on structured data such as products, prices, basket contents, and order rules. Duke Greens shows how AI can interpret the request while the Java application keeps control of the business logic and trusted data.</p>
+    </section>
+
+    <section class="content-section">
+        <h2>How the demo works</h2>
+        <div class="service-grid">
+            <article class="service-card">
+                <h3>Understand user intent</h3>
+                <p>AI interprets the meal request and suggests relevant meal ideas and ingredients.</p>
+            </article>
+            <article class="service-card">
+                <h3>Apply business rules</h3>
+                <p>The Java application validates products against the curated catalogue and keeps authoritative data under application control.</p>
+            </article>
+            <article class="service-card">
+                <h3>Create a reviewable basket</h3>
+                <p>The application assembles a virtual basket the visitor can inspect before anything is confirmed.</p>
+            </article>
+            <article class="service-card">
+                <h3>Keep humans in control</h3>
+                <p>The visitor explicitly confirms the simulated order. AI assists the journey, but it does not complete consequential actions on its own.</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="content-section how-we-work">
+        <h2>Our AI approach</h2>
         <ul>
-            <li>Accepts a meal-planning request.</li>
-            <li>Uses AI to suggest and explain possible meals.</li>
-            <li>Validates suggested ingredients against a curated product catalogue.</li>
-            <li>Creates a review-only virtual basket.</li>
+            <li>Start with a measurable business outcome, not a model.</li>
+            <li>Keep product, pricing, policy, and transaction data authoritative in the application or approved enterprise systems.</li>
+            <li>Give AI bounded responsibilities and validate its outputs before business action.</li>
+            <li>Design for evaluation, monitoring, and iterative improvement.</li>
+            <li>Keep a human in control for consequential decisions and state changes.</li>
         </ul>
+    </section>
+
+    <section class="content-section">
+        <h2>What this demo is showing</h2>
+        <p>Duke Greens is a technology demonstration, not a production shopping service. It illustrates how modern Java and generative AI can work together to create an intuitive, intelligent retail experience without processing real purchases or fulfilling grocery orders.</p>
     </section>
 
     <section class="content-section">
@@ -33,13 +68,9 @@
     </section>
 
     <section class="content-section">
-        <h2>Using AI responsibly</h2>
-        <ul>
-            <li>AI is used to interpret requests, recommend meal ideas, and explain alternatives.</li>
-            <li>The application, not the AI model, remains the source of truth for catalogue products, package sizes, prices, basket contents, and simulated-order completion.</li>
-            <li>AI output is constrained and checked before it is used in the visitor journey.</li>
-            <li>The visitor explicitly confirms the simulated order; the application does not complete it autonomously.</li>
-        </ul>
+        <h2>Why this matters</h2>
+        <p>The same pattern applies anywhere users describe an outcome instead of selecting a fixed product or service. AI can help interpret intent, suggest options, and explain choices while the application retains authority over the data and the workflow.</p>
+        <p>That makes the demo useful as a reference for retail, travel, insurance, internal assistants, and other enterprise journeys where the goal is not just automation, but better decision-making and a better user experience.</p>
     </section>
 
     <section class="content-section">

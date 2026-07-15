@@ -27,8 +27,9 @@ public final class LetsTalkPage extends PageObject {
         return this;
     }
 
-    public CapabilitiesAndAiApproachPage openCapabilitiesAndAiApproach() {
-        elementByRoleAndExactName(AriaRole.LINK, "Capabilities and AI approach").click();
-        return new CapabilitiesAndAiApproachPage(page);
+    public WelcomePage openDukeGreensDemo() {
+        elementByRoleAndExactName(AriaRole.LINK, "Return to the Duke Greens demo").click();
+        return new WelcomePage(page);
     }
+
 }

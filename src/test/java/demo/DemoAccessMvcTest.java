@@ -39,9 +39,9 @@ class DemoAccessMvcTest {
                 .andExpect(content().string(containsString("Try the demo")));
         mvc.perform(get("/about")).andExpect(status().isOk());
         mvc.perform(get("/how-duke-greens-creates-value")).andExpect(status().isOk());
-        mvc.perform(get("/capabilities-and-ai-approach")).andExpect(status().isOk());
         mvc.perform(get("/team-and-services")).andExpect(status().isOk());
         mvc.perform(get("/lets-talk")).andExpect(status().isOk());
+        mvc.perform(get("/capabilities-and-ai-approach")).andExpect(status().isNotFound());
 
         mvc.perform(get("/demo"))
                 .andExpect(status().isFound())

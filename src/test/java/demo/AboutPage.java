@@ -12,10 +12,13 @@ public final class AboutPage extends PageObject {
 
     public AboutPage shouldExplainTheDemonstration() {
         assertThat(elementByRoleAndExactName(AriaRole.HEADING, "About This Demonstration")).isVisible();
-        assertThat(elementByRoleAndExactName(AriaRole.HEADING, "What the demo does")).isVisible();
+        assertThat(elementByRoleAndExactName(AriaRole.HEADING, "The business problem")).isVisible();
+        assertThat(elementByRoleAndExactName(AriaRole.HEADING, "How the demo works")).isVisible();
+        assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Our AI approach")).isVisible();
+        assertThat(elementByRoleAndExactName(AriaRole.HEADING, "What this demo is showing")).isVisible();
         assertThat(elementByRoleAndExactName(AriaRole.HEADING, "What the demo does not do")).isVisible();
-        assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Using AI responsibly")).isVisible();
         assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Your information")).isVisible();
+        assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Meal ideas are illustrative")).isVisible();
         return this;
     }
 

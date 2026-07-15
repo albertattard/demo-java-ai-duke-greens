@@ -23,11 +23,6 @@ public final class WelcomePage extends PageObject {
         return new TeamAndServicesPage(page);
     }
 
-    public CapabilitiesAndAiApproachPage openCapabilitiesAndAiApproach() {
-        open("/capabilities-and-ai-approach");
-        return new CapabilitiesAndAiApproachPage(page);
-    }
-
     public LetsTalkPage openLetsTalk() {
         open("/lets-talk");
         return new LetsTalkPage(page);

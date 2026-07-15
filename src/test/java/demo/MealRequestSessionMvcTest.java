@@ -343,6 +343,25 @@ class MealRequestSessionMvcTest {
     }
 
     @Test
+    void rendersRetainedMealIdeasWhenRefinementFails() throws Exception {
+        final String conversationId = "active-conversation";
+        final MockHttpSession session = new MockHttpSession();
+        session.setAttribute("mealConversationId", conversationId);
+        final SuccessfulMealRequest successfulRequest = new SuccessfulMealRequest("Suggest a vegetarian dinner",
+                new MappedMealSuggestions(List.of(new MappedMealSuggestion("Lemon lentil pasta", 25, "A quick dinner.", 1,
+                        List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69)))))
+                .prepareRefinement("Make it quicker");
+        session.setAttribute("mealRequestState", new FailedRefinementRequest(successfulRequest));
+
+        mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/" + conversationId).session(session))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(containsString("We could not refine meal ideas")))
+                .andExpect(model().attribute("resetConfirmationRequired", false));
+
+        verifyNoMoreInteractions(mealSuggestionService);
+    }
+
+    @Test
     void redirectsAnOutOfScopeRetryToTheWelcomePageWithoutRetainingActiveState() throws Exception {
         final String mealRequest = "Suggest a vegetarian dinner";
         final String conversationId = "active-conversation";

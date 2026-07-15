@@ -56,6 +56,7 @@ class RecommendationsPageController {
                 response.setHeader("Cache-Control", "no-store");
                 model.addAttribute("mealRequest", failedRequest.request());
                 model.addAttribute("failed", true);
+                model.addAttribute("resetConfirmationRequired", false);
                 model.addAttribute("conversationId", conversationId);
                 yield "recommendations";
             }
@@ -63,11 +64,14 @@ class RecommendationsPageController {
                 response.setHeader("Cache-Control", "no-store");
                 addSuccessfulRequest(model, failedRefinement.request());
                 model.addAttribute("refinementFailed", true);
+                model.addAttribute("resetConfirmationRequired", false);
                 model.addAttribute("conversationId", conversationId);
                 yield "recommendations";
             }
-            case null ->
-                mealRequestSession.initialRequestRedirect();
+            case null -> {
+                model.addAttribute("resetConfirmationRequired", false);
+                yield mealRequestSession.initialRequestRedirect();
+            }
         };
     }
 

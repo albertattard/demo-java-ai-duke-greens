@@ -67,7 +67,7 @@ Or, after packaging the application, run the executable JAR directly with the sa
 
 ```shell
 java \
-  -Dspring.config.import=optional:file:${HOME}/.openai/openai-api.yml \
+  -Dspring.config.import=optional:file:${HOME}/.demo/demo-java-ai-duke-greens.yml \
   -jar target/duke-greens-1.0.0.jar
 ```
 

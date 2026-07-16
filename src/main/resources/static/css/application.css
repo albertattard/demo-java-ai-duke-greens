@@ -910,6 +910,14 @@ button {
     inline-size: 100%;
 }
 
+.basket-meals {
+    border-collapse: collapse;
+    inline-size: 100%;
+    margin-top: 1rem;
+}
+
+.basket-meals th,
+.basket-meals td,
 .basket-lines th,
 .basket-lines td {
     border-bottom: 1px solid var(--color-border);
@@ -917,25 +925,38 @@ button {
     text-align: left;
 }
 
+.basket-meals th:first-child,
+.basket-meals td:first-child,
 .basket-lines th:first-child,
 .basket-lines td:first-child {
     padding-left: 0;
 }
 
+.basket-meals th:last-child,
+.basket-meals td:last-child,
 .basket-lines th:last-child,
 .basket-lines td:last-child {
     padding-right: 0;
     text-align: right;
 }
 
+.basket-meals thead th,
 .basket-lines thead th {
     color: #4b6e55;
     font-size: 0.875rem;
     text-transform: uppercase;
 }
 
+.basket-meals tbody th,
 .basket-lines tbody th {
     font-weight: 700;
+}
+
+.basket-meals th:nth-child(2),
+.basket-meals td:nth-child(2),
+.basket-meals th:nth-child(3),
+.basket-meals td:nth-child(3) {
+    text-align: right;
 }
 
 .basket-lines tfoot td {

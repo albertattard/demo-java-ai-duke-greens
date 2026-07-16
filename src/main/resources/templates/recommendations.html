@@ -61,11 +61,24 @@
     </section>
     <section aria-labelledby="basket-heading" class="content-section" data-testid="basket" th:if="${basketMeals != null and !basketMeals.isEmpty()}">
         <h2 id="basket-heading">Basket</h2>
-        <article class="meal-suggestion" data-testid="meal-suggestion" th:each="meal : ${basketMeals}">
-            <div class="meal-suggestion-title-row">
-                <h3 th:text="${meal.name}">Meal name</h3>
-            </div>
-        </article>
+        <table class="basket-meals" data-testid="basket-meals">
+            <thead>
+            <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Preparation time</th>
+                <th scope="col">Servings</th>
+                <th scope="col">Estimated cost</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr data-testid="basket-meal" th:each="meal : ${basketMeals}">
+                <th scope="row" th:text="${meal.name}">Meal name</th>
+                <td th:text="${meal.formattedPreparationTime}">30 min</td>
+                <td th:text="${meal.servings}">1</td>
+                <td th:text="${meal.formattedEstimatedCost}">0,00 €</td>
+            </tr>
+            </tbody>
+        </table>
         <div class="basket-actions" th:if="${!resetConfirmationRequired}">
             <a th:href="@{/demo/basket/{conversationId}(conversationId=${conversationId})}">View basket</a>
             <form method="get" th:action="@{/demo/checkout}">

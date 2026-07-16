@@ -91,7 +91,26 @@ public final class RecommendationsPage extends PageObject {
 
     public RecommendationsPage shouldShowBasketMeals(final String... names) {
         assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Basket")).isVisible();
-        assertThat(page.locator("[data-testid='basket'] [data-testid='meal-suggestion'] h3")).hasText(names);
+        assertThat(page.locator("[data-testid='basket-meals'] thead th"))
+                .hasText(new String[] {"Title", "Preparation time", "Servings", "Estimated cost"});
+        assertThat(page.locator("[data-testid='basket-meal'] th[scope='row']")).hasText(names);
+        return this;
+    }
+
+    public RecommendationsPage shouldShowBasketMeal(
+            final String title,
+            final String preparationTime,
+            final int servings,
+            final String estimatedCost) {
+        final Locator row = page.locator("[data-testid='basket-meal']")
+                .filter(new Locator.FilterOptions().setHasText(title));
+        assertThat(row).hasCount(1);
+        assertThat(row.locator("th[scope='row']")).hasText(title);
+        assertThat(row.locator("td").nth(0)).hasText(preparationTime);
+        assertThat(row.locator("td").nth(1)).hasText(String.valueOf(servings));
+        assertThat(row.locator("td").nth(2)).hasText(estimatedCost + "\u00A0€");
+        assertThat(row.locator("td").nth(0)).hasCSS("text-align", "right");
+        assertThat(row.locator("td").nth(1)).hasCSS("text-align", "right");
         return this;
     }
 
@@ -121,9 +140,7 @@ public final class RecommendationsPage extends PageObject {
     }
 
     public RecommendationsPage shouldShowSelectedMeal(final int index) {
-        final Locator suggestion = page.locator("[data-testid='basket'] [data-testid='meal-suggestion']").nth(index);
-        assertThat(suggestion).isVisible();
-        assertThat(suggestion.locator(".meal-product-grid")).hasCount(0);
+        assertThat(page.locator("[data-testid='basket-meal']").nth(index)).isVisible();
         return this;
     }
 

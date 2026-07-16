@@ -120,6 +120,12 @@ record SuccessfulMealRequest(
                 .collect(Collectors.toUnmodifiableSet());
     }
 
+    Set<String> latestRecommendationNames() {
+        return resultSets.getLast().suggestions().stream()
+                .map(MappedMealSuggestion::name)
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
     Set<String> dismissedMealNames() {
         return resultSets.stream()
                 .flatMap(set -> set.dismissedMealIndexes().stream().map(index -> set.suggestions().get(index).name()))

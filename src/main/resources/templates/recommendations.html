@@ -81,9 +81,10 @@
                 </li>
             </ol>
         </section>
+        <p class="meal-request-error" role="alert" th:if="${failedFollowUp}">We couldn’t process that follow-up. Your current meal ideas are unchanged—edit your message and try again.</p>
         <form class="refinement-form" id="follow-up-form" method="post" th:action="@{/demo/recommendations/{conversationId}/follow-up(conversationId=${conversationId})}" th:if="${recommendations != null}">
             <label class="visually-hidden" for="follow-up">Continue the conversation</label>
-            <textarea id="follow-up" maxlength="300" name="followUp"></textarea>
+            <textarea id="follow-up" maxlength="300" name="followUp" th:text="${failedFollowUp}"></textarea>
         </form>
         <div class="refinement-actions" th:if="${recommendations != null and !resetConfirmationRequired}">
             <form method="post" th:action="@{/demo/recommendations/{conversationId}/reset(conversationId=${conversationId})}">

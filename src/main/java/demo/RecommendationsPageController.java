@@ -156,10 +156,10 @@ class RecommendationsPageController {
             return mealRequestSession.recommendationsRedirect(request);
         }
 
-        if (validation instanceof SuccessfulMealSuggestions(
-                String assistantMessage, List<MappedMealSuggestion> suggestions
-        )) {
+        if (validation instanceof SuccessfulMealSuggestions(final String assistantMessage, final List<MappedMealSuggestion> suggestions)) {
             mealRequestSession.store(request, successfulRequest.appendFollowUp(followUp, assistantMessage, suggestions));
+        } else if (validation instanceof FailedRequest(final String errorMessage)) {
+            redirectAttributes.addFlashAttribute("failedFollowUp", errorMessage);
         }
         return mealRequestSession.recommendationsRedirect(request);
     }

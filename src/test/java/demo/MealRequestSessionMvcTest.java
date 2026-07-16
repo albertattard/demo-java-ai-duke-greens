@@ -481,6 +481,54 @@ class MealRequestSessionMvcTest {
     }
 
     @Test
+    void recoversFromAFailedFollowUpWithoutChangingTheConversation() throws Exception {
+        final String conversationId = "active-conversation";
+        final String failedFollowUp = "Make it quicker";
+        final String correctedFollowUp = "Make it quicker and vegetarian";
+        final MappedMealSuggestion initialSuggestion = new MappedMealSuggestion("Lemon lentil pasta", 25,
+                "A quick dinner.", 1, List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69));
+        final MappedMealSuggestion correctedSuggestion = new MappedMealSuggestion("Lentil soup", 20,
+                "A quicker dinner.", 1, List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69));
+        final SuccessfulMealRequest request = new SuccessfulMealRequest("Suggest a vegetarian dinner", List.of(initialSuggestion));
+        final MockHttpSession session = new MockHttpSession();
+        session.setAttribute("mealConversationId", conversationId);
+        session.setAttribute("mealRequestState", request);
+        final MealSuggestionService.Request failedServiceRequest = new MealSuggestionService.Request(
+                conversationId, failedFollowUp, Set.of(initialSuggestion.name()), Set.of());
+        final MealSuggestionService.Request correctedServiceRequest = new MealSuggestionService.Request(
+                conversationId, correctedFollowUp, Set.of(initialSuggestion.name()), Set.of());
+        when(mealSuggestionService.submit(eq(failedServiceRequest))).thenReturn(new FailedRequest(failedFollowUp));
+        when(mealSuggestionService.submit(eq(correctedServiceRequest)))
+                .thenReturn(new SuccessfulMealSuggestions("Here is a quicker meal.", List.of(correctedSuggestion)));
+
+        final MvcResult failure = mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/follow-up")
+                        .with(csrf())
+                        .session(session)
+                        .param("followUp", failedFollowUp))
+                .andExpect(redirectedUrl("/demo/recommendations/" + conversationId))
+                .andExpect(request().sessionAttribute("mealRequestState", request))
+                .andReturn();
+        mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/" + conversationId)
+                        .session(session)
+                        .flashAttrs(failure.getFlashMap()))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(containsString("We couldn’t process that follow-up. Your current meal ideas are unchanged—edit your message and try again.")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Lemon lentil pasta")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("<textarea id=\"follow-up\" maxlength=\"300\" name=\"followUp\">" + failedFollowUp + "</textarea>")));
+
+        mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/follow-up")
+                        .with(csrf())
+                        .session(session)
+                        .param("followUp", correctedFollowUp))
+                .andExpect(redirectedUrl("/demo/recommendations/" + conversationId))
+                .andExpect(request().sessionAttribute("mealRequestState",
+                        request.appendFollowUp(correctedFollowUp, "Here is a quicker meal.", List.of(correctedSuggestion))));
+
+        verify(mealSuggestionService).submit(eq(failedServiceRequest));
+        verify(mealSuggestionService).submit(eq(correctedServiceRequest));
+    }
+
+    @Test
     void rejectsAFollowUpForAnotherConversationWithoutCallingTheModel() throws Exception {
         final MockHttpSession session = new MockHttpSession();
         session.setAttribute("mealConversationId", "active-conversation");

@@ -41,24 +41,24 @@ Deliver the overall outcome in the following small vertical slices. Each slice r
 
 ### Outcome
 
-Visitors can continue the conversation after a valid assistant response that contains no meal suggestions.
+Visitors can safely recover from a failed follow-up request.
 
 ### Constraints
 
-- A zero-suggestion response requires a non-blank assistant message.
-- Do not create a new recommendation set for a zero-suggestion response.
-- Preserve the latest non-empty recommendations, selected meals, and basket unchanged.
-- Provider and invalid-response recovery are explicitly deferred.
+- A provider or catalogue-mapping failure shows a recovery error and pre-fills the editable follow-up textarea with the attempted text.
+- Do not append either turn to the UI transcript, or change recommendations, selected meals, or basket. Spring AI memory may retain the failed provider turn; atomic AI-memory commits are deferred as enabling work.
+- Do not expose provider diagnostics or partial cards.
+- A resend is a normal, editable follow-up submission.
 - Keep the active conversation ID unchanged.
 
 ### Done when
 
-- A valid zero-suggestion follow-up appends the visitor and assistant messages to the visible conversation.
-- The latest non-empty recommendations remain visible and a further follow-up can be submitted.
-- Focused service and MVC coverage proves the behaviour.
+- A failed follow-up preserves the visible conversation and cards, and displays editable recovery.
+- An edited resend can become the next successful exchange.
+- Focused MVC coverage proves the behaviour.
 
 ## Verification
 
-- Baseline verification: `./mvnw package` passed with 100 tests.
-- Focused service, model-response, and MVC coverage: `./mvnw test -Dtest=MealSuggestionServiceTest,MealRequestSessionMvcTest,ModelMealSuggestionsTest` passed with 46 tests.
-- Current verification: `./mvnw package` passed with 102 tests.
+- Baseline verification: `./mvnw package` passed with 102 tests.
+- Focused MVC coverage: `./mvnw test -Dtest=MealRequestSessionMvcTest` passed with 30 tests.
+- Current verification: `./mvnw package` passed with 103 tests.

@@ -200,6 +200,50 @@ class MealRequestSessionMvcTest {
     }
 
     @Test
+    void startsAConversationWithAnInitialModelClarificationAndAcceptsAMealIdeaFollowUp() throws Exception {
+        final String initialRequest = "Suggest dinner";
+        final String followUp = "Vegetarian and ready in 20 minutes";
+        final String clarification = "Do you have a dietary preference and a maximum preparation time?";
+        final MappedMealSuggestion suggestion = new MappedMealSuggestion("Lemon lentil pasta", 20,
+                "A quick vegetarian dinner.", 1, List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69));
+        final MockHttpSession session = new MockHttpSession();
+
+        when(mealSuggestionService.submit(any(MealSuggestionService.Request.class)))
+                .thenReturn(new SuccessfulMealSuggestions(clarification, List.of()));
+
+        mvc.perform(MockMvcRequestBuilders.post("/demo/meal-request")
+                        .with(csrf())
+                        .session(session)
+                        .param("mealRequest", initialRequest))
+                .andExpect(redirectedUrlPattern("/demo/recommendations/*"));
+
+        final String conversationId = (String) session.getAttribute("mealConversationId");
+        final SuccessfulMealRequest clarificationState = new SuccessfulMealRequest(initialRequest, clarification, List.of());
+        assertThat(session.getAttribute("mealRequestState")).isEqualTo(clarificationState);
+        mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/" + conversationId).session(session))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(containsString(clarification)))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("action=\"/demo/recommendations/" + conversationId + "/follow-up\"")));
+
+        final MealSuggestionService.Request followUpRequest = new MealSuggestionService.Request(
+                conversationId, followUp, Set.of(), Set.of());
+        when(mealSuggestionService.submit(eq(followUpRequest)))
+                .thenReturn(new SuccessfulMealSuggestions("Here is a meal idea.", List.of(suggestion)));
+
+        mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/follow-up")
+                        .with(csrf())
+                        .session(session)
+                        .param("followUp", followUp))
+                .andExpect(redirectedUrl("/demo/recommendations/" + conversationId))
+                .andExpect(request().sessionAttribute("mealRequestState",
+                        clarificationState.appendFollowUp(followUp, "Here is a meal idea.", List.of(suggestion))));
+
+        verify(mealSuggestionService, times(2)).submit(any(MealSuggestionService.Request.class));
+        verify(mealSuggestionService).submit(eq(followUpRequest));
+        verifyNoMoreInteractions(mealSuggestionService);
+    }
+
+    @Test
     void redirectsAFailedMealRequestToItsSessionBackedRecoveryPage() throws Exception {
         final String mealRequest = "Suggest a vegetarian dinner";
         final MockHttpSession session = new MockHttpSession();

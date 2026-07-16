@@ -58,4 +58,6 @@ When an initial meal request lacks both dietary preference and preparation time,
 
 ## Verification
 
-- Pending.
+- `mvn test` — passed: 105 tests.
+- Focused MVC coverage exercises an initial zero-suggestion clarification, its transcript and follow-up form, and a subsequent meal-idea response in the same conversation.
+- Prompt coverage verifies that clarification is limited to an initial in-scope request lacking both dietary preference and maximum preparation time.

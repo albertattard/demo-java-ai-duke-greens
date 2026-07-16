@@ -214,7 +214,7 @@ record MealResultSet(List<MappedMealSuggestion> suggestions, Set<Integer> dismis
                      boolean feedbackLocked) {
 
     MealResultSet {
-        requireSizeBetween(suggestions, 1, 7, "A response must contain between one and seven suggestions");
+        requireSizeBetween(suggestions, 0, 7, "A response must contain between zero and seven suggestions");
 
         dismissedMealIndexes = Set.copyOf(dismissedMealIndexes);
         suggestions = List.copyOf(suggestions);

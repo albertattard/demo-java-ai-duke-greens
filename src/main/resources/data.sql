@@ -26,7 +26,7 @@ INSERT INTO product (slug, name, package_quantity, package_unit, price, image_fi
   ('salmon-fillets-400g',       'Salmon fillets',       400,  'g', 6.99, 'salmon-fillets-400g.png'),
   ('cheddar-400g',              'Cheddar',              400,  'g', 3.29, 'cheddar-400g.png'),
   ('cooking-cream-200ml',       'Cooking cream',        200, 'ml', 1.29, 'cooking-cream-200ml.png'),
-  ('soy-sauce-150ml',           'Soy sauce',            150, 'ml', 1.99, null),
+  ('soy-sauce-150ml',           'Soy sauce',            150, 'ml', 1.99, 'soy-sauce-150ml.png'),
   ('curry-paste-200g',          'Curry paste',          200,  'g', 2.49, null),
   ('wholewheat-penne-500g',     'Wholewheat penne',     500,  'g', 1.49, null),
   ('couscous-500g',             'Couscous',             500,  'g', 1.99, null),

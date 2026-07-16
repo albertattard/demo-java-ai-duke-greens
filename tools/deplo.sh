@@ -5,7 +5,7 @@ set -euo pipefail
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 cd "$repository_root"
-./mvnw clean verify
+./mvnw clean verify --activate-profiles openai-integration
 
 cd infrastructure/terraform
 terraform apply -auto-approve -replace=terraform_data.application

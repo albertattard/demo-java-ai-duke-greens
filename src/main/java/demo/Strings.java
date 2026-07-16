@@ -19,6 +19,20 @@ final class Strings {
         }
     }
 
+    static boolean isLengthBetween(final String value, int lowerBound, int upperBound) {
+        if (lowerBound < 0 || lowerBound >= upperBound) {
+            throw new IllegalArgumentException("Lower bound must be greater than 0 and less than upper bound");
+        }
+
+        return isNotBlank(value)
+                && value.length() >= lowerBound
+                && value.length() <= upperBound;
+    }
+
+    static boolean isNotBlank(final String value) {
+        return !isBlank(value);
+    }
+
     static boolean isBlank(final String value) {
         return value == null || value.isBlank();
     }
@@ -32,5 +46,5 @@ final class Strings {
         return formatter.format(price);
     }
 
-    private Strings() { }
+    private Strings() {}
 }

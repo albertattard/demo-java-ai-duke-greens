@@ -6,12 +6,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import static demo.Strings.isBlank;
+import static demo.Strings.isLengthBetween;
 
 // TODO: The submit() and refine() methods are very similar. Consider merging
 //  these.
 @Service
 class MealSuggestionService {
 
+    private static final int MINIMUM_MEAL_REQUEST_LENGTH = 1;
     private static final int MAXIMUM_MEAL_REQUEST_LENGTH = 300;
     private static final Logger LOGGER = LoggerFactory.getLogger(MealSuggestionService.class);
 
@@ -28,14 +30,26 @@ class MealSuggestionService {
         this.mapper = mapper;
     }
 
+    @Deprecated(forRemoval = true)
     MealRequestResult submit(final String conversationId, final String request) {
-        if (isBlank(conversationId)) {
-            return new FailedRequest("The conversation id must not be null");
+        return submit(new Request(conversationId, request));
+    }
+
+    MealRequestResult submit(final Request request) {
+        if (request == null) {
+            return new InvalidRequest("The request must not be null");
         }
 
-        final Optional<String> validationError = validationError(request);
-        if (validationError.isPresent()) {
-            return new InvalidRequest(validationError.get());
+        if (request.hasInvalidConversationId()) {
+            return new InvalidRequest("The conversation id cannot be empty");
+        }
+
+        if (isBlank(request.request)) {
+            return new InvalidRequest("Describe at least one meal you want.");
+        }
+
+        if (request.hasInvalidRequest()) {
+            return new InvalidRequest("Describe your meal request in " + MAXIMUM_MEAL_REQUEST_LENGTH + " characters or fewer.");
         }
 
         final List<Product> catalogue;
@@ -43,31 +57,31 @@ class MealSuggestionService {
             catalogue = productCatalogue.allProducts();
         } catch (final RuntimeException e) {
             LOGGER.error("Unable to load the catalogue for a meal suggestion request", e);
-            return new FailedRequest(request);
+            return new FailedRequest(request.request);
         }
 
         if (catalogue.isEmpty()) {
             LOGGER.error("Cannot generate meal suggestions because the catalogue is empty");
-            return new FailedRequest(request);
+            return new FailedRequest(request.request);
         }
 
         final ModelMealRequestResponse response;
         try {
-            response = generator.suggest(new MealSuggestionGenerator.Request(conversationId, request, catalogue));
+            response = generator.suggest(request.toGenerator(catalogue));
         } catch (final RuntimeException e) {
             LOGGER.error("The meal suggestion provider failed", e);
-            return new FailedRequest(request);
+            return new FailedRequest(request.request);
         }
 
         if (response == null) {
             LOGGER.error("Cannot map meal suggestions because the provider returned no response");
-            return new FailedRequest(request);
+            return new FailedRequest(request.request);
         }
 
         // The model determined that the request is out of scope and cannot be
         // answered without breaking the policy defined by the system message.
         if (response.isOutOfScope()) {
-            return new OutOfScopeRequest(request);
+            return new OutOfScopeRequest(request.request);
         }
 
         // Validate the complete model response all-or-nothing. A mapping
@@ -78,70 +92,38 @@ class MealSuggestionService {
             return new SuccessfulMealSuggestions(response.assistantMessage(), suggestions);
         } catch (final RuntimeException e) {
             LOGGER.warn("The meal suggestion response could not be mapped to the catalogue. Suggestions: {}", response.suggestions(), e);
-            return new FailedRequest(request);
+            return new FailedRequest(request.request);
         }
     }
 
-    MealRequestResult followUp(
-            final String conversationId,
-            final String followUp) {
-        if (isBlank(conversationId)) {
-            return new FailedRequest("The conversation id must not be null");
+    /// @param recommendations the meal ideas currently shown to the visitor
+    /// @param selected        the meal ideas the visitor has chosen to add to their basket
+    record Request(
+            String conversationId,
+            String request,
+            Set<String> recommendations,
+            Set<String> selected) {
+
+        public Request {
+            recommendations = recommendations == null ? Set.of() : Set.copyOf(recommendations);
+            selected = selected == null ? Set.of() : Set.copyOf(selected);
         }
 
-        if (isBlank(followUp)) {
-            return new InvalidRequest("Describe what you’d like to change about the meal ideas.");
+        Request(final String conversationId, final String request) {
+            this(conversationId, request, Set.of(), Set.of());
         }
 
-        if (followUp.length() > MAXIMUM_MEAL_REQUEST_LENGTH) {
-            return new InvalidRequest("Describe your meal request in 300 characters or fewer.");
+        MealSuggestionGenerator.Request toGenerator(final List<Product> catalogue) {
+            return new MealSuggestionGenerator.Request(conversationId, request, catalogue, recommendations, selected);
         }
 
-        final List<Product> catalogue;
-        try {
-            catalogue = productCatalogue.allProducts();
-        } catch (final RuntimeException e) {
-            LOGGER.error("Unable to load the catalogue for a refinement", e);
-            return new FailedRequest(followUp);
+        boolean hasInvalidConversationId() {
+            return isBlank(conversationId);
         }
 
-        if (catalogue.isEmpty()) {
-            LOGGER.error("Cannot generate refined meal suggestions because the catalogue is empty");
-            return new FailedRequest(followUp);
+        boolean hasInvalidRequest() {
+            return !isLengthBetween(request, MINIMUM_MEAL_REQUEST_LENGTH, MAXIMUM_MEAL_REQUEST_LENGTH);
         }
-
-        final ModelMealRequestResponse response;
-        try {
-            response = generator.suggest(new MealSuggestionGenerator.Request(conversationId, followUp, catalogue));
-        } catch (final RuntimeException e) {
-            LOGGER.error("The meal refinement provider failed", e);
-            return new FailedRequest(followUp);
-        }
-
-        if (response == null || response.isOutOfScope()) {
-            LOGGER.warn("The meal refinement provider returned an unusable response");
-            return new FailedRequest(followUp);
-        }
-
-        try {
-            final List<MappedMealSuggestion> suggestions = mapper.map(response.inScopeSuggestions(), catalogue);
-            return new SuccessfulMealSuggestions(response.assistantMessage(), suggestions);
-        } catch (final RuntimeException e) {
-            LOGGER.warn("The meal refinement response could not be used. Suggestions: {}", response.suggestions(), e);
-            return new FailedRequest(followUp);
-        }
-    }
-
-    static Optional<String> validationError(final String request) {
-        if (isBlank(request)) {
-            return Optional.of("Describe at least one meal you want.");
-        }
-
-        if (request.length() > MAXIMUM_MEAL_REQUEST_LENGTH) {
-            return Optional.of("Describe your meal request in 300 characters or fewer.");
-        }
-
-        return Optional.empty();
     }
 
     void clearConversation(final String conversationId) {

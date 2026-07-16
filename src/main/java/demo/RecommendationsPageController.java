@@ -145,7 +145,7 @@ class RecommendationsPageController {
             return mealRequestSession.recommendationsRedirect(request);
         }
 
-        final MealRequestResult validation = mealSuggestionService.followUp(conversationId, followUp);
+        final MealRequestResult validation = mealSuggestionService.submit(conversationId, followUp);
 
         if (validation instanceof InvalidRequest(String message)) {
             redirectAttributes.addFlashAttribute("followUpError", message);

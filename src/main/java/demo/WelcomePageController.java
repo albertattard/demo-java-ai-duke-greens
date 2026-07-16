@@ -57,15 +57,12 @@ class WelcomePageController {
             mealRequestSession.clear(request);
         }
 
-        final Optional<String> validationError = MealSuggestionService.validationError(mealRequest);
-        if (validationError.isPresent()) {
-            redirectAttributes.addFlashAttribute("mealRequest", mealRequest);
-            redirectAttributes.addFlashAttribute("validationMessage", validationError.get());
-            return "redirect:/demo";
-        }
-
+        // Start a new session
         final String conversationId = mealRequestSession.startConversation(request);
-        final MealRequestResult result = mealSuggestionService.submit(conversationId, mealRequest);
+
+        // Make request
+        // TODO: This will take a few seconds to complete and we should return quickly and then pull the result.
+        final MealRequestResult result = mealSuggestionService.submit(new MealSuggestionService.Request(conversationId, mealRequest));
 
         return switch (result) {
             case final SuccessfulMealSuggestions successfulSuggestions -> {
@@ -83,6 +80,7 @@ class WelcomePageController {
                 yield "redirect:/demo";
             }
             case InvalidRequest(final String message) -> {
+                mealRequestSession.clear(request);
                 redirectAttributes.addFlashAttribute("mealRequest", mealRequest);
                 redirectAttributes.addFlashAttribute("validationMessage", message);
                 yield "redirect:/demo";

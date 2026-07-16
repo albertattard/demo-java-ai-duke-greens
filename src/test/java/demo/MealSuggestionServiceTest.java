@@ -78,7 +78,7 @@ class MealSuggestionServiceTest {
         final MealRequestResult result = service.submit(CONVERSATION_ID, "   ");
 
         assertThat(result)
-                .isInstanceOf(InvalidRequest.class);
+                .isEqualTo(new InvalidRequest("Describe at least one meal you want."));
         verifyNoInteractions(generator, productCatalogue);
     }
 
@@ -147,7 +147,7 @@ class MealSuggestionServiceTest {
                 .thenReturn(ModelMealRequestResponse.inScope(modelSuggestions));
         when(mapper.map(eq(modelSuggestions), same(catalogue))).thenReturn(mappedSuggestions);
 
-        assertThat(service.followUp("conversation-1", "Make it quicker"))
+        assertThat(service.submit("conversation-1", "Make it quicker"))
                 .isEqualTo(new SuccessfulMealSuggestions("Here are some meal ideas.", mappedSuggestions));
 
         verify(generator).suggest(eq(generatorRequest));

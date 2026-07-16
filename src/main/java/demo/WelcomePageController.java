@@ -26,7 +26,15 @@ class WelcomePageController {
     }
 
     @GetMapping("/demo")
-    String showWelcomePage(@RequestParam(required = false) final String notice, final Model model) {
+    String showWelcomePage(
+            @RequestParam(required = false) final String notice,
+            final HttpServletRequest request,
+            final Model model) {
+        // Keep an active meal-discovery journey on the recommendations page.
+        if (mealRequestSession.conversationId(request) != null) {
+            return mealRequestSession.recommendationsRedirect(request);
+        }
+
         model.addAttribute("products", productCatalogue.allProducts().stream().map(ProductCard::of).toList());
         if (mealRequestSession.isBasketUnavailableNotice(notice)) {
             model.addAttribute("informationMessage", mealRequestSession.basketUnavailableMessage());
@@ -41,6 +49,14 @@ class WelcomePageController {
             @RequestParam(required = false) final String mealRequest,
             final HttpServletRequest request,
             final RedirectAttributes redirectAttributes) {
+        // A stale form submission can reach this endpoint with an active conversation.
+        // Treat it as a fresh start, clearing both session state and model memory.
+        final String existingConversationId = mealRequestSession.conversationId(request);
+        if (existingConversationId != null) {
+            mealSuggestionService.clearConversation(existingConversationId);
+            mealRequestSession.clear(request);
+        }
+
         final Optional<String> validationError = MealSuggestionService.validationError(mealRequest);
         if (validationError.isPresent()) {
             redirectAttributes.addFlashAttribute("mealRequest", mealRequest);
@@ -48,10 +64,6 @@ class WelcomePageController {
             return "redirect:/demo";
         }
 
-        final String previousConversationId = mealRequestSession.conversationId(request);
-        if (previousConversationId != null) {
-            mealSuggestionService.clearConversation(previousConversationId);
-        }
         final String conversationId = mealRequestSession.startConversation(request);
         final MealRequestResult result = mealSuggestionService.submit(conversationId, mealRequest);
 

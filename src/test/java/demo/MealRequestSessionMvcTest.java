@@ -118,7 +118,7 @@ class MealRequestSessionMvcTest {
     }
 
     @Test
-    void keepsTheActiveConversationWhenANewMealRequestIsInvalid() throws Exception {
+    void redirectsAnActiveSessionFromTheWelcomePageToItsRecommendations() throws Exception {
         final String conversationId = "active-conversation";
         final SuccessfulMealRequest activeRequest = new SuccessfulMealRequest("Suggest a vegetarian dinner",
                 List.of(new MappedMealSuggestion("Lemon lentil pasta", 25, "A quick dinner.", 1,
@@ -127,8 +127,8 @@ class MealRequestSessionMvcTest {
         session.setAttribute("mealConversationId", conversationId);
         session.setAttribute("mealRequestState", activeRequest);
 
-        mvc.perform(MockMvcRequestBuilders.post("/demo/meal-request").with(csrf()).session(session).param("mealRequest", "   "))
-                .andExpect(redirectedUrl("/demo"))
+        mvc.perform(MockMvcRequestBuilders.get("/demo").session(session))
+                .andExpect(redirectedUrl("/demo/recommendations/" + conversationId))
                 .andExpect(request().sessionAttribute("mealConversationId", conversationId))
                 .andExpect(request().sessionAttribute("mealRequestState", activeRequest));
 
@@ -136,22 +136,24 @@ class MealRequestSessionMvcTest {
     }
 
     @Test
-    void clearsThePreviousConversationBeforeStartingANewValidMealRequest() throws Exception {
-        final String previousConversationId = "previous-conversation";
+    void clearsAnActiveConversationBeforeHandlingAPostToTheMealRequestEndpoint() throws Exception {
+        final String existingConversationId = "active-conversation";
         final String mealRequest = "Suggest a vegetarian dinner";
         final MockHttpSession session = new MockHttpSession();
-        session.setAttribute("mealConversationId", previousConversationId);
-        session.setAttribute("mealRequestState", new FailedMealRequest("Suggest a meal"));
+        final FailedMealRequest activeRequest = new FailedMealRequest("Suggest a meal");
+        session.setAttribute("mealConversationId", existingConversationId);
+        session.setAttribute("mealRequestState", activeRequest);
         final List<MappedMealSuggestion> suggestions = List.of(new MappedMealSuggestion("Lemon lentil pasta", 25, "A quick dinner.", 1,
                 List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69)));
-        when(mealSuggestionService.submit(anyString(), eq(mealRequest))).thenReturn(new SuccessfulMealSuggestions("Here are some meal ideas.", suggestions));
+        when(mealSuggestionService.submit(anyString(), eq(mealRequest)))
+                .thenReturn(new SuccessfulMealSuggestions("Here are some meal ideas.", suggestions));
 
         mvc.perform(MockMvcRequestBuilders.post("/demo/meal-request").with(csrf()).session(session).param("mealRequest", mealRequest))
                 .andExpect(redirectedUrlPattern("/demo/recommendations/*"));
 
         final String newConversationId = (String) session.getAttribute("mealConversationId");
-        assertThat(newConversationId).isNotEqualTo(previousConversationId);
-        verify(mealSuggestionService).clearConversation(previousConversationId);
+        assertThat(newConversationId).isNotEqualTo(existingConversationId);
+        verify(mealSuggestionService).clearConversation(existingConversationId);
         verify(mealSuggestionService).submit(eq(newConversationId), eq(mealRequest));
         verifyNoMoreInteractions(mealSuggestionService);
     }
@@ -268,6 +270,8 @@ class MealRequestSessionMvcTest {
 
         mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/reset").with(csrf()).session(session))
                 .andExpect(redirectedUrl("/demo"));
+        mvc.perform(MockMvcRequestBuilders.get("/demo").session(session))
+                .andExpect(MockMvcResultMatchers.view().name("welcome"));
         mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/" + conversationId).session(session))
                 .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"));
 

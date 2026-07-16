@@ -1,10 +1,10 @@
 package demo;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import module java.base;
 import org.junit.jupiter.api.Test;
 
-import module java.base;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 class ModelMealSuggestionsTest {
 
@@ -19,7 +19,7 @@ class ModelMealSuggestionsTest {
     @Test
     void rejectsAnInScopeResponseWithNoSuggestions() {
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> new ModelMealRequestResponse(MealRequestScope.IN_SCOPE, List.of()));
+                .isThrownBy(() -> new ModelMealRequestResponse(MealRequestScope.IN_SCOPE, "A response", List.of()));
     }
 
     @Test
@@ -31,7 +31,12 @@ class ModelMealSuggestionsTest {
     @Test
     void rejectsMoreThanSevenSuggestions() {
         final List<ModelMealSuggestion> suggestions = IntStream.range(0, 8)
-                .mapToObj(index -> new ModelMealSuggestion("Meal " + index, 20, "A complete meal.", 1, List.of(new ModelIngredient("Ingredient", "1", "portion"))))
+                .mapToObj(index -> new ModelMealSuggestion(
+                        "Meal " + index,
+                        20,
+                        "A complete meal.",
+                        1,
+                        List.of(new ModelIngredient("Ingredient", "1", "portion"))))
                 .toList();
 
         assertThatIllegalArgumentException()
@@ -41,7 +46,12 @@ class ModelMealSuggestionsTest {
     @Test
     void rejectsANonPositivePreparationTime() {
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> new ModelMealSuggestion("Meal", 0, "Explanation", 1, List.of(new ModelIngredient("Tomato", "1", "g"))));
+                .isThrownBy(() -> new ModelMealSuggestion(
+                        "Meal",
+                        0,
+                        "Explanation",
+                        1,
+                        List.of(new ModelIngredient("Tomato", "1", "g"))));
     }
 
     @Test

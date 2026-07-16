@@ -1,15 +1,14 @@
 package demo;
 
+import module java.base;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import static demo.Strings.isBlank;
 
-import module java.base;
-
 // TODO: The submit() and refine() methods are very similar. Consider merging
-// these.
+//  these.
 @Service
 class MealSuggestionService {
 
@@ -31,7 +30,7 @@ class MealSuggestionService {
 
     MealRequestResult submit(final String conversationId, final String request) {
         if (isBlank(conversationId)) {
-            return new FailedRequest("The conversaion id must not be null");
+            return new FailedRequest("The conversation id must not be null");
         }
 
         final Optional<String> validationError = validationError(request);
@@ -75,31 +74,26 @@ class MealSuggestionService {
         // failure exposes no partial suggestions; diagnostics remain
         // server-side and the visitor receives the safe recovery state.
         try {
-            final MappedMealSuggestions suggestions = mapper.map(response.inScopeSuggestions(), catalogue);
-            generator.recordSuccessfulResponse(
-                    new MealSuggestionGenerator.Request(conversationId, request, catalogue),
-                    response.inScopeSuggestions());
-            return suggestions;
+            final List<MappedMealSuggestion> suggestions = mapper.map(response.inScopeSuggestions(), catalogue);
+            return new SuccessfulMealSuggestions(response.assistantMessage(), suggestions);
         } catch (final RuntimeException e) {
             LOGGER.warn("The meal suggestion response could not be mapped to the catalogue. Suggestions: {}", response.suggestions(), e);
             return new FailedRequest(request);
         }
     }
 
-    MealRequestResult refine(
+    MealRequestResult followUp(
             final String conversationId,
-            final String refinement,
-            final Set<String> selectedMealNames,
-            final Set<String> dismissedMealNames) {
+            final String followUp) {
         if (isBlank(conversationId)) {
-            return new FailedRequest("The conversaion id must not be null");
+            return new FailedRequest("The conversation id must not be null");
         }
 
-        if (isBlank(refinement)) {
-            return new InvalidRequest("Describe how you want to refine the meal ideas.");
+        if (isBlank(followUp)) {
+            return new InvalidRequest("Describe what you’d like to change about the meal ideas.");
         }
 
-        if (refinement.length() > MAXIMUM_MEAL_REQUEST_LENGTH) {
+        if (followUp.length() > MAXIMUM_MEAL_REQUEST_LENGTH) {
             return new InvalidRequest("Describe your meal request in 300 characters or fewer.");
         }
 
@@ -108,36 +102,33 @@ class MealSuggestionService {
             catalogue = productCatalogue.allProducts();
         } catch (final RuntimeException e) {
             LOGGER.error("Unable to load the catalogue for a refinement", e);
-            return new FailedRequest(refinement);
+            return new FailedRequest(followUp);
         }
 
         if (catalogue.isEmpty()) {
             LOGGER.error("Cannot generate refined meal suggestions because the catalogue is empty");
-            return new FailedRequest(refinement);
+            return new FailedRequest(followUp);
         }
 
         final ModelMealRequestResponse response;
         try {
-            response = generator.suggest(new MealSuggestionGenerator.Request(conversationId, refinement, catalogue, dismissedMealNames, selectedMealNames));
+            response = generator.suggest(new MealSuggestionGenerator.Request(conversationId, followUp, catalogue));
         } catch (final RuntimeException e) {
             LOGGER.error("The meal refinement provider failed", e);
-            return new FailedRequest(refinement);
+            return new FailedRequest(followUp);
         }
 
         if (response == null || response.isOutOfScope()) {
             LOGGER.warn("The meal refinement provider returned an unusable response");
-            return new FailedRequest(refinement);
+            return new FailedRequest(followUp);
         }
 
         try {
-            final MappedMealSuggestions suggestions = mapper.map(response.inScopeSuggestions(), catalogue);
-            generator.recordSuccessfulResponse(
-                    new MealSuggestionGenerator.Request(conversationId, refinement, catalogue, dismissedMealNames, selectedMealNames),
-                    response.inScopeSuggestions());
-            return suggestions;
+            final List<MappedMealSuggestion> suggestions = mapper.map(response.inScopeSuggestions(), catalogue);
+            return new SuccessfulMealSuggestions(response.assistantMessage(), suggestions);
         } catch (final RuntimeException e) {
             LOGGER.warn("The meal refinement response could not be used. Suggestions: {}", response.suggestions(), e);
-            return new FailedRequest(refinement);
+            return new FailedRequest(followUp);
         }
     }
 

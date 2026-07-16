@@ -1,10 +1,10 @@
 package demo;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import module java.base;
 import org.junit.jupiter.api.Test;
 
-import module java.base;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 class BasketTest {
 
@@ -50,7 +50,7 @@ class BasketTest {
     void retainsSelectedMealsAndDoesNotAddTheSameRecommendationTwice() {
         final Product spaghetti = product("wholewheat-spaghetti-500g", 500, "1.49");
         final MappedMealSuggestion meal = meal("Dinner", new MappedProduct(spaghetti, new BigDecimal("500"), 1));
-        final SuccessfulMealRequest request = new SuccessfulMealRequest("Suggest dinner", new MappedMealSuggestions(List.of(meal)));
+        final SuccessfulMealRequest request = new SuccessfulMealRequest("Suggest dinner", List.of(meal));
 
         final SuccessfulMealRequest selectedOnce = request.addMeal(0);
         final SuccessfulMealRequest editedBasket = selectedOnce.selectMeals(Set.of());

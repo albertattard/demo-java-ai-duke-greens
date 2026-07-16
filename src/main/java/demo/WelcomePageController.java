@@ -1,15 +1,13 @@
 package demo;
 
+import module java.base;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import jakarta.servlet.http.HttpServletRequest;
-
-import module java.base;
 
 @Controller
 class WelcomePageController {
@@ -58,8 +56,8 @@ class WelcomePageController {
         final MealRequestResult result = mealSuggestionService.submit(conversationId, mealRequest);
 
         return switch (result) {
-            case final MappedMealSuggestions mappedSuggestions -> {
-                mealRequestSession.store(request, new SuccessfulMealRequest(mealRequest, mappedSuggestions));
+            case final SuccessfulMealSuggestions successfulSuggestions -> {
+                mealRequestSession.store(request, new SuccessfulMealRequest(mealRequest, successfulSuggestions.assistantMessage(), successfulSuggestions.suggestions()));
                 yield mealRequestSession.recommendationsRedirect(conversationId);
             }
             case FailedRequest(final String failedRequest) -> {

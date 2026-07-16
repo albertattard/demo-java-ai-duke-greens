@@ -1,5 +1,8 @@
 package demo;
 
+import module java.base;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,11 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import module java.base;
 
 @Controller
 class RecommendationsPageController {
@@ -60,14 +58,7 @@ class RecommendationsPageController {
                 model.addAttribute("conversationId", conversationId);
                 yield "recommendations";
             }
-            case FailedRefinementRequest failedRefinement -> {
-                response.setHeader("Cache-Control", "no-store");
-                addSuccessfulRequest(model, failedRefinement.request());
-                model.addAttribute("refinementFailed", true);
-                model.addAttribute("resetConfirmationRequired", false);
-                model.addAttribute("conversationId", conversationId);
-                yield "recommendations";
-            }
+            case FailedRefinementRequest _ -> mealRequestSession.initialRequestRedirect();
             case null -> {
                 model.addAttribute("resetConfirmationRequired", false);
                 yield mealRequestSession.initialRequestRedirect();
@@ -85,22 +76,12 @@ class RecommendationsPageController {
         }
 
         return switch (mealRequestSession.state(request)) {
-            case final FailedMealRequest failedRequest ->
-                storeResultAndRedirect(
-                failedRequest.request(),
-                mealSuggestionService.submit(conversationId, failedRequest.request()),
-                request,
-                redirectAttributes);
-            case final FailedRefinementRequest failedRefinement -> {
-                final MealRequestResult result = mealSuggestionService.refine(
-                        conversationId,
-                        failedRefinement.request().pendingRefinement(),
-                        failedRefinement.request().selectedMealNames(),
-                        failedRefinement.request().dismissedMealNames());
-                yield storeRefinementResult(failedRefinement.request(), result, request);
-            }
-            case null, default ->
-                mealRequestSession.initialRequestRedirect();
+            case final FailedMealRequest failedRequest -> storeResultAndRedirect(
+                    failedRequest.request(),
+                    mealSuggestionService.submit(conversationId, failedRequest.request()),
+                    request,
+                    redirectAttributes);
+            case null, default -> mealRequestSession.initialRequestRedirect();
         };
     }
 
@@ -148,30 +129,10 @@ class RecommendationsPageController {
         return mealRequestSession.initialRequestRedirect();
     }
 
-    @PostMapping("/demo/recommendations/{conversationId}/meals/dismissal")
-    String toggleDismissal(
+    @PostMapping("/demo/recommendations/{conversationId}/follow-up")
+    String followUp(
             @PathVariable final String conversationId,
-            @RequestParam final int index,
-            final HttpServletRequest request) {
-
-        if (!mealRequestSession.hasConversation(request, conversationId)) {
-            return mealRequestSession.initialRequestRedirect();
-        }
-
-        final MealRequestSessionState state = mealRequestSession.state(request);
-
-        if (state instanceof SuccessfulMealRequest successfulRequest) {
-            mealRequestSession.store(request, successfulRequest.toggleDismissal(index));
-            return mealRequestSession.recommendationsRedirect(request);
-        }
-
-        return mealRequestSession.initialRequestRedirect();
-    }
-
-    @PostMapping("/demo/recommendations/{conversationId}/refine")
-    String refine(
-            @PathVariable final String conversationId,
-            @RequestParam final String refinement,
+            @RequestParam final String followUp,
             final HttpServletRequest request,
             final RedirectAttributes redirectAttributes) {
 
@@ -180,29 +141,21 @@ class RecommendationsPageController {
         }
 
         final MealRequestSessionState state = mealRequestSession.state(request);
-        if (!(state instanceof SuccessfulMealRequest successfulRequest) || !successfulRequest.canRefine()) {
+        if (!(state instanceof final SuccessfulMealRequest successfulRequest)) {
             return mealRequestSession.recommendationsRedirect(request);
         }
 
-        final MealRequestResult validation = mealSuggestionService.refine(
-                conversationId,
-                refinement,
-                successfulRequest.selectedMealNames(),
-                successfulRequest.dismissedMealNames());
+        final MealRequestResult validation = mealSuggestionService.followUp(conversationId, followUp);
 
-        if (validation instanceof InvalidRequest invalid) {
-            redirectAttributes.addFlashAttribute("refinementError", invalid.message());
+        if (validation instanceof InvalidRequest(String message)) {
+            redirectAttributes.addFlashAttribute("followUpError", message);
             return mealRequestSession.recommendationsRedirect(request);
         }
 
-        return storeRefinementResult(successfulRequest.prepareRefinement(refinement), validation, request);
-    }
-
-    private String storeRefinementResult(final SuccessfulMealRequest successfulRequest, final MealRequestResult result, final HttpServletRequest request) {
-        if (result instanceof MappedMealSuggestions suggestions) {
-            mealRequestSession.store(request, successfulRequest.appendRefinement(suggestions));
-        } else {
-            mealRequestSession.store(request, new FailedRefinementRequest(successfulRequest));
+        if (validation instanceof SuccessfulMealSuggestions(
+                String assistantMessage, List<MappedMealSuggestion> suggestions
+        )) {
+            mealRequestSession.store(request, successfulRequest.appendFollowUp(followUp, assistantMessage, suggestions));
         }
         return mealRequestSession.recommendationsRedirect(request);
     }
@@ -214,12 +167,12 @@ class RecommendationsPageController {
             final RedirectAttributes redirectAttributes) {
 
         return switch (result) {
-            case MappedMealSuggestions mappedSuggestions -> {
+            case SuccessfulMealSuggestions successfulSuggestions -> {
                 final String conversationId = mealRequestSession.conversationId(request);
                 if (conversationId == null) {
                     throw new IllegalStateException("Conversation ID not found!");
                 }
-                mealRequestSession.store(request, new SuccessfulMealRequest(mealRequest, mappedSuggestions));
+                mealRequestSession.store(request, new SuccessfulMealRequest(mealRequest, successfulSuggestions.assistantMessage(), successfulSuggestions.suggestions()));
                 yield mealRequestSession.recommendationsRedirect(conversationId);
             }
             case FailedRequest(final String failedRequest) -> {
@@ -236,21 +189,20 @@ class RecommendationsPageController {
                 redirectAttributes.addFlashAttribute("outOfScopeMessage", "Duke Greens helps you find meal ideas. Tell us what you’d like to cook, such as a quick vegetarian dinner for two.");
                 yield "redirect:/demo";
             }
-            case InvalidRequest(_) ->
-                throw new IllegalStateException("A retained meal request must remain valid");
+            case InvalidRequest(_) -> throw new IllegalStateException("A retained meal request must remain valid");
         };
     }
 
     private void addSuccessfulRequest(final Model model, final SuccessfulMealRequest request) {
-        model.addAttribute("resultSets", IntStream.range(0, request.resultSets().size()).mapToObj(set -> Map.of(
-                "index", set,
-                "suggestions", IntStream.range(0, request.resultSets().get(set).suggestions().suggestions().size()).mapToObj(index -> MealSuggestionCard.of(index, request.resultSets().get(set).suggestions().suggestions().get(index))).toList(),
-                "dismissed", request.resultSets().get(set).dismissedMealIndexes(),
-                "locked", request.resultSets().get(set).feedbackLocked())).toList());
-        // Compatibility for existing MVC coverage; visitor rendering uses resultSets.
-        model.addAttribute("suggestions", request.resultSets().getFirst().suggestions().suggestions().stream().map(suggestion -> MealSuggestionCard.of(request.resultSets().getFirst().suggestions().suggestions().indexOf(suggestion), suggestion)).toList());
+        final int currentSet = request.resultSets().size() - 1;
+        model.addAttribute("recommendations", IntStream.range(0, request.resultSets().getLast().suggestions().size())
+                .filter(index -> !request.selected(currentSet, index))
+                .mapToObj(index -> MealSuggestionCard.of(index, request.resultSets().getLast().suggestions().get(index))).toList());
+        model.addAttribute("basketMeals", request.selectedMeals().stream()
+                .map(meal -> MealSuggestionCard.of(0, meal)).toList());
+        model.addAttribute("currentResultSet", currentSet);
+        model.addAttribute("transcript", request.transcript());
         model.addAttribute("selectedMealKeys", request.selectedMealKeys());
-        model.addAttribute("canRefine", request.canRefine());
         basketPresentation.addTo(model, request);
     }
 }

@@ -12,8 +12,23 @@ public final class RecommendationsPage extends PageObject {
     }
 
     public RecommendationsPage shouldShowSuggestions(final int count) {
-        assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Meal ideas")).isVisible();
-        assertThat(page.locator("[data-testid='meal-suggestion']")).hasCount(count);
+        assertThat(page.locator("[data-testid='recommendations'] [data-testid='meal-suggestion']")).hasCount(count);
+        assertThat(page.locator("[data-testid='basket']")).isHidden();
+        assertThat(elementByTextAndExactName("These are meal ideas, not product, price, stock, basket, or order commitments.")).isHidden();
+        org.assertj.core.api.Assertions.assertThat(page.locator(".meal-ideas h2").allTextContents()).containsExactly("Conversation");
+        assertThat(page.locator("section:has(.conversation-transcript) + form.refinement-form")).isVisible();
+        assertThat(page.locator(".refinement-form label.visually-hidden")).hasCSS("clip", "rect(0px, 0px, 0px, 0px)");
+        final Locator refinementActions = page.locator(".refinement-actions");
+        assertThat(refinementActions).hasCSS("display", "flex");
+        assertThat(refinementActions).hasCSS("justify-content", "space-between");
+        assertThat(elementByRoleAndExactName(refinementActions, AriaRole.BUTTON, "Start over")).isVisible();
+        assertThat(elementByRoleAndExactName(refinementActions, AriaRole.BUTTON, "Send follow-up")).isVisible();
+        assertThat(page.locator(".conversation-message-visitor")).hasCSS("justify-self", "end");
+        assertThat(page.locator(".conversation-message-visitor")).hasCSS("background-color", "rgb(232, 241, 229)");
+        assertThat(page.locator(".conversation-message-assistant")).hasCSS("justify-self", "start");
+        assertThat(page.locator(".conversation-message").first()).hasCSS("border-radius", "12px");
+        assertThat(page.locator(".conversation-message strong.visually-hidden")).hasCount(2);
+        assertThat(page.locator(".conversation-message strong.visually-hidden").first()).hasCSS("clip", "rect(0px, 0px, 0px, 0px)");
         return this;
     }
 
@@ -58,13 +73,31 @@ public final class RecommendationsPage extends PageObject {
         return this;
     }
 
+    public RecommendationsPage followUp(final String message) {
+        elementByRoleAndExactName(AriaRole.TEXTBOX, "Continue the conversation").fill(message);
+        elementByRoleAndExactName(AriaRole.BUTTON, "Send follow-up").click();
+        return this;
+    }
+
     public RecommendationsPage showAlternativeMealIdeas() {
         elementByRoleAndExactName(AriaRole.BUTTON, "Show more ideas").click();
         return this;
     }
 
     public RecommendationsPage shouldShowMealIdeas(final String... names) {
-        assertThat(page.locator("[data-testid='meal-suggestion'] h3")).hasText(names);
+        assertThat(page.locator("[data-testid='recommendations'] [data-testid='meal-suggestion'] h3")).hasText(names);
+        return this;
+    }
+
+    public RecommendationsPage shouldShowBasketMeals(final String... names) {
+        assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Basket")).isVisible();
+        assertThat(page.locator("[data-testid='basket'] [data-testid='meal-suggestion'] h3")).hasText(names);
+        return this;
+    }
+
+    public RecommendationsPage shouldPlaceBasketActionsBetweenRecommendationsAndConversation() {
+        assertThat(page.locator("div[data-testid='recommendations'] + section[data-testid='basket'] + section:has(.conversation-transcript)"))
+                .isVisible();
         return this;
     }
 
@@ -88,9 +121,8 @@ public final class RecommendationsPage extends PageObject {
     }
 
     public RecommendationsPage shouldShowSelectedMeal(final int index) {
-        final Locator suggestion = page.locator("[data-testid='meal-suggestion']").nth(index);
-        assertThat(elementByRoleAndExactName(suggestion, AriaRole.LINK, "View basket")).isVisible();
-        assertThat(elementByRoleAndExactName(suggestion, AriaRole.BUTTON, "Add meal to basket")).isHidden();
+        final Locator suggestion = page.locator("[data-testid='basket'] [data-testid='meal-suggestion']").nth(index);
+        assertThat(suggestion).isVisible();
         assertThat(suggestion.locator(".meal-product-grid")).hasCount(0);
         return this;
     }

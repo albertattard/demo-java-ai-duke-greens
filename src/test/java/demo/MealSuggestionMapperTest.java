@@ -1,10 +1,10 @@
 package demo;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import module java.base;
 import org.junit.jupiter.api.Test;
 
-import module java.base;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 class MealSuggestionMapperTest {
 
@@ -19,8 +19,8 @@ class MealSuggestionMapperTest {
         final ModelMealSuggestions modelSuggestions = modelSuggestions(
                 modelIngredient("wholewheat-spaghetti-500g", "500", "g"));
 
-        final MappedMealSuggestions mappedSuggestions = mapper.map(modelSuggestions, catalogue);
-        final String productName = mappedSuggestions.suggestions().getFirst().products().getFirst().product().name();
+        final List<MappedMealSuggestion> mappedSuggestions = mapper.map(modelSuggestions, catalogue);
+        final String productName = mappedSuggestions.getFirst().products().getFirst().product().name();
 
         assertThat(productName)
                 .isEqualTo("Wholewheat spaghetti");
@@ -64,8 +64,8 @@ class MealSuggestionMapperTest {
     @Test
     void acceptsTheMaximumSupportedIngredientQuantity() {
         final ModelMealSuggestions modelSuggestions = modelSuggestions(modelIngredient("wholewheat-spaghetti-500g", "99999", "g"));
-        final MappedMealSuggestions mappedSuggestions = mapper.map(modelSuggestions, catalogue);
-        final int packageCount = mappedSuggestions.suggestions().getFirst().products().getFirst().packageCount();
+        final List<MappedMealSuggestion> mappedSuggestions = mapper.map(modelSuggestions, catalogue);
+        final int packageCount = mappedSuggestions.getFirst().products().getFirst().packageCount();
 
         assertThat(packageCount)
                 .isEqualTo(200);
@@ -88,8 +88,8 @@ class MealSuggestionMapperTest {
         final ModelMealSuggestions modelSuggestions = modelSuggestions(
                 modelIngredient("wholewheat-spaghetti-500g", "1", "kg"),
                 modelIngredient("passata-700ml", "701", "ml"));
-        final MappedMealSuggestions mappedSuggestions = mapper.map(modelSuggestions, catalogue);
-        final MappedMealSuggestion mappedSuggestion = mappedSuggestions.suggestions().getFirst();
+        final List<MappedMealSuggestion> mappedSuggestions = mapper.map(modelSuggestions, catalogue);
+        final MappedMealSuggestion mappedSuggestion = mappedSuggestions.getFirst();
 
         assertThat(mappedSuggestion.products())
                 .extracting(MappedProduct::packageCount)
@@ -103,8 +103,8 @@ class MealSuggestionMapperTest {
         final ModelMealSuggestions modelSuggestions = modelSuggestions(
                 modelIngredient("onions-1kg", "1001", "g"));
 
-        final MappedMealSuggestions mappedSuggestions = mapper.map(modelSuggestions, catalogue);
-        final int packageCount = mappedSuggestions.suggestions().getFirst()
+        final List<MappedMealSuggestion> mappedSuggestions = mapper.map(modelSuggestions, catalogue);
+        final int packageCount = mappedSuggestions.getFirst()
                 .products().getFirst().packageCount();
 
         assertThat(packageCount)
@@ -113,13 +113,13 @@ class MealSuggestionMapperTest {
 
     @Test
     void retainsTheBaseUnitRequirementForConsolidatingSelectedMeals() {
-        final MappedMealSuggestions mappedSuggestions = mapper.map(new ModelMealSuggestions(List.of(
+        final List<MappedMealSuggestion> mappedSuggestions = mapper.map(new ModelMealSuggestions(List.of(
                 new ModelMealSuggestion("First dinner", 20, "A complete dinner.", 1,
                         List.of(modelIngredient("wholewheat-spaghetti-500g", "200", "g"))),
                 new ModelMealSuggestion("Second dinner", 20, "Another complete dinner.", 1,
                         List.of(modelIngredient("wholewheat-spaghetti-500g", "300", "g"))))), catalogue);
 
-        assertThat(mappedSuggestions.suggestions())
+        assertThat(mappedSuggestions)
                 .flatExtracting(MappedMealSuggestion::products)
                 .extracting(MappedProduct::requiredQuantity)
                 .containsExactly(new BigDecimal("200"), new BigDecimal("300"));

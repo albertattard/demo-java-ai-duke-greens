@@ -2,41 +2,43 @@
 
 ## Outcome
 
-Visitors can continue a meal-discovery conversation on the recommendations page. The page presents the latest actionable recommendations, meals already selected for the basket, and a chronological text conversation as distinct sections. The exact layout, labels, and styling of those sections remain fluid during the slice.
+Visitors can continue a successful meal-discovery conversation from the recommendations page. A follow-up produces a new set of recommendations and the page shows a chronological text transcript of the successful visitor and assistant turns. A basket created from an earlier recommendation remains accessible after a follow-up.
 
 ## Constraints
 
-- Keep one active conversation per visitor session, isolated by its application-generated conversation ID. Use that ID for both Spring AI chat memory and the session-held UI transcript. Starting over, completing the simulated order, and session destruction must clear both stores.
-- A valid model response contains a non-blank visitor-facing assistant message and zero to seven complete meal suggestions. Zero suggestions may ask for clarification or decline an out-of-scope request; in either case the conversation remains open.
-- Store each valid exchange in both the UI transcript and Spring AI memory. The transcript contains only visitor prompts and assistant messages, never recommendation cards.
-- A failed provider call or invalid non-empty model response is not a conversation exchange. Show a recovery error in place of an assistant reply and prefill an editable textarea with the attempted prompt; the visitor may edit and resend it. Do not expose partial cards or store either turn until a valid response succeeds.
-- Map every suggested ingredient against the application-supplied catalogue snapshot using its exact application-owned product slug. Reject an invalid non-empty response as a whole. Product data, prices, stock, basket contents, and order state remain application-controlled.
-- On a follow-up, give the model the conversation history and the complete latest non-empty recommendation set. Continue the existing selected-meal context behaviour; richer prompt guidance about basket-backed meals is explicitly deferred.
-- A non-empty response becomes the latest recommendation set. Display every meal in that set except a meal exactly equal to one already represented in the basket section. Do not display unselected meals from older sets. A zero-suggestion response preserves the latest non-empty set, or shows no recommendations when none exists.
-- The basket section preserves the original cards for selected meals. It may therefore be the only place an exactly equal meal appears when the latest set repeats it. Keep the existing basket page and its behaviour unchanged for this slice; do not add recommendations-page removal controls yet.
-- Continue to allow one-click addition of a meal to the basket. Preserve explicit confirmation for completing the simulated order.
-- Remove the individual “Not for me” action; visitors express exclusions or replacements in a follow-up prompt.
+- Add a non-blank visitor-facing assistant message to the model response contract. Treat a response without one as invalid.
+- Store each successful exchange in the session-held UI transcript and in Spring AI chat memory, using the existing application-generated conversation ID.
+- Replace the existing refinement flow with one generic follow-up textarea and remove the individual “Not for me” action.
+- Represent successful mapped recommendations directly as an immutable, bounded list in `SuccessfulMealSuggestions` and `MealResultSet`; remove the redundant `MappedMealSuggestions` wrapper.
+- After a successful follow-up, show only its latest unselected recommendations. Do not implement zero-suggestion responses, provider-failure recovery, or conversation cleanup in this slice.
+- Preserve access to a non-empty basket independently of the selected recommendation card, which is not displayed after a follow-up.
+- Place non-empty basket actions between the displayed recommendations and the conversation.
+- Render selected meals in a separate Basket section between the recommendations and conversation; omit that section while the basket is empty.
+- Product data, prices, stock, basket contents, and order state remain application-controlled.
 
 ## Done when
 
-- A successful initial request adds the visitor prompt and non-blank assistant message to the conversation and displays its recommendations.
-- A successful follow-up appends both turns, replaces the latest recommendation set, and leaves selected basket meals visible in their own section.
-- The recommendations section contains only the latest non-empty set, excluding cards exactly equal to a basket-backed meal; it does not retain older unselected cards.
-- A valid zero-suggestion response appends both turns, keeps the existing recommendations and basket unchanged, and accepts a further free-text prompt.
-- A provider failure or invalid recommendation response shows editable recovery without adding a conversation turn or partial cards; an edited resend can become the next successful exchange.
-- The recommendations page shows no “Not for me” action. The existing basket page remains available and unchanged.
-- Starting over, successful simulated-order completion, and session destruction clear both the UI transcript and the Spring AI conversation memory.
-- Conversation IDs remain isolated between sessions.
-
-## Delivery plan
-
-Deliver the overall outcome in the following small vertical slices. Each slice requires its own agreed concise brief before implementation; this section preserves the overall goal and does not replace it.
-
-1. Successful conversational follow-up: visitors can submit a follow-up, see a chronological transcript, and see only the latest recommendation set. Include the response-contract change needed to capture a non-blank assistant message, one generic follow-up form in place of refinement, and successful-turn storage in both UI state and Spring AI memory. Remove “Not for me”. Defer zero-suggestion and failure recovery behaviour.
-2. Selected-meal continuity: visitors retain selected meals while continuing the conversation. Render selected meal cards in their own basket section, exclude an exactly equal selected meal from the latest recommendations, preserve one-click addition, and keep the basket page unchanged. Make selected-meal identity independent of historical result-set indexes.
-3. Safe conversational recovery: permit valid zero-suggestion assistant responses, preserve the latest non-empty recommendations in that case, and provide editable recovery and resend for provider or invalid-response failures. Failed attempts must not add transcript turns, cards, or Spring AI memory.
-4. Conversation cleanup: clear UI transcript and Spring AI memory on start-over, successful simulated-order completion, and session destruction. Add focused coverage for cleanup and conversation-ID isolation.
+- A successful initial request shows the visitor prompt, a non-blank assistant message, and its recommendations.
+- A successful follow-up appends both text turns in chronological order and replaces the displayed recommendations with its new set.
+- After adding a meal and completing a successful follow-up, the visitor can still open the basket and see its contents.
+- Basket actions appear between the recommendations and conversation sections.
+- Selected meals appear only in a Basket section, which is absent before the visitor adds a meal.
+- The recommendations page provides a generic follow-up form and no “Not for me” action.
+- Successful exchanges are recorded in both UI state and Spring AI memory under the active conversation ID.
+- No production or test code refers to `MappedMealSuggestions`; successful outcomes and stored result sets retain the one-to-seven-suggestion invariant.
 
 ## Verification
 
-- Baseline verification passed: `./mvnw package` completed successfully with 99 tests.
+- Baseline verification before implementation: `./mvnw package` passed with 99 tests.
+- Add and run a focused failing browser test for an initial request followed by a successful free-text follow-up.
+- Run focused unit, MVC, and browser tests after implementation.
+- Run `./mvnw package` and `./mvnw verify` before handover.
+- Refactor verification: `./mvnw test -Dtest=MealSuggestionMapperTest,MealSuggestionServiceTest,BasketTest,MealRequestSessionMvcTest` passed with 50 tests; `./mvnw package` passed with 98 tests; `./mvnw verify` passed with 19 integration tests.
+- Presentation correction verification: `./mvnw verify -Dit.test=WelcomePageIT` passed with 98 unit/MVC tests and 19 browser tests.
+- Follow-up placement correction verification: `./mvnw verify -Dit.test=WelcomePageIT` passed with 98 unit/MVC tests and 19 browser tests.
+- Conversation-card presentation verification: `./mvnw verify -Dit.test=WelcomePageIT` passed with 98 unit/MVC tests and 19 browser tests.
+- Conversation-card alignment verification: `./mvnw verify -Dit.test=WelcomePageIT` passed with 98 unit/MVC tests and 19 browser tests.
+- Follow-up action-row verification: `./mvnw verify -Dit.test=WelcomePageIT` passed with 98 unit/MVC tests and 19 browser tests.
+- Basket continuity repair verification: `./mvnw test -Dtest=MealRequestSessionMvcTest` passed with 28 MVC tests; `./mvnw package` passed with 99 unit/MVC tests; `./mvnw verify -Dit.test=WelcomePageIT` and `./mvnw verify` each passed with 99 unit/MVC tests and 20 browser tests.
+- Basket action placement verification: `./mvnw verify` passed with 99 unit/MVC tests and 20 browser tests.
+- Basket section verification: `./mvnw verify` passed with 99 unit/MVC tests and 20 browser tests.

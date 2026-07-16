@@ -1,16 +1,14 @@
 package demo;
 
+import module java.base;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import module java.base;
 
 @Controller
 class BasketPageController {
@@ -38,12 +36,12 @@ class BasketPageController {
         presentation.addTo(model, successful);
         model.addAttribute("conversationId", conversationId);
         model.addAttribute("mealChoices", successful.resultSets().stream()
-                .flatMap(set -> IntStream.range(0, set.suggestions().suggestions().size())
-                .filter(index -> !set.dismissedMealIndexes().contains(index))
-                .mapToObj(index -> Map.of(
-                    "key", SuccessfulMealRequest.key(successful.resultSets().indexOf(set), index),
-                    "name", set.suggestions().suggestions().get(index).name(),
-                    "selected", successful.selected(successful.resultSets().indexOf(set), index))))
+                .flatMap(set -> IntStream.range(0, set.suggestions().size())
+                        .filter(index -> !set.dismissedMealIndexes().contains(index))
+                        .mapToObj(index -> Map.of(
+                                "key", SuccessfulMealRequest.key(successful.resultSets().indexOf(set), index),
+                                "name", set.suggestions().get(index).name(),
+                                "selected", successful.selected(successful.resultSets().indexOf(set), index))))
                 .toList());
         return "basket";
     }

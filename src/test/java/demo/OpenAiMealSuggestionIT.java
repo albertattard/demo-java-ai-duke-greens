@@ -1,13 +1,13 @@
 package demo;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import module java.base;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 
-import module java.base;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Tag("openai-integration")
 @SpringBootTest
@@ -69,7 +69,6 @@ class OpenAiMealSuggestionIT {
         assertThat(suggestion1.servings())
                 .describedAs("The initial recommendation serves the requested four people")
                 .isEqualTo(4);
-        generator.recordSuccessfulResponse(request(conversationId, "Recommend a meal I can cook for four people."), suggestions1);
 
         // Ask the model to recommend something different. Determine whether
         // chicken was recommended, then ask the model to recommend chicken if

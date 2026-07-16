@@ -1,19 +1,17 @@
 package demo;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import module java.base;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
 import org.mockito.Mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import module java.base;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MealSuggestionServiceTest {
@@ -41,9 +39,9 @@ class MealSuggestionServiceTest {
         final String mealRequest = "Suggest a meal";
         final List<Product> catalogue = catalogue();
         final ModelMealSuggestions modelSuggestions = modelSuggestions("wholewheat-spaghetti-500g", "500", "g");
-        final MappedMealSuggestions mappedSuggestions = mappedSuggestions(catalogue);
+        final List<MappedMealSuggestion> mappedSuggestions = mappedSuggestions(catalogue);
         when(productCatalogue.allProducts()).thenReturn(catalogue);
-        final MealSuggestionGenerator.Request generatorRequest = new MealSuggestionGenerator.Request(CONVERSATION_ID, mealRequest, catalogue, Set.of(), Set.of());
+        final MealSuggestionGenerator.Request generatorRequest = new MealSuggestionGenerator.Request(CONVERSATION_ID, mealRequest, catalogue);
         when(generator.suggest(eq(generatorRequest)))
                 .thenReturn(ModelMealRequestResponse.inScope(modelSuggestions));
         when(mapper.map(eq(modelSuggestions), same(catalogue)))
@@ -52,10 +50,9 @@ class MealSuggestionServiceTest {
         final MealRequestResult result = service.submit(CONVERSATION_ID, mealRequest);
 
         assertThat(result)
-                .isSameAs(mappedSuggestions);
+                .isEqualTo(new SuccessfulMealSuggestions("Here are some meal ideas.", mappedSuggestions));
         verify(generator).suggest(eq(generatorRequest));
         verify(mapper).map(eq(modelSuggestions), same(catalogue));
-        verify(generator).recordSuccessfulResponse(eq(generatorRequest), eq(modelSuggestions));
     }
 
     @Test
@@ -72,7 +69,6 @@ class MealSuggestionServiceTest {
         assertThat(service.submit(CONVERSATION_ID, "Suggest a meal"))
                 .isInstanceOf(FailedRequest.class);
 
-        verify(generator, never()).recordSuccessfulResponse(eq(anyRequest("Suggest a meal", catalogue)), eq(unmappableSuggestions));
         assertThat(service.submit(CONVERSATION_ID, "Suggest a meal"))
                 .isInstanceOf(FailedRequest.class);
     }
@@ -105,7 +101,7 @@ class MealSuggestionServiceTest {
         when(mapper.map(eq(modelSuggestions), same(catalogue))).thenReturn(mappedSuggestions(catalogue));
 
         assertThat(service.submit(CONVERSATION_ID, request))
-                .isInstanceOf(MappedMealSuggestions.class);
+                .isInstanceOf(SuccessfulMealSuggestions.class);
     }
 
     @Test
@@ -141,25 +137,37 @@ class MealSuggestionServiceTest {
     }
 
     @Test
-    void recordsOnlyAMappedRefinementInSpringAiMemory() {
+    void returnsSuggestionsAndTheAssistantMessageForASuccessfulFollowUp() {
         final List<Product> catalogue = catalogue();
         final ModelMealSuggestions modelSuggestions = modelSuggestions("wholewheat-spaghetti-500g", "500", "g");
-        final MappedMealSuggestions mappedSuggestions = mappedSuggestions(catalogue);
+        final List<MappedMealSuggestion> mappedSuggestions = mappedSuggestions(catalogue);
         when(productCatalogue.allProducts()).thenReturn(catalogue);
-        final MealSuggestionGenerator.Request generatorRequest = new MealSuggestionGenerator.Request(CONVERSATION_ID, "Make it quicker", catalogue, Set.of(), Set.of());
+        final MealSuggestionGenerator.Request generatorRequest = new MealSuggestionGenerator.Request(CONVERSATION_ID, "Make it quicker", catalogue);
         when(generator.suggest(eq(generatorRequest)))
                 .thenReturn(ModelMealRequestResponse.inScope(modelSuggestions));
         when(mapper.map(eq(modelSuggestions), same(catalogue))).thenReturn(mappedSuggestions);
 
-        assertThat(service.refine("conversation-1", "Make it quicker", Set.of(), Set.of()))
-                .isSameAs(mappedSuggestions);
+        assertThat(service.followUp("conversation-1", "Make it quicker"))
+                .isEqualTo(new SuccessfulMealSuggestions("Here are some meal ideas.", mappedSuggestions));
 
         verify(generator).suggest(eq(generatorRequest));
-        verify(generator).recordSuccessfulResponse(eq(generatorRequest), eq(modelSuggestions));
+    }
+
+    @Test
+    void successfulSuggestionsRequireBetweenOneAndSevenMappedMeals() {
+        final MappedMealSuggestion suggestion = mappedSuggestions(catalogue()).getFirst();
+
+        assertThatThrownBy(() -> new SuccessfulMealSuggestions("Here are some meal ideas.", List.of()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("A response must contain between one and seven suggestions");
+        assertThatThrownBy(() -> new SuccessfulMealSuggestions("Here are some meal ideas.", List.of(
+                suggestion, suggestion, suggestion, suggestion, suggestion, suggestion, suggestion, suggestion)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("A response must contain between one and seven suggestions");
     }
 
     private static MealSuggestionGenerator.Request anyRequest(final String request, final List<Product> catalogue) {
-        return new MealSuggestionGenerator.Request(CONVERSATION_ID, request, catalogue, Set.of(), Set.of());
+        return new MealSuggestionGenerator.Request(CONVERSATION_ID, request, catalogue);
     }
 
     private static List<Product> catalogue() {
@@ -171,9 +179,9 @@ class MealSuggestionServiceTest {
         return new ModelMealSuggestions(List.of(new ModelMealSuggestion("Meal", 20, "A complete meal.", 1, List.of(new ModelIngredient(slug, quantity, unit)))));
     }
 
-    private static MappedMealSuggestions mappedSuggestions(final List<Product> catalogue) {
-        return new MappedMealSuggestions(List.of(new MappedMealSuggestion(
+    private static List<MappedMealSuggestion> mappedSuggestions(final List<Product> catalogue) {
+        return List.of(new MappedMealSuggestion(
                 "Meal", 20, "A complete meal.", 1,
-                List.of(new MappedProduct(catalogue.getFirst(), 1)), new BigDecimal("1.49"))));
+                List.of(new MappedProduct(catalogue.getFirst(), 1)), new BigDecimal("1.49")));
     }
 }

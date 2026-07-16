@@ -1,9 +1,8 @@
 package demo;
 
+import module java.base;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-
-import module java.base;
 
 /// Development-only generator that deliberately returns catalogue-valid meal
 /// ideas for every request. It does not emulate the model’s in-scope and
@@ -56,8 +55,8 @@ final class MockMealSuggestionGenerator implements MealSuggestionGenerator {
         final Set<String> catalogueSlugs = request.catalogue().stream().map(Product::slug).collect(Collectors.toSet());
         final List<ModelMealSuggestion> available = RECOMMENDATIONS.stream()
                 .filter(recommendation -> recommendation.ingredients().stream()
-                .map(ModelIngredient::productSlug)
-                .allMatch(catalogueSlugs::contains))
+                        .map(ModelIngredient::productSlug)
+                        .allMatch(catalogueSlugs::contains))
                 .collect(Collectors.toCollection(ArrayList::new));
 
         if (available.isEmpty()) {
@@ -66,6 +65,6 @@ final class MockMealSuggestionGenerator implements MealSuggestionGenerator {
 
         java.util.Collections.shuffle(available);
         final int count = ThreadLocalRandom.current().nextInt(1, Math.min(3, available.size()) + 1);
-        return ModelMealRequestResponse.inScope(new ModelMealSuggestions(available.subList(0, count)));
+        return ModelMealRequestResponse.inScope("Here are some meal ideas from Duke Greens.", new ModelMealSuggestions(available.subList(0, count)));
     }
 }

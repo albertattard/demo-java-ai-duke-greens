@@ -262,7 +262,9 @@ class WelcomePageIT {
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .submitMealRequest(request)
                 .addMealToBasket(0)
-                .addMealToBasket(1)
+                .shouldShowMealIdeas("Second pasta")
+                .shouldShowBasketMeals("First pasta")
+                .addMealToBasket(0)
                 .shouldShowSelectedMeal(0)
                 .shouldShowSelectedMeal(1)
                 .openBasket()
@@ -273,6 +275,26 @@ class WelcomePageIT {
                 .clearMeal("Second pasta")
                 .shouldShowEmptyBasket()
                 .backToRecommendations());
+    }
+
+    @Test
+    void keepsTheBasketAccessibleAfterAFollowUpReplacesTheDisplayedRecommendations() throws Exception {
+        final String request = "Suggest a pasta dinner";
+        when(mealSuggestionGenerator.suggest(request(request))).thenReturn(ModelMealRequestResponse.inScope(new ModelMealSuggestions(List.of(
+                new ModelMealSuggestion("Pasta", 20, "A complete dinner.", 1,
+                        List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g")))))));
+        when(mealSuggestionGenerator.suggest(request("Make it quicker"))).thenReturn(ModelMealRequestResponse.inScope(new ModelMealSuggestions(List.of(
+                new ModelMealSuggestion("Quick pasta", 15, "A quicker dinner.", 1,
+                        List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g")))))));
+
+        browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
+                .submitMealRequest(request)
+                .addMealToBasket(0)
+                .followUp("Make it quicker")
+                .shouldShowMealIdeas("Quick pasta")
+                .shouldPlaceBasketActionsBetweenRecommendationsAndConversation()
+                .openBasket()
+                .shouldShowBasketLine("Wholewheat spaghetti", 1, "1,49"));
     }
 
     @Test

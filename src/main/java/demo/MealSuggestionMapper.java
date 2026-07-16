@@ -1,12 +1,10 @@
 package demo;
 
-import static java.util.Objects.requireNonNull;
-
+import module java.base;
 import org.springframework.stereotype.Component;
 
 import static demo.Collections.requireNonEmpty;
-
-import module java.base;
+import static java.util.Objects.requireNonNull;
 
 /// Maps against the same catalogue snapshot supplied to the model. The snapshot
 /// is indexed once by slug, avoiding a catalogue lookup for every returned
@@ -17,7 +15,7 @@ import module java.base;
 @Component
 class MealSuggestionMapper {
 
-    MappedMealSuggestions map(final ModelMealSuggestions modelSuggestions, final List<Product> products) {
+    List<MappedMealSuggestion> map(final ModelMealSuggestions modelSuggestions, final List<Product> products) {
         requireNonNull(modelSuggestions, "The model meal suggestions cannot be null");
         requireNonEmpty(products, "The catalogue cannot be empty");
 
@@ -28,7 +26,7 @@ class MealSuggestionMapper {
                 .map(suggestion -> mapSuggestion(suggestion, productsBySlug))
                 .toList();
 
-        return new MappedMealSuggestions(mappedSuggestions);
+        return List.copyOf(mappedSuggestions);
     }
 
     private MappedMealSuggestion mapSuggestion(final ModelMealSuggestion suggestion, final Map<String, Product> productsBySlug) {

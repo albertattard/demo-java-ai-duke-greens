@@ -1,27 +1,11 @@
 package demo;
 
-import static java.util.Objects.requireNonNull;
+import module java.base;
 
 import static demo.Collections.requireNonEmpty;
 import static demo.Numbers.requireGreaterThanZero;
 import static demo.Strings.requireNonBlank;
-
-import module java.base;
-
-record MappedMealSuggestions(List<MappedMealSuggestion> suggestions) implements MealRequestResult, Iterable<MappedMealSuggestion> {
-
-    MappedMealSuggestions {
-        if (suggestions == null || suggestions.isEmpty() || suggestions.size() > 7) {
-            throw new IllegalArgumentException("A response must contain between one and seven suggestions");
-        }
-        suggestions = List.copyOf(suggestions);
-    }
-
-    @Override
-    public Iterator<MappedMealSuggestion> iterator() {
-        return suggestions.iterator();
-    }
-}
+import static java.util.Objects.requireNonNull;
 
 record MappedMealSuggestion(
         String name,

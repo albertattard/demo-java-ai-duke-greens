@@ -1,8 +1,22 @@
 package demo;
 
+import module java.base;
+
+import static demo.Collections.requireSizeBetween;
 import static demo.Strings.requireNonBlank;
 
-sealed interface MealRequestResult permits MappedMealSuggestions, InvalidRequest, FailedRequest, OutOfScopeRequest { }
+sealed interface MealRequestResult permits SuccessfulMealSuggestions, InvalidRequest, FailedRequest, OutOfScopeRequest {}
+
+record SuccessfulMealSuggestions(String assistantMessage,
+                                 List<MappedMealSuggestion> suggestions) implements MealRequestResult {
+
+    SuccessfulMealSuggestions {
+        requireNonBlank(assistantMessage, "An assistant message is required");
+        requireSizeBetween(suggestions, 1, 7, "A response must contain between one and seven suggestions");
+
+        suggestions = List.copyOf(suggestions);
+    }
+}
 
 record InvalidRequest(String message) implements MealRequestResult {
 
@@ -24,6 +38,7 @@ record FailedRequest(String request) implements MealRequestResult {
 /// Visitor-facing result for a request outside Duke Greens’ meal-idea scope. It
 /// retains the submitted text for editing but deliberately creates no
 /// recommendation, selection, or basket state.
+@Deprecated(forRemoval = true)
 record OutOfScopeRequest(String request) implements MealRequestResult {
 
     OutOfScopeRequest {

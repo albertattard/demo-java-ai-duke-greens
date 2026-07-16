@@ -1,15 +1,16 @@
 package demo;
 
-import static java.util.Objects.requireNonNull;
+import module java.base;
 
 import static demo.Collections.requireNonEmpty;
 import static demo.Collections.requireSizeBetween;
 import static demo.Numbers.requireGreaterThanZero;
 import static demo.Strings.requireNonBlank;
+import static java.util.Objects.requireNonNull;
 
-import module java.base;
-
-record ModelMealRequestResponse(MealRequestScope scope, List<ModelMealSuggestion> suggestions) {
+record ModelMealRequestResponse(@Deprecated(forRemoval = true) MealRequestScope scope,
+                                String assistantMessage,
+                                List<ModelMealSuggestion> suggestions) {
 
     ModelMealRequestResponse {
         requireNonNull(scope, "A request scope is required");
@@ -21,22 +22,32 @@ record ModelMealRequestResponse(MealRequestScope scope, List<ModelMealSuggestion
         }
 
         if (scope == MealRequestScope.IN_SCOPE) {
+            requireNonBlank(assistantMessage, "An in-scope response requires an assistant message");
             requireSizeBetween(suggestions, 1, 7, "A response must contain between one and seven suggestions");
         }
     }
 
+    @Deprecated(forRemoval = true)
+    static ModelMealRequestResponse inScope(final String assistantMessage, final ModelMealSuggestions suggestions) {
+        return new ModelMealRequestResponse(MealRequestScope.IN_SCOPE, assistantMessage, suggestions.suggestions());
+    }
+
+    @Deprecated(forRemoval = true)
     static ModelMealRequestResponse inScope(final ModelMealSuggestions suggestions) {
-        return new ModelMealRequestResponse(MealRequestScope.IN_SCOPE, suggestions.suggestions());
+        return inScope("Here are some meal ideas.", suggestions);
     }
 
+    @Deprecated(forRemoval = true)
     static ModelMealRequestResponse outOfScope() {
-        return new ModelMealRequestResponse(MealRequestScope.OUT_OF_SCOPE, List.of());
+        return new ModelMealRequestResponse(MealRequestScope.OUT_OF_SCOPE, null, List.of());
     }
 
+    @Deprecated(forRemoval = true)
     boolean isOutOfScope() {
         return scope == MealRequestScope.OUT_OF_SCOPE;
     }
 
+    @Deprecated(forRemoval = true)
     ModelMealSuggestions inScopeSuggestions() {
         if (isOutOfScope()) {
             throw new IllegalStateException("Out-of-scope requests do not have meal suggestions");
@@ -46,6 +57,7 @@ record ModelMealRequestResponse(MealRequestScope scope, List<ModelMealSuggestion
     }
 }
 
+@Deprecated(forRemoval = true)
 enum MealRequestScope {
     IN_SCOPE,
     OUT_OF_SCOPE

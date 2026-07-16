@@ -1,18 +1,16 @@
 package demo;
 
+import module java.base;
+
 import static demo.Collections.requireNonEmpty;
 import static demo.Strings.requireNonBlank;
-
-import module java.base;
 
 @FunctionalInterface
 interface MealSuggestionGenerator {
 
     ModelMealRequestResponse suggest(Request request);
 
-    default void recordSuccessfulResponse(final Request request, final ModelMealSuggestions suggestions) { }
-
-    default void clearConversation(final String conversationId) { }
+    default void clearConversation(final String conversationId) {}
 
     record Request(
             String conversationId,

@@ -508,6 +508,38 @@ button {
     margin-top: 2rem;
 }
 
+.conversation-transcript {
+    display: grid;
+    gap: 1rem;
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+}
+
+.conversation-transcript li {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.conversation-message {
+    border: 1px solid var(--color-border);
+    border-radius: var(--card-radius);
+    margin: 0;
+    max-width: min(75%, 42rem);
+    padding: 0.75rem 1rem;
+    width: fit-content;
+}
+
+.conversation-message-visitor {
+    background: var(--color-action-hover);
+    justify-self: end;
+}
+
+.conversation-message-assistant {
+    background: var(--color-surface);
+    justify-self: start;
+}
+
 .meal-suggestion {
     border-top: 1px solid var(--color-border);
     margin-top: 1rem;
@@ -538,6 +570,18 @@ button {
 .refinement-form label,
 .refinement-form textarea {
     align-self: stretch;
+}
+
+.refinement-actions {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.refinement-actions form,
+.refinement-actions button {
+    margin-top: 0;
 }
 
 .thank-you-action {
@@ -997,6 +1041,10 @@ button {
     margin-top: 0;
 }
 
+.basket-actions a {
+    font-weight: 700;
+}
+
 .basket-actions {
     align-items: center;
     display: flex;
@@ -1016,6 +1064,7 @@ button {
     .checkout-actions,
     .basket-actions,
     .basket-page-actions,
+    .refinement-actions,
     .reset-confirmation-actions {
         align-items: stretch;
         flex-direction: column;

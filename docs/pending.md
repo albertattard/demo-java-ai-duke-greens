@@ -14,6 +14,10 @@ The following visitor-facing commitments remain from the original MVP definition
 - Complete the demo flow with an explicit “Complete virtual order” action, a separate confirmation action, and a visible completion state that clearly says it is simulated and has not created a payment, delivery, or external order.
 - Validate that the complete core journey can be demonstrated in two to three minutes with the curated catalogue.
 
+### Follow-up out-of-scope recovery and observability
+
+When a visitor submits an informational follow-up such as “Are these all vegetarian meals?”, the current model instruction classifies it as out of scope. The follow-up controller currently redirects to the unchanged conversation without retaining the submitted text, showing an explanation, or writing a log entry, so the visitor experiences an apparent lost conversation. In the safe conversational-recovery slice, handle this result as a valid zero-suggestion assistant turn: preserve the latest non-empty recommendations and basket, append an explicit assistant decline or clarification to the transcript, and allow another free-text follow-up. Do not let the model make authoritative dietary-compliance claims. If answering vegetarian-status questions becomes a product requirement, introduce application-controlled dietary metadata and derive the answer from it. Add focused coverage for the POST/Redirect/GET flow, retained recommendation state, transcript outcome, and subsequent resend. Add privacy-safe observability that records the result category without logging visitor prompts or model output.
+
 ### Basket-editing product decision
 
 Decide whether the editable basket remains the product direction or whether to restore the original review-only basket. The current change brief deliberately retains basket editing, while allowing simulated completion only when the basket fulfils the selected meals. Restoring review-only behaviour must be an explicit product decision rather than an accidental consequence of completing the original specification.

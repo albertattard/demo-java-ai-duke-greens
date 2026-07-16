@@ -1,12 +1,10 @@
 package demo;
 
+import module java.base;
+import demo.MealSuggestionGenerator.Request;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-
-import demo.MealSuggestionGenerator.Request;
-
-import module java.base;
 
 @Component
 final class MealSuggestionMessageFormatter {
@@ -30,24 +28,25 @@ final class MealSuggestionMessageFormatter {
     }
 
     String userMessage(final Request request) {
-        final StringBuffer userMessage = new StringBuffer();
+        final StringBuilder userMessage = new StringBuilder();
+
+        if (request.hasRecommendations()) {
+            userMessage.append("The visitor is currently considering the following meal ideas:\n");
+            userMessage.append(request.recommendations().stream()
+                    .map(dismissed -> "- " + dismissed)
+                    .collect(Collectors.joining("\n")));
+            userMessage.append("\n\n");
+        }
 
         if (request.hasSelected()) {
-            userMessage.append("The visitor has selected the following meals (soft positive preference)\n");
+            userMessage.append("The visitor has selected the following meals (soft positive preference):\n");
             userMessage.append(request.selected().stream()
                     .map(selected -> "- " + selected)
                     .collect(Collectors.joining("\n")));
-            userMessage.append("\n");
+            userMessage.append("\n\n");
         }
 
-        if (request.hasDismissed()) {
-            userMessage.append("The visitor has dismissed the following meals (soft negative preference)\n");
-            userMessage.append(request.dismissed().stream()
-                    .map(dismissed -> "- " + dismissed)
-                    .collect(Collectors.joining("\n")));
-            userMessage.append("\n");
-        }
-
+        userMessage.append("The visitor’s request:\n");
         userMessage.append(request.request());
 
         return userMessage.toString().trim();

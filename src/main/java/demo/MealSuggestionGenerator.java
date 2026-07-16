@@ -12,11 +12,13 @@ interface MealSuggestionGenerator {
 
     default void clearConversation(final String conversationId) {}
 
+    /// @param recommendations the meal ideas currently shown to the visitor
+    /// @param selected        the meal ideas the visitor has chosen to add to their basket
     record Request(
             String conversationId,
             String request,
             List<Product> catalogue,
-            Set<String> dismissed,
+            Set<String> recommendations,
             Set<String> selected) {
 
         public Request {
@@ -25,7 +27,7 @@ interface MealSuggestionGenerator {
             requireNonEmpty(catalogue, "The catalogue list must not be empty");
 
             catalogue = List.copyOf(catalogue);
-            dismissed = dismissed == null ? Set.of() : Set.copyOf(dismissed);
+            recommendations = recommendations == null ? Set.of() : Set.copyOf(recommendations);
             selected = selected == null ? Set.of() : Set.copyOf(selected);
         }
 
@@ -33,8 +35,8 @@ interface MealSuggestionGenerator {
             this(conversationId, request, catalogue, Set.of(), Set.of());
         }
 
-        boolean hasDismissed() {
-            return !dismissed.isEmpty();
+        boolean hasRecommendations() {
+            return !recommendations.isEmpty();
         }
 
         boolean hasSelected() {

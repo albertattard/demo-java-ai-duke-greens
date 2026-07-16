@@ -28,6 +28,15 @@ Visitors can continue a meal-discovery conversation on the recommendations page.
 - Starting over, successful simulated-order completion, and session destruction clear both the UI transcript and the Spring AI conversation memory.
 - Conversation IDs remain isolated between sessions.
 
+## Delivery plan
+
+Deliver the overall outcome in the following small vertical slices. Each slice requires its own agreed concise brief before implementation; this section preserves the overall goal and does not replace it.
+
+1. Successful conversational follow-up: visitors can submit a follow-up, see a chronological transcript, and see only the latest recommendation set. Include the response-contract change needed to capture a non-blank assistant message, one generic follow-up form in place of refinement, and successful-turn storage in both UI state and Spring AI memory. Remove “Not for me”. Defer zero-suggestion and failure recovery behaviour.
+2. Selected-meal continuity: visitors retain selected meals while continuing the conversation. Render selected meal cards in their own basket section, exclude an exactly equal selected meal from the latest recommendations, preserve one-click addition, and keep the basket page unchanged. Make selected-meal identity independent of historical result-set indexes.
+3. Safe conversational recovery: permit valid zero-suggestion assistant responses, preserve the latest non-empty recommendations in that case, and provide editable recovery and resend for provider or invalid-response failures. Failed attempts must not add transcript turns, cards, or Spring AI memory.
+4. Conversation cleanup: clear UI transcript and Spring AI memory on start-over, successful simulated-order completion, and session destruction. Add focused coverage for cleanup and conversation-ID isolation.
+
 ## Verification
 
 - Baseline verification passed: `./mvnw package` completed successfully with 99 tests.

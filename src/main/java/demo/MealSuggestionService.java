@@ -30,11 +30,6 @@ class MealSuggestionService {
         this.mapper = mapper;
     }
 
-    @Deprecated(forRemoval = true)
-    MealRequestResult submit(final String conversationId, final String request) {
-        return submit(new Request(conversationId, request));
-    }
-
     MealRequestResult submit(final Request request) {
         if (request == null) {
             return new InvalidRequest("The request must not be null");

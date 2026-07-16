@@ -78,7 +78,7 @@ class RecommendationsPageController {
         return switch (mealRequestSession.state(request)) {
             case final FailedMealRequest failedRequest -> storeResultAndRedirect(
                     failedRequest.request(),
-                    mealSuggestionService.submit(conversationId, failedRequest.request()),
+                    mealSuggestionService.submit(new MealSuggestionService.Request(conversationId, failedRequest.request())),
                     request,
                     redirectAttributes);
             case null, default -> mealRequestSession.initialRequestRedirect();
@@ -145,7 +145,7 @@ class RecommendationsPageController {
             return mealRequestSession.recommendationsRedirect(request);
         }
 
-        final MealRequestResult validation = mealSuggestionService.submit(conversationId, followUp);
+        final MealRequestResult validation = mealSuggestionService.submit(new MealSuggestionService.Request(conversationId, followUp));
 
         if (validation instanceof InvalidRequest(String message)) {
             redirectAttributes.addFlashAttribute("followUpError", message);

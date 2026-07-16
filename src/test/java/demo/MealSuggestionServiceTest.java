@@ -47,7 +47,7 @@ class MealSuggestionServiceTest {
         when(mapper.map(eq(modelSuggestions), same(catalogue)))
                 .thenReturn(mappedSuggestions);
 
-        final MealRequestResult result = service.submit(CONVERSATION_ID, mealRequest);
+        final MealRequestResult result = service.submit(new MealSuggestionService.Request(CONVERSATION_ID, mealRequest));
 
         assertThat(result)
                 .isEqualTo(new SuccessfulMealSuggestions("Here are some meal ideas.", mappedSuggestions));
@@ -66,16 +66,16 @@ class MealSuggestionServiceTest {
         when(mapper.map(eq(unmappableSuggestions), same(catalogue)))
                 .thenThrow(new IllegalArgumentException("unknown product"));
 
-        assertThat(service.submit(CONVERSATION_ID, "Suggest a meal"))
+        assertThat(service.submit(new MealSuggestionService.Request(CONVERSATION_ID, "Suggest a meal")))
                 .isInstanceOf(FailedRequest.class);
 
-        assertThat(service.submit(CONVERSATION_ID, "Suggest a meal"))
+        assertThat(service.submit(new MealSuggestionService.Request(CONVERSATION_ID, "Suggest a meal")))
                 .isInstanceOf(FailedRequest.class);
     }
 
     @Test
     void rejectsBlankRequestsWithoutCallingTheModel() {
-        final MealRequestResult result = service.submit(CONVERSATION_ID, "   ");
+        final MealRequestResult result = service.submit(new MealSuggestionService.Request(CONVERSATION_ID, "   "));
 
         assertThat(result)
                 .isEqualTo(new InvalidRequest("Describe at least one meal you want."));
@@ -84,7 +84,7 @@ class MealSuggestionServiceTest {
 
     @Test
     void rejectsAnOverlongRequestWithoutLoadingTheCatalogueOrCallingTheModel() {
-        final MealRequestResult result = service.submit(CONVERSATION_ID, "x".repeat(301));
+        final MealRequestResult result = service.submit(new MealSuggestionService.Request(CONVERSATION_ID, "x".repeat(301)));
 
         assertThat(result)
                 .isEqualTo(new InvalidRequest("Describe your meal request in 300 characters or fewer."));
@@ -100,7 +100,7 @@ class MealSuggestionServiceTest {
         when(generator.suggest(anyRequest(request, catalogue))).thenReturn(ModelMealRequestResponse.inScope(modelSuggestions));
         when(mapper.map(eq(modelSuggestions), same(catalogue))).thenReturn(mappedSuggestions(catalogue));
 
-        assertThat(service.submit(CONVERSATION_ID, request))
+        assertThat(service.submit(new MealSuggestionService.Request(CONVERSATION_ID, request)))
                 .isInstanceOf(SuccessfulMealSuggestions.class);
     }
 
@@ -108,7 +108,7 @@ class MealSuggestionServiceTest {
     void failsWithoutCallingTheModelWhenTheCatalogueIsEmpty() {
         when(productCatalogue.allProducts()).thenReturn(List.of());
 
-        assertThat(service.submit(CONVERSATION_ID, "Suggest a meal"))
+        assertThat(service.submit(new MealSuggestionService.Request(CONVERSATION_ID, "Suggest a meal")))
                 .isInstanceOf(FailedRequest.class);
         verifyNoInteractions(generator);
     }
@@ -120,7 +120,7 @@ class MealSuggestionServiceTest {
         when(productCatalogue.allProducts()).thenReturn(catalogue);
         when(generator.suggest(anyRequest(request, catalogue))).thenReturn(ModelMealRequestResponse.outOfScope());
 
-        assertThat(service.submit(CONVERSATION_ID, request)).isEqualTo(new OutOfScopeRequest(request));
+        assertThat(service.submit(new MealSuggestionService.Request(CONVERSATION_ID, request))).isEqualTo(new OutOfScopeRequest(request));
         verify(generator).suggest(anyRequest(request, catalogue));
         verifyNoInteractions(mapper);
     }
@@ -132,7 +132,7 @@ class MealSuggestionServiceTest {
         when(productCatalogue.allProducts()).thenReturn(catalogue);
         when(generator.suggest(anyRequest(request, catalogue))).thenReturn(ModelMealRequestResponse.outOfScope());
 
-        assertThat(service.submit(CONVERSATION_ID, request)).isEqualTo(new OutOfScopeRequest(request));
+        assertThat(service.submit(new MealSuggestionService.Request(CONVERSATION_ID, request))).isEqualTo(new OutOfScopeRequest(request));
         verifyNoInteractions(mapper);
     }
 
@@ -147,7 +147,7 @@ class MealSuggestionServiceTest {
                 .thenReturn(ModelMealRequestResponse.inScope(modelSuggestions));
         when(mapper.map(eq(modelSuggestions), same(catalogue))).thenReturn(mappedSuggestions);
 
-        assertThat(service.submit("conversation-1", "Make it quicker"))
+        assertThat(service.submit(new MealSuggestionService.Request("conversation-1", "Make it quicker")))
                 .isEqualTo(new SuccessfulMealSuggestions("Here are some meal ideas.", mappedSuggestions));
 
         verify(generator).suggest(eq(generatorRequest));

@@ -53,6 +53,22 @@ terraform apply -replace=terraform_data.application
 
 The deployment intentionally retains session state only in application memory. A redeploy or VM restart ends active visitor sessions, as documented in [ADR-0004](../docs/adr/ADR-0004-keep-active-visitor-state-in-memory.md).
 
+## Connect and inspect logs
+
+Replace `~/.ssh/oracle_id_ed25519` with the path to the private key that matches an entry in `ssh_authorized_keys`. From the repository root, connect to the VM with:
+
+```shell
+ssh -i ~/.ssh/oracle_id_ed25519 "opc@$(terraform -chdir=infrastructure/terraform output -raw application_public_ip)"
+```
+
+Follow the Duke Greens application’s live logs without first opening an interactive SSH session with:
+
+```shell
+ssh -i ~/.ssh/oracle_id_ed25519 "opc@$(terraform -chdir=infrastructure/terraform output -raw application_public_ip)" 'sudo journalctl --unit=duke-greens.service --follow'
+```
+
+Press `Ctrl+C` to stop following logs. The application runs as the `duke-greens.service` systemd service; its standard output and error are collected by the system journal.
+
 ## Operational limits
 
 This is a one-VM demonstration deployment, not a highly available production service. A VM failure or maintenance restart interrupts active sessions. It also does not add an application-aware web-application firewall; if the deployment is exposed beyond supervised demo use, add an OCI WAF or equivalent rate limiting before broad sharing.

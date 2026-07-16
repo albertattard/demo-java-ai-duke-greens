@@ -41,24 +41,24 @@ Deliver the overall outcome in the following small vertical slices. Each slice r
 
 ### Outcome
 
-Visitors can safely recover from a failed follow-up request.
+Starting over, completing a simulated order, or ending a visitor session clears the conversation from both UI state and Spring AI memory.
 
 ### Constraints
 
-- A provider or catalogue-mapping failure shows a recovery error and pre-fills the editable follow-up textarea with the attempted text.
-- Do not append either turn to the UI transcript, or change recommendations, selected meals, or basket. Spring AI memory may retain the failed provider turn; atomic AI-memory commits are deferred as enabling work.
-- Do not expose provider diagnostics or partial cards.
-- A resend is a normal, editable follow-up submission.
-- Keep the active conversation ID unchanged.
+- Clear Spring AI memory using the application-generated conversation ID before discarding that ID.
+- Starting over and successful simulated-order completion clear the UI transcript with the existing session-held request state.
+- Session destruction clears Spring AI memory for an active conversation without creating a new session.
+- Preserve the existing reset confirmation and simulated-order completion flows.
 
 ### Done when
 
-- A failed follow-up preserves the visible conversation and cards, and displays editable recovery.
-- An edited resend can become the next successful exchange.
-- Focused MVC coverage proves the behaviour.
+- Starting over clears the UI state and Spring AI conversation.
+- Successful simulated-order completion clears the UI state and Spring AI conversation.
+- Session destruction clears the Spring AI conversation for the destroyed session.
+- Focused MVC and session-lifecycle coverage proves cleanup and conversation-ID isolation.
 
 ## Verification
 
-- Baseline verification: `./mvnw package` passed with 102 tests.
-- Focused MVC coverage: `./mvnw test -Dtest=MealRequestSessionMvcTest` passed with 30 tests.
-- Current verification: `./mvnw package` passed with 103 tests.
+- Baseline verification: `./mvnw package` passed with 103 tests.
+- Focused MVC and session-lifecycle coverage: `./mvnw test -Dtest=MealRequestSessionMvcTest,ConversationCleanupSessionListenerTest` passed with 31 tests.
+- Current verification: `./mvnw package` passed with 104 tests.

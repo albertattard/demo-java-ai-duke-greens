@@ -677,8 +677,10 @@ class MealRequestSessionMvcTest {
 
     @Test
     void completesACompleteBasketAndShowsTheOneTimeThankYouPage() throws Exception {
+        final String conversationId = "active-conversation";
         final Product lentils = product("red-lentils-500g");
         final MockHttpSession session = new MockHttpSession();
+        session.setAttribute("mealConversationId", conversationId);
         session.setAttribute("mealRequestState", new SuccessfulMealRequest("Suggest a dinner",
                 List.of(new MappedMealSuggestion("Lentil soup", 25, "A complete dinner.", 1,
                         List.of(new MappedProduct(lentils, 1)), BigDecimal.valueOf(1.69))),
@@ -694,6 +696,7 @@ class MealRequestSessionMvcTest {
         mvc.perform(MockMvcRequestBuilders.get("/demo/thank-you").session(session))
                 .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"));
 
+        verify(mealSuggestionService).clearConversation(conversationId);
         verifyNoMoreInteractions(mealSuggestionService);
     }
 

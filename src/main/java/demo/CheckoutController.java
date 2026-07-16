@@ -13,10 +13,13 @@ class CheckoutController {
 
     private final MealRequestSession mealRequestSession;
     private final BasketPresentation basketPresentation;
+    private final MealSuggestionService mealSuggestionService;
 
-    CheckoutController(final MealRequestSession mealRequestSession, final BasketPresentation basketPresentation) {
+    CheckoutController(final MealRequestSession mealRequestSession, final BasketPresentation basketPresentation,
+                       final MealSuggestionService mealSuggestionService) {
         this.mealRequestSession = mealRequestSession;
         this.basketPresentation = basketPresentation;
+        this.mealSuggestionService = mealSuggestionService;
     }
 
     @GetMapping("/demo/checkout")
@@ -41,6 +44,7 @@ class CheckoutController {
             return mealRequestSession.initialRequestRedirect();
         }
 
+        mealSuggestionService.clearConversation(mealRequestSession.conversationId(request));
         mealRequestSession.clear(request);
         mealRequestSession.markSimulatedOrderCompleted(request);
         return "redirect:/demo/thank-you";

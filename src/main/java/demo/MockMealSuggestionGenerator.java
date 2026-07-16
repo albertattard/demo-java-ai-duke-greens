@@ -65,6 +65,6 @@ final class MockMealSuggestionGenerator implements MealSuggestionGenerator {
 
         java.util.Collections.shuffle(available);
         final int count = ThreadLocalRandom.current().nextInt(1, Math.min(3, available.size()) + 1);
-        return ModelMealRequestResponse.inScope("Here are some meal ideas from Duke Greens.", new ModelMealSuggestions(available.subList(0, count)));
+        return new ModelMealRequestResponse("Here are some meal ideas from Duke Greens.", available.subList(0, count));
     }
 }

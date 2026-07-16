@@ -132,7 +132,7 @@ class WelcomePageIT {
                 new ModelMealSuggestion("Tomato spinach spaghetti", 20, "A simple weeknight meal.", 1, List.of(new ModelIngredient("baby-spinach-200g", "100", "g")))));
 
         when(mealSuggestionGenerator.suggest(request(request)))
-                .thenReturn(ModelMealRequestResponse.inScope(suggestions));
+                .thenReturn(ModelMealRequestResponse.withSuggestions(suggestions));
 
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .submitMealRequest(request)
@@ -157,7 +157,7 @@ class WelcomePageIT {
                 new ModelMealSuggestion("Lemon lentil pasta", 25, "A fast vegetarian dinner.", 1, List.of(new ModelIngredient("red-lentils-500g", "100", "g"))),
                 new ModelMealSuggestion("Smoky chickpea rice", 25, "A quick plant-based dinner.", 1, List.of(new ModelIngredient("chickpeas-400g", "200", "g")))));
         when(mealSuggestionGenerator.suggest(request(request)))
-                .thenReturn(ModelMealRequestResponse.inScope(initialSuggestions));
+                .thenReturn(ModelMealRequestResponse.withSuggestions(initialSuggestions));
 
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .submitMealRequest(request)
@@ -180,35 +180,13 @@ class WelcomePageIT {
     }
 
     @Test
-    void recoversFromAnOutOfScopeRequestAndAcceptsAReplacementMealRequest() throws Exception {
-        final String unrelatedRequest = "What’s the weather?";
-        final String mealRequest = "Suggest a vegetarian dinner";
-        final ModelMealSuggestions suggestions = new ModelMealSuggestions(List.of(
-                new ModelMealSuggestion("Lentil pasta", 20, "A quick vegetarian dinner.", 1,
-                        List.of(new ModelIngredient("red-lentils-500g", "100", "g")))));
-        when(mealSuggestionGenerator.suggest(request(unrelatedRequest))).thenReturn(ModelMealRequestResponse.outOfScope());
-        when(mealSuggestionGenerator.suggest(request(mealRequest))).thenReturn(ModelMealRequestResponse.inScope(suggestions));
-
-        browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
-                .submitOutOfScopeRequest(unrelatedRequest)
-                .shouldShowOutOfScopeRecovery(unrelatedRequest)
-                .reload()
-                .shouldShowInitialRequestState()
-                .submitMealRequest(mealRequest)
-                .shouldShowSuggestions(1));
-
-        verify(mealSuggestionGenerator).suggest(request(unrelatedRequest));
-        verify(mealSuggestionGenerator).suggest(request(mealRequest));
-    }
-
-    @Test
     void showsTheRecoveryStateWithoutSuggestionsWhenTheModelReturnsAnUnknownProduct() throws Exception {
         final String request = "Suggest a vegetarian dinner";
         final ModelMealSuggestions unmappableSuggestions = new ModelMealSuggestions(List.of(
                 new ModelMealSuggestion("Unknown product dinner", 20, "A complete meal.", 1,
                         List.of(new ModelIngredient("unknown-product", "100", "g")))));
         when(mealSuggestionGenerator.suggest(request(request)))
-                .thenReturn(ModelMealRequestResponse.inScope(unmappableSuggestions));
+                .thenReturn(ModelMealRequestResponse.withSuggestions(unmappableSuggestions));
 
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .submitMealRequest(request)
@@ -227,7 +205,7 @@ class WelcomePageIT {
                 new ModelMealSuggestion("Retry dinner", 20, "A complete meal after retrying.", 1, List.of(new ModelIngredient("chopped-tomatoes-400g", "1", "g")))));
         when(mealSuggestionGenerator.suggest(request(request)))
                 .thenThrow(new IllegalStateException("simulated provider failure"))
-                .thenReturn(ModelMealRequestResponse.inScope(retrySuggestions));
+                .thenReturn(ModelMealRequestResponse.withSuggestions(retrySuggestions));
 
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .submitMealRequest(request)
@@ -253,7 +231,7 @@ class WelcomePageIT {
     @Test
     void consolidatesSelectedMealsOnTheDedicatedBasketPage() throws Exception {
         final String request = "Suggest two pasta dinners";
-        when(mealSuggestionGenerator.suggest(request(request))).thenReturn(ModelMealRequestResponse.inScope(new ModelMealSuggestions(List.of(
+        when(mealSuggestionGenerator.suggest(request(request))).thenReturn(ModelMealRequestResponse.withSuggestions(new ModelMealSuggestions(List.of(
                 new ModelMealSuggestion("First pasta", 20, "A complete dinner.", 1,
                         List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g"))),
                 new ModelMealSuggestion("Second pasta", 20, "Another complete dinner.", 1,
@@ -280,10 +258,10 @@ class WelcomePageIT {
     @Test
     void keepsTheBasketAccessibleAfterAFollowUpReplacesTheDisplayedRecommendations() throws Exception {
         final String request = "Suggest a pasta dinner";
-        when(mealSuggestionGenerator.suggest(request(request))).thenReturn(ModelMealRequestResponse.inScope(new ModelMealSuggestions(List.of(
+        when(mealSuggestionGenerator.suggest(request(request))).thenReturn(ModelMealRequestResponse.withSuggestions(new ModelMealSuggestions(List.of(
                 new ModelMealSuggestion("Pasta", 20, "A complete dinner.", 1,
                         List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g")))))));
-        when(mealSuggestionGenerator.suggest(request("Make it quicker"))).thenReturn(ModelMealRequestResponse.inScope(new ModelMealSuggestions(List.of(
+        when(mealSuggestionGenerator.suggest(request("Make it quicker"))).thenReturn(ModelMealRequestResponse.withSuggestions(new ModelMealSuggestions(List.of(
                 new ModelMealSuggestion("Quick pasta", 15, "A quicker dinner.", 1,
                         List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g")))))));
 
@@ -300,7 +278,7 @@ class WelcomePageIT {
     @Test
     void reviewsTheBasketAtCheckoutAndReturnsToEditingIt() throws Exception {
         final String request = "Suggest a pasta dinner";
-        when(mealSuggestionGenerator.suggest(request(request))).thenReturn(ModelMealRequestResponse.inScope(new ModelMealSuggestions(List.of(
+        when(mealSuggestionGenerator.suggest(request(request))).thenReturn(ModelMealRequestResponse.withSuggestions(new ModelMealSuggestions(List.of(
                 new ModelMealSuggestion("Pasta", 20, "A complete dinner.", 1,
                         List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g")))))));
 
@@ -318,7 +296,7 @@ class WelcomePageIT {
     @Test
     void completesASimulatedOrderAndReturnsToAFreshWelcomePage() throws Exception {
         final String request = "Suggest a pasta dinner";
-        when(mealSuggestionGenerator.suggest(request(request))).thenReturn(ModelMealRequestResponse.inScope(new ModelMealSuggestions(List.of(
+        when(mealSuggestionGenerator.suggest(request(request))).thenReturn(ModelMealRequestResponse.withSuggestions(new ModelMealSuggestions(List.of(
                 new ModelMealSuggestion("Pasta", 20, "A complete dinner.", 1,
                         List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g")))))));
 

@@ -51,21 +51,6 @@ public final class WelcomePage extends PageObject {
         return this;
     }
 
-    public WelcomePage submitOutOfScopeRequest(final String request) {
-        fillMealRequest(request);
-        elementByRoleAndExactName(AriaRole.BUTTON, "Get meal ideas").click();
-        return this;
-    }
-
-    public WelcomePage shouldShowOutOfScopeRecovery(final String request) {
-        final Locator recovery = page.locator(".information-message").filter(new Locator.FilterOptions().setHasText("Meal ideas only"));
-        assertThat(recovery).isVisible();
-        assertThat(recovery).hasAttribute("role", "status");
-        assertThat(recovery.locator("p")).hasText("Duke Greens helps you find meal ideas. Tell us what you’d like to cook, such as a quick vegetarian dinner for two.");
-        assertThat(elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want")).hasValue(request);
-        return this;
-    }
-
     public WelcomePage reload() {
         page.reload();
         return this;

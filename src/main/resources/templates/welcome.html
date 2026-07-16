@@ -11,10 +11,6 @@
         <p class="eyebrow">Next generation green supermarket</p>
         <h1 id="welcome-heading">Duke Greens</h1>
         <p>Tell us what you would like to cook, and we will help plan your meals and groceries.</p>
-        <section aria-live="polite" class="information-message" role="status" th:if="${outOfScopeMessage}">
-            <h2>Meal ideas only</h2>
-            <p th:text="${outOfScopeMessage}"></p>
-        </section>
         <section aria-live="polite" class="information-message" role="status" th:if="${informationMessage}">
             <h2>Meal request unavailable</h2>
             <p th:text="${informationMessage}"></p>

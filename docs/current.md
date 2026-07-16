@@ -41,23 +41,25 @@ Deliver the overall outcome in the following small vertical slices. Each slice r
 
 ### Outcome
 
-When an initial meal request lacks both dietary preference and preparation time, visitors can receive one model-directed clarification before receiving meal ideas.
+Visitors can continue a meal-preparation conversation when the model returns a clarification or other guidance without meal suggestions.
 
 ### Constraints
 
-- This is best-effort model-directed behaviour; the application does not parse arbitrary visitor text to determine whether either detail is present.
-- A clarification is a valid non-blank assistant message with zero suggestions and starts an active conversation.
+- This is best-effort model-directed behaviour; the application does not parse visitor text to decide whether it aligns with meal preparation or needs clarification.
+- A valid non-blank assistant message with zero suggestions is a conversational turn, whether initial or a follow-up. The model may use it to ask a clarification question or guide the visitor back to meal preparation.
+- Preserve the boundary between model conversation and application-controlled business data. Do not make catalogue, dietary, price, stock, basket, or order claims authoritative merely because the model states them.
 - Preserve the existing follow-up, recommendation, basket, and completion behaviour.
 
 ### Done when
 
-- An initial zero-suggestion response shows the clarification in the transcript and permits a follow-up.
-- The model instruction limits an initial clarification to requests lacking both dietary preference and maximum preparation time.
+- An initial or follow-up zero-suggestion response shows the assistant message in the transcript and permits another follow-up.
+- A follow-up zero-suggestion response preserves the latest non-empty recommendations and the basket.
 - A subsequent successful follow-up displays meal ideas in the same conversation.
 - Focused MVC and prompt coverage proves the behaviour.
 
 ## Verification
 
-- `mvn test` — passed: 105 tests.
-- Focused MVC coverage exercises an initial zero-suggestion clarification, its transcript and follow-up form, and a subsequent meal-idea response in the same conversation.
-- Prompt coverage verifies that clarification is limited to an initial in-scope request lacking both dietary preference and maximum preparation time.
+- `mvn test` — passed: 102 tests.
+- Focused MVC coverage verifies that valid zero-suggestion follow-ups retain the latest recommendations and basket while appending the assistant message to the transcript.
+- Prompt coverage verifies that the model uses existing conversation context for preference-only follow-ups and asks a clarification only when the combined context is insufficient.
+- OpenAI integration coverage verifies specified requests, unrelated-request guidance, and conversational refinement when run with an OpenAI credential; it was not run in this environment because no credential is configured.

@@ -5,7 +5,7 @@ import module java.base;
 import static demo.Collections.requireSizeBetween;
 import static demo.Strings.requireNonBlank;
 
-sealed interface MealRequestResult permits SuccessfulMealSuggestions, InvalidRequest, FailedRequest, OutOfScopeRequest {}
+sealed interface MealRequestResult permits SuccessfulMealSuggestions, InvalidRequest, FailedRequest {}
 
 record SuccessfulMealSuggestions(String assistantMessage,
                                  List<MappedMealSuggestion> suggestions) implements MealRequestResult {
@@ -31,17 +31,6 @@ record InvalidRequest(String message) implements MealRequestResult {
 record FailedRequest(String request) implements MealRequestResult {
 
     FailedRequest {
-        requireNonBlank(request, "The request cannot be blank");
-    }
-}
-
-/// Visitor-facing result for a request outside Duke Greens’ meal-idea scope. It
-/// retains the submitted text for editing but deliberately creates no
-/// recommendation, selection, or basket state.
-@Deprecated(forRemoval = true)
-record OutOfScopeRequest(String request) implements MealRequestResult {
-
-    OutOfScopeRequest {
         requireNonBlank(request, "The request cannot be blank");
     }
 }

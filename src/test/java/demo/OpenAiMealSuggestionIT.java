@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 @Tag("openai-integration")
 @SpringBootTest
@@ -20,15 +21,14 @@ class OpenAiMealSuggestionIT {
     @Autowired
     private ProductCatalogue productCatalogue;
 
+    @Autowired
+    private MealSuggestionMapper mapper;
+
     @Test
     void returnOneRecommendation() {
         final ModelMealRequestResponse response = generator.suggest(request("Suggest one quick vegetarian dinner for one person."));
 
-        assertThat(response.scope())
-                .describedAs("A request for a vegetarian dinner is within the meal-suggestion scope")
-                .isEqualTo(MealRequestScope.IN_SCOPE);
-
-        final ModelMealSuggestions suggestions = response.inScopeSuggestions();
+        final ModelMealSuggestions suggestions = new ModelMealSuggestions(response.suggestions());
         assertThat(suggestions)
                 .describedAs("A request for one dinner receives exactly one recommendation")
                 .hasSize(1);
@@ -37,30 +37,29 @@ class OpenAiMealSuggestionIT {
         assertThat(suggestion.servings())
                 .describedAs("A dinner requested for one person serves one person")
                 .isEqualTo(1);
+        assertThatCode(() -> mapper.map(suggestions, productCatalogue.allProducts()))
+                .describedAs("A specified meal request uses only exact application catalogue products")
+                .doesNotThrowAnyException();
     }
 
     @Test
-    void returnAnExplicitOutOfScopeResponse() {
+    void guidesAnUnrelatedRequestBackToMealPreparation() {
         final ModelMealRequestResponse response = generator.suggest(request("What’s the weather?"));
 
-        assertThat(response.scope())
-                .describedAs("A weather question is outside the meal-suggestion scope")
-                .isEqualTo(MealRequestScope.OUT_OF_SCOPE);
         assertThat(response.suggestions())
-                .describedAs("An out-of-scope response must not contain meal recommendations")
+                .describedAs("An unrelated request does not produce meal recommendations")
                 .isEmpty();
+        assertThat(response.assistantMessage())
+                .describedAs("An unrelated request still receives visitor-facing guidance")
+                .isNotBlank();
     }
 
     @Test
     void refineTheRecommendation() {
-        final String conversationId = UUID.randomUUID().toString();
-        final ModelMealRequestResponse response1 = generator.suggest(request(conversationId, "Recommend a meal I can cook for four people."));
+        final String conversationId = createConversationId();
+        final ModelMealRequestResponse response1 = generator.suggest(request(conversationId, "Recommend one vegetarian meal I can cook in 30 minutes for four people."));
 
-        assertThat(response1.scope())
-                .describedAs("An initial request for a meal is within the meal-suggestion scope")
-                .isEqualTo(MealRequestScope.IN_SCOPE);
-
-        final ModelMealSuggestions suggestions1 = response1.inScopeSuggestions();
+        final ModelMealSuggestions suggestions1 = new ModelMealSuggestions(response1.suggestions());
         assertThat(suggestions1)
                 .describedAs("A request for one meal produces exactly one recommendation")
                 .hasSize(1);
@@ -86,11 +85,7 @@ class OpenAiMealSuggestionIT {
 
         final ModelMealRequestResponse response2 = generator.suggest(request(conversationId, "They like " + requestFor));
 
-        assertThat(response2.scope())
-                .describedAs("A food-preference follow-up remains a valid meal-suggestion request")
-                .isEqualTo(MealRequestScope.IN_SCOPE);
-
-        final ModelMealSuggestions suggestions2 = response2.inScopeSuggestions();
+        final ModelMealSuggestions suggestions2 = new ModelMealSuggestions(response2.suggestions());
         assertThat(suggestions2)
                 .describedAs("A preference-only follow-up keeps the single-recommendation response shape")
                 .hasSize(1);
@@ -106,10 +101,14 @@ class OpenAiMealSuggestionIT {
     }
 
     private MealSuggestionGenerator.Request request(final String message) {
-        return request(UUID.randomUUID().toString(), message);
+        return request(createConversationId(), message);
     }
 
     private MealSuggestionGenerator.Request request(final String conversationId, final String message) {
         return new MealSuggestionGenerator.Request(conversationId, message, productCatalogue.allProducts(), Set.of(), Set.of());
+    }
+
+    private static String createConversationId() {
+        return UUID.randomUUID().toString();
     }
 }

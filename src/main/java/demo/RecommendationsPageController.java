@@ -79,8 +79,7 @@ class RecommendationsPageController {
             case final FailedMealRequest failedRequest -> storeResultAndRedirect(
                     failedRequest.request(),
                     mealSuggestionService.submit(new MealSuggestionService.Request(conversationId, failedRequest.request())),
-                    request,
-                    redirectAttributes);
+                    request);
             case null, default -> mealRequestSession.initialRequestRedirect();
         };
     }
@@ -167,8 +166,7 @@ class RecommendationsPageController {
     private String storeResultAndRedirect(
             final String mealRequest,
             final MealRequestResult result,
-            final HttpServletRequest request,
-            final RedirectAttributes redirectAttributes) {
+            final HttpServletRequest request) {
 
         return switch (result) {
             case SuccessfulMealSuggestions successfulSuggestions -> {
@@ -186,12 +184,6 @@ class RecommendationsPageController {
                 }
                 mealRequestSession.store(request, new FailedMealRequest(failedRequest));
                 yield mealRequestSession.recommendationsRedirect(conversationId);
-            }
-            case OutOfScopeRequest(final String outOfScopeRequest) -> {
-                mealRequestSession.clear(request);
-                redirectAttributes.addFlashAttribute("mealRequest", outOfScopeRequest);
-                redirectAttributes.addFlashAttribute("outOfScopeMessage", "Duke Greens helps you find meal ideas. Tell us what you’d like to cook, such as a quick vegetarian dinner for two.");
-                yield "redirect:/demo";
             }
             case InvalidRequest(_) -> throw new IllegalStateException("A retained meal request must remain valid");
         };

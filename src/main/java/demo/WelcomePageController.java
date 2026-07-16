@@ -73,12 +73,6 @@ class WelcomePageController {
                 mealRequestSession.store(request, new FailedMealRequest(failedRequest));
                 yield mealRequestSession.recommendationsRedirect(conversationId);
             }
-            case OutOfScopeRequest(final String outOfScopeRequest) -> {
-                mealRequestSession.clear(request);
-                redirectAttributes.addFlashAttribute("mealRequest", outOfScopeRequest);
-                redirectAttributes.addFlashAttribute("outOfScopeMessage", "Duke Greens helps you find meal ideas. Tell us what you’d like to cook, such as a quick vegetarian dinner for two.");
-                yield "redirect:/demo";
-            }
             case InvalidRequest(final String message) -> {
                 mealRequestSession.clear(request);
                 redirectAttributes.addFlashAttribute("mealRequest", mealRequest);

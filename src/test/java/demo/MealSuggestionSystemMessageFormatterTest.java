@@ -20,10 +20,10 @@ class MealSuggestionSystemMessageFormatterTest {
 
         assertThat(formatter.systemMessage(request))
                 .contains("You are Duke Greens’ dinner-idea assistant.")
-                .contains("“Suggest two quick vegetarian dinners”, “What could I make with lentils?”")
-                .contains("treat a follow-up that only adds or changes a meal preference")
-                .contains("A request that combines a meal-idea request with any other request is OUT_OF_SCOPE.")
-                .contains("Return an empty suggestions list only for an initial IN_SCOPE meal-idea request that lacks both a dietary preference and a maximum preparation time")
+                .contains("Guide the visitor towards meal preparation")
+                .contains("treat a follow-up that adds or changes a preference as a refinement")
+                .contains("only when the visitor’s request and relevant conversation details together do not provide enough information")
+                .contains("do not answer unrelated questions.")
                 .contains("- " + PRODUCT_WHOLEWHEAT_SPAGHETTI.name() + " (slug: " + PRODUCT_WHOLEWHEAT_SPAGHETTI.slug() + ")")
                 .contains("- " + PRODUCT_TOMATO_PASSATA.name() + " (slug: " + PRODUCT_TOMATO_PASSATA.slug() + ")")
                 .doesNotContain("{catalogue}");

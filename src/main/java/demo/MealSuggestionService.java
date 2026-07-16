@@ -73,18 +73,12 @@ class MealSuggestionService {
             return new FailedRequest(request.request);
         }
 
-        // The model determined that the request is out of scope and cannot be
-        // answered without breaking the policy defined by the system message.
-        if (response.isOutOfScope()) {
-            return new OutOfScopeRequest(request.request);
-        }
-
         // Validate the complete model response all-or-nothing. A mapping
         // failure exposes no partial suggestions; diagnostics remain
         // server-side and the visitor receives the safe recovery state.
         try {
             final List<MappedMealSuggestion> suggestions = response.hasSuggestions()
-                    ? mapper.map(response.inScopeSuggestions(), catalogue)
+                    ? mapper.map(new ModelMealSuggestions(response.suggestions()), catalogue)
                     : List.of();
             return new SuccessfulMealSuggestions(response.assistantMessage(), suggestions);
         } catch (final RuntimeException e) {

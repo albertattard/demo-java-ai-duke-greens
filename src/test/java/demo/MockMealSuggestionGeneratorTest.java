@@ -30,9 +30,9 @@ class MockMealSuggestionGeneratorTest {
         final List<Product> catalogue = productCatalogue.allProducts();
 
         final ModelMealRequestResponse response = generator.suggest(new MealSuggestionGenerator.Request(UUID.randomUUID().toString(), "This request should not affect the mock response.", catalogue, Set.of(), Set.of()));
-        final ModelMealSuggestions suggestions = response.inScopeSuggestions();
+        final ModelMealSuggestions suggestions = new ModelMealSuggestions(response.suggestions());
 
-        assertThat(response.scope()).isEqualTo(MealRequestScope.IN_SCOPE);
+        assertThat(response.assistantMessage()).isNotBlank();
         assertThat(suggestions.suggestions()).isNotEmpty();
         assertThat(suggestions.suggestions())
                 .flatMap(ModelMealSuggestion::ingredients)

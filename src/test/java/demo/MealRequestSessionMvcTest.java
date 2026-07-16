@@ -273,36 +273,6 @@ class MealRequestSessionMvcTest {
     }
 
     @Test
-    void redirectsAnOutOfScopeRequestToTheWelcomePageWithoutRetainingActiveState() throws Exception {
-        final String mealRequest = "What's the weather?";
-        final MockHttpSession session = new MockHttpSession();
-        session.setAttribute("mealRequestState", new FailedMealRequest("Suggest a vegetarian dinner"));
-
-        when(mealSuggestionService.submit(any(MealSuggestionService.Request.class)))
-                .thenReturn(new OutOfScopeRequest(mealRequest));
-
-        final RequestBuilder request = MockMvcRequestBuilders
-                .post("/demo/meal-request")
-                .with(csrf())
-                .session(session)
-                .param("mealRequest", mealRequest);
-        final MvcResult result = mvc.perform(request)
-                .andExpect(redirectedUrl("/demo"))
-                .andExpect(request().sessionAttributeDoesNotExist("mealRequestState"))
-                .andReturn();
-        mvc.perform(MockMvcRequestBuilders.get("/demo").session(session).flashAttrs(result.getFlashMap()))
-                .andExpect(MockMvcResultMatchers.view().name("welcome"))
-                .andExpect(model().attribute("outOfScopeMessage", "Duke Greens helps you find meal ideas. Tell us what you’d like to cook, such as a quick vegetarian dinner for two."))
-                .andExpect(model().attribute("mealRequest", mealRequest));
-
-        final ArgumentCaptor<MealSuggestionService.Request> submittedRequest = ArgumentCaptor.forClass(MealSuggestionService.Request.class);
-        verify(mealSuggestionService).submit(submittedRequest.capture());
-        assertThat(submittedRequest.getValue().conversationId()).isNotBlank();
-        assertThat(submittedRequest.getValue().request()).isEqualTo(mealRequest);
-        verifyNoMoreInteractions(mealSuggestionService);
-    }
-
-    @Test
     void returnsToTheInitialPageWhenAResultRouteHasNoSessionState() throws Exception {
         mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/no-active-conversation"))
                 .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"))
@@ -369,28 +339,6 @@ class MealRequestSessionMvcTest {
         mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/retry").with(csrf()).session(session))
                 .andExpect(redirectedUrlPattern("/demo/recommendations/*"))
                 .andExpect(request().sessionAttribute("mealRequestState", new SuccessfulMealRequest(mealRequest, suggestions)));
-
-        verify(mealSuggestionService).submit(eq(new MealSuggestionService.Request(conversationId, mealRequest)));
-        verifyNoMoreInteractions(mealSuggestionService);
-    }
-
-    @Test
-    void redirectsAnOutOfScopeRetryToTheWelcomePageWithoutRetainingActiveState() throws Exception {
-        final String mealRequest = "Suggest a vegetarian dinner";
-        final String conversationId = "active-conversation";
-        final MockHttpSession session = new MockHttpSession();
-        session.setAttribute("mealConversationId", conversationId);
-        session.setAttribute("mealRequestState", new FailedMealRequest(mealRequest));
-        when(mealSuggestionService.submit(eq(new MealSuggestionService.Request(conversationId, mealRequest)))).thenReturn(new OutOfScopeRequest(mealRequest));
-
-        final MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/retry").with(csrf()).session(session))
-                .andExpect(redirectedUrl("/demo"))
-                .andExpect(request().sessionAttributeDoesNotExist("mealRequestState"))
-                .andReturn();
-        mvc.perform(MockMvcRequestBuilders.get("/demo").session(session).flashAttrs(result.getFlashMap()))
-                .andExpect(MockMvcResultMatchers.view().name("welcome"))
-                .andExpect(model().attribute("outOfScopeMessage", "Duke Greens helps you find meal ideas. Tell us what you’d like to cook, such as a quick vegetarian dinner for two."))
-                .andExpect(model().attribute("mealRequest", mealRequest));
 
         verify(mealSuggestionService).submit(eq(new MealSuggestionService.Request(conversationId, mealRequest)));
         verifyNoMoreInteractions(mealSuggestionService);

@@ -9,16 +9,16 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 class ModelMealSuggestionsTest {
 
     @Test
-    void representsAnOutOfScopeResponseWithAnEmptyProviderSuggestionsList() {
-        final ModelMealRequestResponse response = ModelMealRequestResponse.outOfScope();
+    void representsGuidanceWithAnEmptyProviderSuggestionsList() {
+        final ModelMealRequestResponse response = new ModelMealRequestResponse("What would you like to cook?", List.of());
 
-        assertThat(response.scope()).isEqualTo(MealRequestScope.OUT_OF_SCOPE);
+        assertThat(response.assistantMessage()).isEqualTo("What would you like to cook?");
         assertThat(response.suggestions()).isEmpty();
     }
 
     @Test
-    void permitsAnInScopeResponseWithNoSuggestions() {
-        final ModelMealRequestResponse response = new ModelMealRequestResponse(MealRequestScope.IN_SCOPE, "A response", List.of());
+    void permitsAResponseWithNoSuggestions() {
+        final ModelMealRequestResponse response = new ModelMealRequestResponse("A response", List.of());
 
         assertThat(response.suggestions()).isEmpty();
     }

@@ -16,10 +16,10 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 
 - A single-page, text-based web conversation for one anonymous visitor.
 - Free-form requests for dinner ideas, including preferences such as household size, dietary preference, preparation time, and meal style.
-- One follow-up question only when both dietary preference and maximum preparation time are absent.
-- AI-generated meal suggestions, each returned with structured ingredients and quantities. The model interprets the number of suggestions requested in the visitor’s free-form text, defaults to one when no number is stated, and returns no more than seven suggestions.
+- A concise model-led clarification when the visitor’s request and relevant conversation context do not provide enough information to suggest useful meals.
+- AI-generated meal suggestions, each returned with structured ingredients and quantities. A valid assistant turn may instead provide clarification or guidance without meal suggestions. When it provides meal suggestions, it returns no more than seven.
 - Clickable selection of one or more recommended meal cards.
-- A repeatable “Show more ideas” action before selection that replaces the current suggestions with a new set of the same requested quantity.
+- A visitor may ask for more or different meal ideas in the conversation before selection.
 - A virtual basket built from the selected recipes and matched to products in a curated catalogue.
 - Per-meal estimated prices and a final basket total based on sellable product packages.
 - An explicit simulated-order confirmation and a visible completion state.
@@ -39,9 +39,9 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 
 1. The visitor opens Duke Greens and sees a welcome message plus a text input.
 2. The visitor describes the meals they want, for example: “I live alone and need three light vegetarian dinners I can make in 25 minutes after work.”
-3. If both dietary preference and maximum preparation time are absent, Duke Greens asks one concise follow-up question for either preference. Otherwise it applies the defaults of no dietary restriction and a 30-minute maximum preparation time, where either value is absent. If household size is absent, it defaults to one person.
+3. When the visitor’s request and relevant conversation context do not provide enough information to suggest useful meals, Duke Greens asks one concise follow-up question. Otherwise, it proposes meals using the details the visitor has supplied and the model’s best judgement.
 4. Each suggestion shows a meal name, a short explanation of why it fits, the displayed preparation time, each mapped product’s required whole-package count, catalogue package size, and per-package price, plus an estimated standalone meal cost.
-5. Before selecting a meal, the visitor may select “Show more ideas” repeatedly. Duke Greens replaces the current suggestions with new suggestions of the same requested quantity that exclude previously displayed meal names.
+5. Before selecting a meal, the visitor may ask for more or different ideas. Duke Greens continues the conversation and replaces the displayed recommendations when the assistant returns a new non-empty set.
 6. The visitor selects one or more meals by using the controls on the meal cards.
 7. Duke Greens creates a virtual basket from the selected meals and maps their ingredients to catalogue products.
 8. The visitor reviews the read-only basket.
@@ -58,13 +58,13 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 - “Try again” is the only action that may resubmit a failed original request. “Reset” clears the active browser-session meal-request state and returns the visitor to the initial input state.
 - If a visitor opens a result or recovery URL without the required active browser-session state, Duke Greens returns the visitor to the initial request page and explains that there is no active meal request to display.
 - A meal request contains from 1 through 300 characters inclusive. The application rejects a longer request before loading the catalogue or invoking the model.
-- The model interprets “a couple” as two meal suggestions and “a few” as three. An explicit numeric count takes precedence. When no unambiguous count is stated, it returns one suggestion.
+- The model uses the active conversation to interpret a request, including whether more ideas or a clarification would be most useful. The application does not impose a fixed interpretation of informal counts or default an ambiguous request to a particular number of suggestions.
 - The assistant generates meal candidates, but application data remains authoritative for products, prices, and package sizes.
 - A meal candidate must contain a name, preparation time, short explanation, servings, and structured ingredients with quantities before it can be validated or presented.
 - Each meal candidate represents one dinner for the requested household size.
-- If a model response does not produce a valid catalogue-mappable suggestion set of one to seven complete candidates, the application does not retry automatically. It shows a friendly error with “Try again” and “Reset” actions rather than presenting an invalid suggestion set.
+- A valid model response contains a non-blank assistant message and zero to seven complete, catalogue-mappable meal candidates. A zero-suggestion response may ask a clarification or guide the visitor back to meal preparation. An invalid non-empty response is not presented as a conversation turn or as partial recommendations.
 - “Try again” is a distinct visitor action that resubmits the same original request. “Reset” clears the failed request and returns the visitor to the initial input state. Provider error details and partial meal suggestions are not shown.
-- The application presents from one to seven catalogue-mappable suggestions at a time. It sends the visitor’s free-form request to the model; the model returns seven suggestions when the visitor requests more than seven.
+- The application presents the latest non-empty set of one to seven catalogue-mappable suggestions. A valid zero-suggestion response keeps the latest non-empty recommendations visible while the visitor continues the conversation.
 - The user can proceed with fewer selected meals than were requested.
 - Reset clears the conversation, displayed options, selections, basket, and completion state for the active browser session.
 
@@ -96,13 +96,13 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 
 The MVP satisfies this specification when all of the following are demonstrable:
 
-1. A visitor can submit a free-form meal request and receive one to seven AI-generated meal suggestions with structured ingredients and quantities. The model fulfils requests for one to seven suggestions, defaults to one when no number is stated, and returns seven suggestions when the visitor requests more than seven.
+1. A visitor can submit a free-form meal request and receive one to seven AI-generated meal suggestions with structured ingredients and quantities, or a concise clarification when the model needs more context.
 2. The displayed options reflect supplied preferences for household size, dietary preference, and preparation time when the product catalogue supports them.
 3. Selecting meals creates a basket of catalogue products with package quantities.
-4. The visitor can request another set of suggestions before selection; the new set has the same requested quantity and excludes previously displayed meal names.
+4. The visitor can request more or different suggestions before selection and continue the same visible conversation.
 5. Each meal card displays package quantities, package prices, and an estimated per-meal cost; the basket displays aggregated line prices and a final total.
 6. Ingredient quantities reflect the selected household size, and the basket rounds them up to whole product packages.
-7. A model response that does not provide a valid one-to-seven set of complete mappable candidates produces a friendly error with “Try again” and “Reset” actions, without automatic retries.
+7. A provider failure or invalid non-empty model response produces friendly editable recovery without automatic retries, partial recommendations, or a stored failed conversation turn.
 8. Reset clears the active visitor session and returns the application to its initial state.
 9. A visitor can complete a simulated order only by explicitly confirming a valid basket.
 10. The completed state makes clear that no payment, delivery, or external order has been created.

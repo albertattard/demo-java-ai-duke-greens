@@ -24,9 +24,9 @@ class JdbcProductCatalogueTest {
     private JdbcClient jdbcClient;
 
     @Test
-    void loadsAtLeastFiftyValidCatalogueProducts() {
+    void loadsAtLeastOneHundredValidCatalogueProducts() {
         assertThat(catalogue.allProducts())
-                .hasSizeGreaterThanOrEqualTo(50);
+                .hasSizeGreaterThanOrEqualTo(100);
     }
 
     @Test

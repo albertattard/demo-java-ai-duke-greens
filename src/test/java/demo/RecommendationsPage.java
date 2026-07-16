@@ -15,8 +15,8 @@ public final class RecommendationsPage extends PageObject {
         assertThat(page.locator("[data-testid='recommendations'] [data-testid='meal-suggestion']")).hasCount(count);
         assertThat(page.locator("[data-testid='basket']")).isHidden();
         assertThat(elementByTextAndExactName("These are meal ideas, not product, price, stock, basket, or order commitments.")).isHidden();
-        org.assertj.core.api.Assertions.assertThat(page.locator(".meal-ideas h2").allTextContents()).containsExactly("Conversation");
-        assertThat(page.locator("section:has(.conversation-transcript) + form.refinement-form")).isVisible();
+        assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Conversation")).isVisible();
+        assertThat(page.locator("section:has(.conversation-transcript) form.refinement-form")).isVisible();
         assertThat(page.locator(".refinement-form label.visually-hidden")).hasCSS("clip", "rect(0px, 0px, 0px, 0px)");
         final Locator refinementActions = page.locator(".refinement-actions");
         assertThat(refinementActions).hasCSS("display", "flex");
@@ -96,7 +96,7 @@ public final class RecommendationsPage extends PageObject {
     }
 
     public RecommendationsPage shouldPlaceBasketActionsBetweenRecommendationsAndConversation() {
-        assertThat(page.locator("div[data-testid='recommendations'] + section[data-testid='basket'] + section:has(.conversation-transcript)"))
+        assertThat(page.locator("section.welcome-panel + section[data-testid='basket'] + section:has(.conversation-transcript)"))
                 .isVisible();
         return this;
     }

@@ -58,29 +58,29 @@
                 </div>
             </article>
         </div>
-        <section aria-labelledby="basket-heading" class="meal-ideas" data-testid="basket" th:if="${basketMeals != null and !basketMeals.isEmpty()}">
-            <h2 id="basket-heading">Basket</h2>
-            <article class="meal-suggestion" data-testid="meal-suggestion" th:each="meal : ${basketMeals}">
-                <div class="meal-suggestion-title-row">
-                    <h3 th:text="${meal.name}">Meal name</h3>
-                </div>
-            </article>
-            <div class="basket-actions" th:if="${!resetConfirmationRequired}">
-                <a th:href="@{/demo/basket/{conversationId}(conversationId=${conversationId})}">View basket</a>
-                <form method="get" th:action="@{/demo/checkout}">
-                    <button type="submit">Proceed to checkout</button>
-                </form>
+    </section>
+    <section aria-labelledby="basket-heading" class="content-section" data-testid="basket" th:if="${basketMeals != null and !basketMeals.isEmpty()}">
+        <h2 id="basket-heading">Basket</h2>
+        <article class="meal-suggestion" data-testid="meal-suggestion" th:each="meal : ${basketMeals}">
+            <div class="meal-suggestion-title-row">
+                <h3 th:text="${meal.name}">Meal name</h3>
             </div>
-        </section>
-        <section aria-labelledby="conversation-heading" class="meal-ideas" th:if="${transcript != null}">
-            <h2 id="conversation-heading">Conversation</h2>
-            <ol class="conversation-transcript">
-                <li th:each="exchange : ${transcript}">
-                    <p class="conversation-message conversation-message-visitor"><strong class="visually-hidden">You:</strong> <span th:text="${exchange.visitorMessage}">Visitor message</span></p>
-                    <p class="conversation-message conversation-message-assistant"><strong class="visually-hidden">Duke Greens:</strong> <span th:text="${exchange.assistantMessage}">Assistant message</span></p>
-                </li>
-            </ol>
-        </section>
+        </article>
+        <div class="basket-actions" th:if="${!resetConfirmationRequired}">
+            <a th:href="@{/demo/basket/{conversationId}(conversationId=${conversationId})}">View basket</a>
+            <form method="get" th:action="@{/demo/checkout}">
+                <button type="submit">Proceed to checkout</button>
+            </form>
+        </div>
+    </section>
+    <section aria-labelledby="conversation-heading" class="content-section" th:if="${transcript != null}">
+        <h2 id="conversation-heading">Conversation</h2>
+        <ol class="conversation-transcript">
+            <li th:each="exchange : ${transcript}">
+                <p class="conversation-message conversation-message-visitor"><strong class="visually-hidden">You:</strong> <span th:text="${exchange.visitorMessage}">Visitor message</span></p>
+                <p class="conversation-message conversation-message-assistant"><strong class="visually-hidden">Duke Greens:</strong> <span th:text="${exchange.assistantMessage}">Assistant message</span></p>
+            </li>
+        </ol>
         <p class="meal-request-error" role="alert" th:if="${failedFollowUp}">We couldn’t process that follow-up. Your current meal ideas are unchanged—edit your message and try again.</p>
         <form class="refinement-form" id="follow-up-form" method="post" th:action="@{/demo/recommendations/{conversationId}/follow-up(conversationId=${conversationId})}" th:if="${recommendations != null}">
             <label class="visually-hidden" for="follow-up">Continue the conversation</label>
@@ -106,6 +106,7 @@
                 </form>
             </div>
         </section>
+        </section>
         <section aria-labelledby="meal-request-error-heading" class="meal-request-error" role="alert" th:if="${failed}">
             <h2 id="meal-request-error-heading">We could not create meal ideas</h2>
             <p>Please try your request again or reset and start over.</p>
@@ -116,7 +117,6 @@
                 <button type="submit">Reset</button>
             </form>
         </section>
-    </section>
 </main>
 </body>
 </html>

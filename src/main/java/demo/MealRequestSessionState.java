@@ -14,6 +14,7 @@ record SuccessfulMealRequest(
         String request,
         List<MealResultSet> resultSets,
         Set<String> selectedMealKeys,
+        Set<String> returnedMealKeys,
         Basket basket,
         String pendingRefinement,
         List<ConversationExchange> transcript) implements MealRequestSessionState {
@@ -27,6 +28,7 @@ record SuccessfulMealRequest(
             throw new IllegalArgumentException("At least one result set is required");
         }
         selectedMealKeys = Set.copyOf(selectedMealKeys);
+        returnedMealKeys = Set.copyOf(returnedMealKeys);
         requireNonNull(basket, "A basket is required");
         transcript = List.copyOf(transcript);
         if (transcript.isEmpty()) {
@@ -35,7 +37,7 @@ record SuccessfulMealRequest(
     }
 
     SuccessfulMealRequest(final String request, final String assistantMessage, final List<MappedMealSuggestion> suggestions) {
-        this(request, List.of(new MealResultSet(suggestions, Set.of(), false)), Set.of(), Basket.empty(), null,
+        this(request, List.of(new MealResultSet(suggestions, Set.of(), false)), Set.of(), Set.of(), Basket.empty(), null,
                 List.of(new ConversationExchange(request, assistantMessage)));
     }
 
@@ -44,7 +46,7 @@ record SuccessfulMealRequest(
     }
 
     SuccessfulMealRequest(final String request, final List<MappedMealSuggestion> suggestions, final Set<Integer> selectedMealIndexes, final Basket basket) {
-        this(request, List.of(new MealResultSet(suggestions, Set.of(), false)), selectedMealIndexes.stream().map(index -> key(0, index)).collect(Collectors.toSet()), basket, null,
+        this(request, List.of(new MealResultSet(suggestions, Set.of(), false)), selectedMealIndexes.stream().map(index -> key(0, index)).collect(Collectors.toSet()), Set.of(), basket, null,
                 List.of(new ConversationExchange(request, "Here are some meal ideas.")));
     }
 
@@ -69,7 +71,21 @@ record SuccessfulMealRequest(
         }
         final Set<String> selected = new HashSet<>(selectedMealKeys);
         selected.add(key);
-        return withSelectedMeals(selected);
+        final Set<String> returned = new HashSet<>(returnedMealKeys);
+        returned.remove(key);
+        return withSelectedMeals(selected, returned);
+    }
+
+    SuccessfulMealRequest removeMeal(final int resultSetIndex, final int mealIndex) {
+        final String key = key(resultSetIndex, mealIndex);
+        if (!selectedMealKeys.contains(key)) {
+            return this;
+        }
+        final Set<String> selected = new HashSet<>(selectedMealKeys);
+        selected.remove(key);
+        final Set<String> returned = new HashSet<>(returnedMealKeys);
+        returned.add(key);
+        return withSelectedMeals(selected, returned);
     }
 
     SuccessfulMealRequest toggleDismissal(final int mealIndex) {
@@ -79,19 +95,19 @@ record SuccessfulMealRequest(
         }
         final List<MealResultSet> updated = new ArrayList<>(resultSets);
         updated.set(current, updated.get(current).toggleDismissal(mealIndex));
-        return copy(updated, selectedMealKeys, basket, pendingRefinement, transcript);
+        return copy(updated, selectedMealKeys, returnedMealKeys, basket, pendingRefinement, transcript);
     }
 
     SuccessfulMealRequest prepareRefinement(final String refinement) {
         final List<MealResultSet> updated = new ArrayList<>(resultSets);
         updated.set(updated.size() - 1, updated.getLast().lockFeedback());
-        return copy(updated, selectedMealKeys, basket, refinement, transcript);
+        return copy(updated, selectedMealKeys, returnedMealKeys, basket, refinement, transcript);
     }
 
     SuccessfulMealRequest appendRefinement(final List<MappedMealSuggestion> suggestions) {
         final List<MealResultSet> updated = new ArrayList<>(resultSets);
         updated.add(new MealResultSet(suggestions, Set.of(), false));
-        return copy(updated, selectedMealKeys, basket, null, transcript);
+        return copy(updated, selectedMealKeys, returnedMealKeys, basket, null, transcript);
     }
 
     SuccessfulMealRequest appendFollowUp(final String followUp, final String assistantMessage, final List<MappedMealSuggestion> suggestions) {
@@ -101,14 +117,16 @@ record SuccessfulMealRequest(
         }
         final List<ConversationExchange> updatedTranscript = new ArrayList<>(transcript);
         updatedTranscript.add(new ConversationExchange(followUp, assistantMessage));
-        return copy(updated, selectedMealKeys, basket, null, updatedTranscript);
+        return copy(updated, selectedMealKeys, returnedMealKeys, basket, null, updatedTranscript);
     }
 
     SuccessfulMealRequest selectMeals(final Set<String> requestedKeys) {
         final Set<String> selected = requestedKeys.stream()
                 .filter(this::selectableMeal)
                 .collect(Collectors.toUnmodifiableSet());
-        return withSelectedMeals(selected);
+        return withSelectedMeals(selected, returnedMealKeys.stream()
+                .filter(key -> !selected.contains(key))
+                .collect(Collectors.toUnmodifiableSet()));
     }
 
     boolean canRefine() {
@@ -138,6 +156,10 @@ record SuccessfulMealRequest(
         return selectedMealKeys.contains(key(set, meal));
     }
 
+    boolean returned(final int set, final int meal) {
+        return returnedMealKeys.contains(key(set, meal));
+    }
+
     List<MappedMealSuggestion> selectedMeals() {
         return selectedMealKeys.stream().sorted().map(this::mealForKey).toList();
     }
@@ -146,13 +168,13 @@ record SuccessfulMealRequest(
         return !selectedMealKeys.isEmpty() || !basket.isEmpty();
     }
 
-    private SuccessfulMealRequest copy(final List<MealResultSet> sets, final Set<String> selected, final Basket newBasket, final String pending, final List<ConversationExchange> updatedTranscript) {
-        return new SuccessfulMealRequest(request, sets, selected, newBasket, pending, updatedTranscript);
+    private SuccessfulMealRequest copy(final List<MealResultSet> sets, final Set<String> selected, final Set<String> returned, final Basket newBasket, final String pending, final List<ConversationExchange> updatedTranscript) {
+        return new SuccessfulMealRequest(request, sets, selected, returned, newBasket, pending, updatedTranscript);
     }
 
-    private SuccessfulMealRequest withSelectedMeals(final Set<String> selected) {
+    private SuccessfulMealRequest withSelectedMeals(final Set<String> selected, final Set<String> returned) {
         final List<MappedMealSuggestion> meals = selected.stream().map(this::mealForKey).toList();
-        return copy(resultSets, selected, Basket.empty().addRequirements(meals), pendingRefinement, transcript);
+        return copy(resultSets, selected, returned, Basket.empty().addRequirements(meals), pendingRefinement, transcript);
     }
 
     private boolean selectableMeal(final String candidate) {

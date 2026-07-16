@@ -6,6 +6,7 @@ import static demo.Strings.formatPrice;
 
 /// Template-facing representation of a mapped meal suggestion.
 public record MealSuggestionCard(
+        int resultSet,
         int index,
         String name,
         String formattedPreparationTime,
@@ -15,7 +16,12 @@ public record MealSuggestionCard(
         String formattedEstimatedCost) {
 
     static MealSuggestionCard of(final int index, final MappedMealSuggestion suggestion) {
+        return of(0, index, suggestion);
+    }
+
+    static MealSuggestionCard of(final int resultSet, final int index, final MappedMealSuggestion suggestion) {
         return new MealSuggestionCard(
+                resultSet,
                 index,
                 suggestion.name(),
                 formatPreparationTime(suggestion.preparationMinutes()),

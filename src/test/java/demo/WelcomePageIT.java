@@ -273,8 +273,9 @@ class WelcomePageIT {
                 .followUp("Make it quicker")
                 .shouldShowMealIdeas("Quick pasta")
                 .shouldPlaceBasketActionsBetweenRecommendationsAndConversation()
-                .openBasket()
-                .shouldShowBasketLine("Wholewheat spaghetti", 1, "1,49"));
+                .removeMealFromBasket("Pasta")
+                .shouldShowMealIdeas("Quick pasta", "Pasta")
+                .shouldNotShowBasket());
     }
 
     @Test

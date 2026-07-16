@@ -59,6 +59,24 @@ class BasketTest {
         assertThat(editedBasket.addMeal(0).basket().quantityOf(spaghetti.slug())).isOne();
     }
 
+    @Test
+    void returnsRemovedMealsToRecommendationsAndRebuildsTheProductBasket() {
+        final Product spaghetti = product("wholewheat-spaghetti-500g", 500, "1.49");
+        final Product lentils = new Product("red-lentils-500g", "Red lentils", 500, MeasurementUnit.GRAM, new BigDecimal("1.69"));
+        final MappedMealSuggestion pasta = meal("Pasta", new MappedProduct(spaghetti, new BigDecimal("500"), 1));
+        final MappedMealSuggestion lentilSoup = meal("Lentil soup", new MappedProduct(lentils, new BigDecimal("500"), 1));
+        final SuccessfulMealRequest request = new SuccessfulMealRequest("Suggest dinner", List.of(pasta, lentilSoup))
+                .addMeal(0)
+                .addMeal(1);
+
+        final SuccessfulMealRequest removed = request.removeMeal(0, 0);
+
+        assertThat(removed.selectedMealNames()).containsExactly("Lentil soup");
+        assertThat(removed.returned(0, 0)).isTrue();
+        assertThat(removed.basket().quantities()).containsOnlyKeys(lentils.slug());
+        assertThat(removed.addMeal(0, 0).returned(0, 0)).isFalse();
+    }
+
     private static MappedMealSuggestion meal(final String name, final MappedProduct product) {
         return new MappedMealSuggestion(name, 20, "A complete dinner.", 1, List.of(product), product.product().price());
     }

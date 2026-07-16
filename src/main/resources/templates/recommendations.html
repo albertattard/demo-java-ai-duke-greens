@@ -51,7 +51,7 @@
                 <div class="meal-actions">
                     <form method="post" th:action="@{/demo/recommendations/{conversationId}/meals(conversationId=${conversationId})}">
                         <input name="index" th:value="${suggestion.index}" type="hidden">
-                        <input name="resultSet" th:value="${currentResultSet}" type="hidden">
+                        <input name="resultSet" th:value="${suggestion.resultSet}" type="hidden">
                         <button type="submit">Add meal to basket</button>
                     </form>
                 </div>
@@ -68,6 +68,7 @@
                 <th scope="col">Preparation time</th>
                 <th scope="col">Servings</th>
                 <th scope="col">Estimated cost</th>
+                <th scope="col">Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -76,6 +77,13 @@
                 <td th:text="${meal.formattedPreparationTime}">30 min</td>
                 <td th:text="${meal.servings}">1</td>
                 <td th:text="${meal.formattedEstimatedCost}">0,00 €</td>
+                <td>
+                    <form method="post" th:action="@{/demo/recommendations/{conversationId}/meals/remove(conversationId=${conversationId})}">
+                        <input name="index" th:value="${meal.index}" type="hidden">
+                        <input name="resultSet" th:value="${meal.resultSet}" type="hidden">
+                        <button class="secondary-action" type="submit">Remove</button>
+                    </form>
+                </td>
             </tr>
             </tbody>
         </table>

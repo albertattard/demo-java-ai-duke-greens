@@ -92,8 +92,20 @@ public final class RecommendationsPage extends PageObject {
     public RecommendationsPage shouldShowBasketMeals(final String... names) {
         assertThat(elementByRoleAndExactName(AriaRole.HEADING, "Basket")).isVisible();
         assertThat(page.locator("[data-testid='basket-meals'] thead th"))
-                .hasText(new String[] {"Title", "Preparation time", "Servings", "Estimated cost"});
+                .hasText(new String[] {"Title", "Preparation time", "Servings", "Estimated cost", "Actions"});
         assertThat(page.locator("[data-testid='basket-meal'] th[scope='row']")).hasText(names);
+        return this;
+    }
+
+    public RecommendationsPage shouldNotShowBasket() {
+        assertThat(page.locator("[data-testid='basket']")).isHidden();
+        return this;
+    }
+
+    public RecommendationsPage removeMealFromBasket(final String title) {
+        final Locator row = page.locator("[data-testid='basket-meal']")
+                .filter(new Locator.FilterOptions().setHasText(title));
+        elementByRoleAndExactName(row, AriaRole.BUTTON, "Remove").click();
         return this;
     }
 
@@ -111,6 +123,7 @@ public final class RecommendationsPage extends PageObject {
         assertThat(row.locator("td").nth(2)).hasText(estimatedCost + "\u00A0€");
         assertThat(row.locator("td").nth(0)).hasCSS("text-align", "right");
         assertThat(row.locator("td").nth(1)).hasCSS("text-align", "right");
+        assertThat(row.locator("td").nth(2)).hasCSS("text-align", "right");
         return this;
     }
 

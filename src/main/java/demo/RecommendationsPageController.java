@@ -128,6 +128,25 @@ class RecommendationsPageController {
         return mealRequestSession.initialRequestRedirect();
     }
 
+    @PostMapping("/demo/recommendations/{conversationId}/meals/remove")
+    String removeMealFromBasket(
+            @PathVariable final String conversationId,
+            @RequestParam final int index,
+            @RequestParam final int resultSet,
+            final HttpServletRequest request) {
+
+        if (!mealRequestSession.hasConversation(request, conversationId)) {
+            return mealRequestSession.initialRequestRedirect();
+        }
+
+        if (mealRequestSession.state(request) instanceof final SuccessfulMealRequest successfulRequest) {
+            mealRequestSession.store(request, successfulRequest.removeMeal(resultSet, index));
+            return mealRequestSession.recommendationsRedirect(request);
+        }
+
+        return mealRequestSession.initialRequestRedirect();
+    }
+
     @PostMapping("/demo/recommendations/{conversationId}/follow-up")
     String followUp(
             @PathVariable final String conversationId,
@@ -191,11 +210,22 @@ class RecommendationsPageController {
 
     private void addSuccessfulRequest(final Model model, final SuccessfulMealRequest request) {
         final int currentSet = request.resultSets().size() - 1;
-        model.addAttribute("recommendations", IntStream.range(0, request.resultSets().getLast().suggestions().size())
-                .filter(index -> !request.selected(currentSet, index))
-                .mapToObj(index -> MealSuggestionCard.of(index, request.resultSets().getLast().suggestions().get(index))).toList());
-        model.addAttribute("basketMeals", request.selectedMeals().stream()
-                .map(meal -> MealSuggestionCard.of(0, meal)).toList());
+        model.addAttribute("recommendations", Stream.concat(
+                        IntStream.range(0, request.resultSets().getLast().suggestions().size())
+                                .filter(index -> !request.selected(currentSet, index))
+                                .mapToObj(index -> MealSuggestionCard.of(currentSet, index, request.resultSets().getLast().suggestions().get(index))),
+                        IntStream.range(0, currentSet)
+                                .boxed()
+                                .flatMap(resultSet -> IntStream.range(0, request.resultSets().get(resultSet).suggestions().size())
+                                        .filter(index -> request.returned(resultSet, index))
+                                        .mapToObj(index -> MealSuggestionCard.of(resultSet, index, request.resultSets().get(resultSet).suggestions().get(index)))))
+                .toList());
+        model.addAttribute("basketMeals", IntStream.range(0, request.resultSets().size())
+                .boxed()
+                .flatMap(resultSet -> IntStream.range(0, request.resultSets().get(resultSet).suggestions().size())
+                        .filter(index -> request.selected(resultSet, index))
+                        .mapToObj(index -> MealSuggestionCard.of(resultSet, index, request.resultSets().get(resultSet).suggestions().get(index))))
+                .toList());
         model.addAttribute("currentResultSet", currentSet);
         model.addAttribute("transcript", request.transcript());
         model.addAttribute("selectedMealKeys", request.selectedMealKeys());

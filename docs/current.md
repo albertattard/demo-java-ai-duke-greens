@@ -41,24 +41,21 @@ Deliver the overall outcome in the following small vertical slices. Each slice r
 
 ### Outcome
 
-Starting over, completing a simulated order, or ending a visitor session clears the conversation from both UI state and Spring AI memory.
+When an initial meal request lacks both dietary preference and preparation time, visitors can receive one model-directed clarification before receiving meal ideas.
 
 ### Constraints
 
-- Clear Spring AI memory using the application-generated conversation ID before discarding that ID.
-- Starting over and successful simulated-order completion clear the UI transcript with the existing session-held request state.
-- Session destruction clears Spring AI memory for an active conversation without creating a new session.
-- Preserve the existing reset confirmation and simulated-order completion flows.
+- This is best-effort model-directed behaviour; the application does not parse arbitrary visitor text to determine whether either detail is present.
+- A clarification is a valid non-blank assistant message with zero suggestions and starts an active conversation.
+- Preserve the existing follow-up, recommendation, basket, and completion behaviour.
 
 ### Done when
 
-- Starting over clears the UI state and Spring AI conversation.
-- Successful simulated-order completion clears the UI state and Spring AI conversation.
-- Session destruction clears the Spring AI conversation for the destroyed session.
-- Focused MVC and session-lifecycle coverage proves cleanup and conversation-ID isolation.
+- An initial zero-suggestion response shows the clarification in the transcript and permits a follow-up.
+- The model instruction limits an initial clarification to requests lacking both dietary preference and maximum preparation time.
+- A subsequent successful follow-up displays meal ideas in the same conversation.
+- Focused MVC and prompt coverage proves the behaviour.
 
 ## Verification
 
-- Baseline verification: `./mvnw package` passed with 103 tests.
-- Focused MVC and session-lifecycle coverage: `./mvnw test -Dtest=MealRequestSessionMvcTest,ConversationCleanupSessionListenerTest` passed with 31 tests.
-- Current verification: `./mvnw package` passed with 104 tests.
+- Pending.

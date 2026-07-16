@@ -96,7 +96,9 @@ record SuccessfulMealRequest(
 
     SuccessfulMealRequest appendFollowUp(final String followUp, final String assistantMessage, final List<MappedMealSuggestion> suggestions) {
         final List<MealResultSet> updated = new ArrayList<>(resultSets);
-        updated.add(new MealResultSet(suggestions, Set.of(), false));
+        if (!suggestions.isEmpty()) {
+            updated.add(new MealResultSet(suggestions, Set.of(), false));
+        }
         final List<ConversationExchange> updatedTranscript = new ArrayList<>(transcript);
         updatedTranscript.add(new ConversationExchange(followUp, assistantMessage));
         return copy(updated, selectedMealKeys, basket, null, updatedTranscript);

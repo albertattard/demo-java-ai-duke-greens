@@ -12,7 +12,7 @@ record SuccessfulMealSuggestions(String assistantMessage,
 
     SuccessfulMealSuggestions {
         requireNonBlank(assistantMessage, "An assistant message is required");
-        requireSizeBetween(suggestions, 1, 7, "A response must contain between one and seven suggestions");
+        requireSizeBetween(suggestions, 0, 7, "A response must contain between zero and seven suggestions");
 
         suggestions = List.copyOf(suggestions);
     }

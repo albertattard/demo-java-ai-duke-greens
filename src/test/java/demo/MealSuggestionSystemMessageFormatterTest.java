@@ -23,6 +23,7 @@ class MealSuggestionSystemMessageFormatterTest {
                 .contains("“Suggest two quick vegetarian dinners”, “What could I make with lentils?”")
                 .contains("treat a follow-up that only adds or changes a meal preference")
                 .contains("A request that combines a meal-idea request with any other request is OUT_OF_SCOPE.")
+                .contains("Return an empty suggestions list only when one concise clarification is needed")
                 .contains("- " + PRODUCT_WHOLEWHEAT_SPAGHETTI.name() + " (slug: " + PRODUCT_WHOLEWHEAT_SPAGHETTI.slug() + ")")
                 .contains("- " + PRODUCT_TOMATO_PASSATA.name() + " (slug: " + PRODUCT_TOMATO_PASSATA.slug() + ")")
                 .doesNotContain("{catalogue}");

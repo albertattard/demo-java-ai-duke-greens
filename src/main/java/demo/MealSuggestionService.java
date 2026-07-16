@@ -83,7 +83,9 @@ class MealSuggestionService {
         // failure exposes no partial suggestions; diagnostics remain
         // server-side and the visitor receives the safe recovery state.
         try {
-            final List<MappedMealSuggestion> suggestions = mapper.map(response.inScopeSuggestions(), catalogue);
+            final List<MappedMealSuggestion> suggestions = response.hasSuggestions()
+                    ? mapper.map(response.inScopeSuggestions(), catalogue)
+                    : List.of();
             return new SuccessfulMealSuggestions(response.assistantMessage(), suggestions);
         } catch (final RuntimeException e) {
             LOGGER.warn("The meal suggestion response could not be mapped to the catalogue. Suggestions: {}", response.suggestions(), e);

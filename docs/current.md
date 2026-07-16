@@ -41,21 +41,24 @@ Deliver the overall outcome in the following small vertical slices. Each slice r
 
 ### Outcome
 
-Visitors’ successful follow-up requests are informed by the complete latest recommendation set and their selected meals.
+Visitors can continue the conversation after a valid assistant response that contains no meal suggestions.
 
 ### Constraints
 
+- A zero-suggestion response requires a non-blank assistant message.
+- Do not create a new recommendation set for a zero-suggestion response.
+- Preserve the latest non-empty recommendations, selected meals, and basket unchanged.
+- Provider and invalid-response recovery are explicitly deferred.
 - Keep the active conversation ID unchanged.
-- Pass meal names only; product catalogue, prices, stock, basket contents, and order state remain application-controlled.
-- Do not change recovery, zero-suggestion, recommendation rendering, or basket behaviour in this slice.
 
 ### Done when
 
-- A successful follow-up reaches the meal-suggestion service with the complete latest recommendation names and selected meal names.
-- Focused MVC coverage proves that context is passed.
+- A valid zero-suggestion follow-up appends the visitor and assistant messages to the visible conversation.
+- The latest non-empty recommendations remain visible and a further follow-up can be submitted.
+- Focused service and MVC coverage proves the behaviour.
 
 ## Verification
 
-- Baseline verification passed: `./mvnw package` completed successfully with 99 tests.
-- Focused MVC coverage: `./mvnw test -Dtest=MealRequestSessionMvcTest` passed with 28 tests.
-- Current verification: `./mvnw package` passed with 100 tests.
+- Baseline verification: `./mvnw package` passed with 100 tests.
+- Focused service, model-response, and MVC coverage: `./mvnw test -Dtest=MealSuggestionServiceTest,MealRequestSessionMvcTest,ModelMealSuggestionsTest` passed with 46 tests.
+- Current verification: `./mvnw package` passed with 102 tests.

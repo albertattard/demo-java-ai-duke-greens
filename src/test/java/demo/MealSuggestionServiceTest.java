@@ -154,16 +154,30 @@ class MealSuggestionServiceTest {
     }
 
     @Test
-    void successfulSuggestionsRequireBetweenOneAndSevenMappedMeals() {
+    void returnsAnAssistantMessageWithoutSuggestionsForAnInformationalFollowUp() {
+        final List<Product> catalogue = catalogue();
+        final MealSuggestionGenerator.Request generatorRequest = new MealSuggestionGenerator.Request(
+                CONVERSATION_ID, "What do you need to know?", catalogue);
+        when(productCatalogue.allProducts()).thenReturn(catalogue);
+        when(generator.suggest(eq(generatorRequest)))
+                .thenReturn(new ModelMealRequestResponse(MealRequestScope.IN_SCOPE,
+                        "Do you have any dietary requirements?", List.of()));
+
+        assertThat(service.submit(new MealSuggestionService.Request(CONVERSATION_ID, "What do you need to know?")))
+                .isEqualTo(new SuccessfulMealSuggestions("Do you have any dietary requirements?", List.of()));
+
+        verify(generator).suggest(eq(generatorRequest));
+        verifyNoInteractions(mapper);
+    }
+
+    @Test
+    void successfulSuggestionsAllowUpToSevenMappedMeals() {
         final MappedMealSuggestion suggestion = mappedSuggestions(catalogue()).getFirst();
 
-        assertThatThrownBy(() -> new SuccessfulMealSuggestions("Here are some meal ideas.", List.of()))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("A response must contain between one and seven suggestions");
         assertThatThrownBy(() -> new SuccessfulMealSuggestions("Here are some meal ideas.", List.of(
                 suggestion, suggestion, suggestion, suggestion, suggestion, suggestion, suggestion, suggestion)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("A response must contain between one and seven suggestions");
+                .hasMessage("A response must contain between zero and seven suggestions");
     }
 
     private static MealSuggestionGenerator.Request anyRequest(final String request, final List<Product> catalogue) {

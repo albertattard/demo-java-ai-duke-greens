@@ -17,15 +17,15 @@ class ModelMealSuggestionsTest {
     }
 
     @Test
-    void rejectsAnInScopeResponseWithNoSuggestions() {
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> new ModelMealRequestResponse(MealRequestScope.IN_SCOPE, "A response", List.of()));
+    void permitsAnInScopeResponseWithNoSuggestions() {
+        final ModelMealRequestResponse response = new ModelMealRequestResponse(MealRequestScope.IN_SCOPE, "A response", List.of());
+
+        assertThat(response.suggestions()).isEmpty();
     }
 
     @Test
-    void rejectsAnEmptySuggestionsList() {
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> new ModelMealSuggestions(List.of()));
+    void permitsAnEmptySuggestionsList() {
+        assertThat(new ModelMealSuggestions(List.of()).suggestions()).isEmpty();
     }
 
     @Test

@@ -23,7 +23,7 @@ record ModelMealRequestResponse(@Deprecated(forRemoval = true) MealRequestScope 
 
         if (scope == MealRequestScope.IN_SCOPE) {
             requireNonBlank(assistantMessage, "An in-scope response requires an assistant message");
-            requireSizeBetween(suggestions, 1, 7, "A response must contain between one and seven suggestions");
+            requireSizeBetween(suggestions, 0, 7, "A response must contain between zero and seven suggestions");
         }
     }
 
@@ -55,6 +55,10 @@ record ModelMealRequestResponse(@Deprecated(forRemoval = true) MealRequestScope 
 
         return new ModelMealSuggestions(suggestions);
     }
+
+    boolean hasSuggestions() {
+        return !suggestions.isEmpty();
+    }
 }
 
 @Deprecated(forRemoval = true)
@@ -66,7 +70,7 @@ enum MealRequestScope {
 record ModelMealSuggestions(List<ModelMealSuggestion> suggestions) implements Iterable<ModelMealSuggestion> {
 
     ModelMealSuggestions {
-        requireSizeBetween(suggestions, 1, 7, "A response must contain between one and seven suggestions");
+        requireSizeBetween(suggestions, 0, 7, "A response must contain between zero and seven suggestions");
         suggestions = List.copyOf(suggestions);
     }
 

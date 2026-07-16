@@ -446,6 +446,41 @@ class MealRequestSessionMvcTest {
     }
 
     @Test
+    void preservesTheLatestRecommendationsAfterAnInformationalFollowUp() throws Exception {
+        final String conversationId = "active-conversation";
+        final String followUp = "What do you need to know?";
+        final MappedMealSuggestion selectedSuggestion = new MappedMealSuggestion("Lemon lentil pasta", 25,
+                "A quick dinner.", 1, List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69));
+        final MappedMealSuggestion latestSuggestion = new MappedMealSuggestion("Lentil curry", 30,
+                "A hearty dinner.", 1, List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69));
+        final SuccessfulMealRequest request = new SuccessfulMealRequest(
+                "Suggest a vegetarian dinner", List.of(selectedSuggestion, latestSuggestion)).addMeal(0);
+        final MockHttpSession session = new MockHttpSession();
+        session.setAttribute("mealConversationId", conversationId);
+        session.setAttribute("mealRequestState", request);
+        when(productCatalogue.allProducts()).thenReturn(List.of(product("red-lentils-500g")));
+        final MealSuggestionService.Request serviceRequest = new MealSuggestionService.Request(
+                conversationId, followUp, Set.of(selectedSuggestion.name(), latestSuggestion.name()), Set.of(selectedSuggestion.name()));
+        when(mealSuggestionService.submit(eq(serviceRequest)))
+                .thenReturn(new SuccessfulMealSuggestions("Do you have any dietary requirements?", List.of()));
+
+        mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/follow-up")
+                        .with(csrf())
+                        .session(session)
+                        .param("followUp", followUp))
+                .andExpect(redirectedUrl("/demo/recommendations/" + conversationId));
+        mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/" + conversationId).session(session))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Lemon lentil pasta")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Lentil curry")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString(followUp)))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Do you have any dietary requirements?")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("action=\"/demo/recommendations/" + conversationId + "/follow-up\"")));
+
+        verify(mealSuggestionService).submit(eq(serviceRequest));
+    }
+
+    @Test
     void rejectsAFollowUpForAnotherConversationWithoutCallingTheModel() throws Exception {
         final MockHttpSession session = new MockHttpSession();
         session.setAttribute("mealConversationId", "active-conversation");

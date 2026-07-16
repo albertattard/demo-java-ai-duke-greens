@@ -93,7 +93,7 @@ Start the application without OpenAI credentials or network access by using the 
 
 ```shell
 ./mvnw \
-  -Dspring-boot.run.jvmArguments="-Dspring.config.import=optional:file:${HOME}/.openai/openai-api.yml" \
+  -Dspring-boot.run.jvmArguments="-Dspring.config.import=optional:file:${HOME}/.demo/demo-java-ai-duke-greens.yml" \
   -Dspring-boot.run.arguments="--spring.profiles.active=mock" \
   spring-boot:run
 ```

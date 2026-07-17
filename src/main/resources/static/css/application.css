@@ -494,9 +494,10 @@ button {
 }
 
 .dictation-status {
+    align-self: stretch;
     color: var(--color-muted);
     margin: 0.5rem 0 0;
-    max-width: 28rem;
+    width: 100%;
 }
 
 .secondary-action {

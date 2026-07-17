@@ -67,9 +67,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             };
 
-            recognition.onerror = () => {
+            recognition.onerror = (event) => {
                 input.value = originalText;
-                setIdle("We couldn’t transcribe that. Your typed request is unchanged.");
+                const message = event.error === "not-allowed" || event.error === "service-not-allowed"
+                    ? "Microphone access was not allowed. Check your browser permission and try again."
+                    : "Dictation didn’t work. You can still type your request.";
+                setIdle(message);
                 recognition = undefined;
             };
 

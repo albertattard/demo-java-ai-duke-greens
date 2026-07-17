@@ -95,8 +95,13 @@ public final class WelcomePage extends PageObject {
     }
 
     public WelcomePage shouldKeepTextWhenDictationFails(final String text) {
-        assertThat(elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want")).hasValue(text);
-        assertThat(page.locator("[data-dictation-status]")).hasText("We couldn’t transcribe that. Your typed request is unchanged.");
+        final Locator input = elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want");
+        final Locator status = page.locator("[data-dictation-status]");
+        assertThat(input).hasValue(text);
+        assertThat(status).hasText("Microphone access was not allowed. Check your browser permission and try again.");
+        final Number inputWidth = (Number) input.evaluate("element => element.getBoundingClientRect().width");
+        final Number statusWidth = (Number) status.evaluate("element => element.getBoundingClientRect().width");
+        org.assertj.core.api.Assertions.assertThat(statusWidth.doubleValue()).isEqualTo(inputWidth.doubleValue());
         assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Start dictation")).isVisible();
         org.assertj.core.api.Assertions.assertThat(page.evaluate("() => String(window.mealRequestSubmissionCount)")).isEqualTo("0");
         return this;

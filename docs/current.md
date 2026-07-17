@@ -27,3 +27,10 @@ Visitors who prefer to speak can dictate a meal request or conversational follow
 2. Dictation hardening: refine partial-transcript behaviour, accessibility, and cross-browser demonstration guidance; decide whether a provider-backed speech-to-text service is justified if browser recognition is insufficient.
 3. On-demand assistant read-aloud: add an explicit “Read aloud” control for the visitor-facing assistant message, with stop and replay. Do not automatically play audio.
 4. Optional automatic read-aloud: only after an explicit product and accessibility decision, offer an opt-in preference for reading new assistant messages aloud.
+
+## Implementation and verification
+
+- Added a browser-only dictation controller to the meal-request and follow-up fields. It uses browser speech recognition when available, writes only a final transcript to the editable field, and never submits a form.
+- Added visible listening, completion, cancellation, unavailable, and transcription-error states. Cancel, errors, and unavailable recognition retain typed input.
+- Focused Playwright coverage uses a fake recognition implementation to verify successful transcription, cancellation, errors, unavailable recognition, no implicit form submission, and the follow-up control.
+- Verified with `./mvnw verify`.

@@ -18,6 +18,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import com.microsoft.playwright.Page;
+
 import demo.functional.browser.BrowserHarness;
 import demo.functional.browser.PlaywrightBrowserHarness;
 
@@ -62,6 +64,49 @@ class WelcomePageIT {
                 .shouldShowProducts(productCatalogue.allProducts().size())
                 .shouldShowProduct("Wholewheat spaghetti", "500 g", "1,49")
                 .shouldShowProduct("Chickpeas", "400 g", "0,99"));
+    }
+
+    @Test
+    void letsVisitorsDictateAndReviewAMealRequestWithoutSubmittingIt() throws Exception {
+        browser.openDukeGreens(this::installSpeechRecognition, dukeGreens -> dukeGreens.openWelcomePage()
+                .startDictation()
+                .shouldShowDictationListening()
+                .receiveDictation("Three quick vegetarian dinners")
+                .stopDictation()
+                .shouldShowCompletedDictation("Three quick vegetarian dinners")
+                .startDictation()
+                .receiveDictation("This should not replace the typed request")
+                .cancelDictation()
+                .shouldKeepTextWhenDictationIsCancelled("Three quick vegetarian dinners")
+                .startDictation()
+                .failDictation("not-allowed")
+                .shouldKeepTextWhenDictationFails("Three quick vegetarian dinners"));
+
+        verifyNoInteractions(mealSuggestionGenerator);
+    }
+
+    @Test
+    void keepsTypingAvailableWhenDictationIsUnavailable() throws Exception {
+        browser.openDukeGreens(this::disableSpeechRecognition, dukeGreens -> dukeGreens.openWelcomePage()
+                .shouldShowUnavailableDictation()
+                .submitInvalidMealRequest("   ")
+                .shouldShowBlankRequestValidation());
+
+        verifyNoInteractions(mealSuggestionGenerator);
+    }
+
+    @Test
+    void offersDictationForConversationalFollowUps() throws Exception {
+        final String request = "Suggest a pasta dinner";
+        when(mealSuggestionGenerator.suggest(request(request))).thenReturn(ModelMealRequestResponse.withSuggestions(new ModelMealSuggestions(List.of(
+                new ModelMealSuggestion("Pasta", 20, "A complete dinner.", 1,
+                        List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g")))))));
+
+        browser.openDukeGreens(this::installSpeechRecognition, dukeGreens -> dukeGreens.openWelcomePage()
+                .submitMealRequest(request)
+                .shouldProvideFollowUpDictation());
+
+        verify(mealSuggestionGenerator).suggest(request(request));
     }
 
     @Test
@@ -316,5 +361,32 @@ class WelcomePageIT {
 
     private static MealSuggestionGenerator.Request request(final String message) {
         return argThat(request -> request != null && request.request().equals(message));
+    }
+
+    private void installSpeechRecognition(final Page page) {
+        page.addInitScript("""
+                window.SpeechRecognition = class {
+                    start() {
+                        window.testSpeechRecognition = this;
+                    }
+
+                    stop() {
+                        this.onend();
+                    }
+
+                    abort() {
+                        this.onend();
+                    }
+                };
+                window.mealRequestSubmissionCount = 0;
+                document.addEventListener("submit", () => window.mealRequestSubmissionCount += 1);
+                """);
+    }
+
+    private void disableSpeechRecognition(final Page page) {
+        page.addInitScript("""
+                Object.defineProperty(window, "SpeechRecognition", { configurable: true, value: undefined });
+                Object.defineProperty(window, "webkitSpeechRecognition", { configurable: true, value: undefined });
+                """);
     }
 }

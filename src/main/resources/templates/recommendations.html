@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <title>Recommendations | Duke Greens</title>
+    <script defer th:src="@{/js/dictation.js}"></script>
 </head>
 <body>
 <main layout:fragment="content">
@@ -106,6 +107,11 @@
         <form class="refinement-form" id="follow-up-form" method="post" th:action="@{/demo/recommendations/{conversationId}/follow-up(conversationId=${conversationId})}" th:if="${recommendations != null}">
             <label class="visually-hidden" for="follow-up">Continue the conversation</label>
             <textarea id="follow-up" maxlength="300" name="followUp" th:text="${failedFollowUp}"></textarea>
+            <div class="dictation-controls" data-dictation data-dictation-target="follow-up">
+                <button aria-controls="follow-up" aria-pressed="false" data-dictation-start type="button">Start dictation</button>
+                <button data-dictation-cancel hidden type="button">Cancel dictation</button>
+                <p aria-live="polite" data-dictation-status>Dictation is ready.</p>
+            </div>
         </form>
         <div class="refinement-actions" th:if="${recommendations != null and !resetConfirmationRequired}">
             <form method="post" th:action="@{/demo/recommendations/{conversationId}/reset(conversationId=${conversationId})}">

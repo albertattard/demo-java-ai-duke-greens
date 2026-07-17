@@ -39,6 +39,70 @@ public final class WelcomePage extends PageObject {
         return this;
     }
 
+    public WelcomePage startDictation() {
+        elementByRoleAndExactName(AriaRole.BUTTON, "Start dictation").click();
+        return this;
+    }
+
+    public WelcomePage stopDictation() {
+        elementByRoleAndExactName(AriaRole.BUTTON, "Stop dictation").click();
+        return this;
+    }
+
+    public WelcomePage cancelDictation() {
+        elementByRoleAndExactName(AriaRole.BUTTON, "Cancel dictation").click();
+        return this;
+    }
+
+    public WelcomePage receiveDictation(final String transcript) {
+        page.evaluate("""
+                transcript => window.testSpeechRecognition.onresult({
+                    results: [Object.assign([{ transcript }], { isFinal: true })]
+                })
+                """, transcript);
+        return this;
+    }
+
+    public WelcomePage failDictation(final String error) {
+        page.evaluate("error => window.testSpeechRecognition.onerror({ error })", error);
+        return this;
+    }
+
+    public WelcomePage shouldShowDictationListening() {
+        assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Stop dictation")).isVisible();
+        assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Cancel dictation")).isVisible();
+        assertThat(page.locator("[data-dictation-status]")).hasText("Listening. Speak your request, then stop dictation when you are finished.");
+        return this;
+    }
+
+    public WelcomePage shouldShowCompletedDictation(final String transcript) {
+        assertThat(elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want")).hasValue(transcript);
+        assertThat(page.locator("[data-dictation-status]")).hasText("Dictation complete. Review or amend the text before submitting.");
+        org.assertj.core.api.Assertions.assertThat(page.evaluate("() => String(window.mealRequestSubmissionCount)")).isEqualTo("0");
+        return this;
+    }
+
+    public WelcomePage shouldKeepTextWhenDictationIsCancelled(final String text) {
+        assertThat(elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want")).hasValue(text);
+        assertThat(page.locator("[data-dictation-status]")).hasText("Dictation cancelled. Your typed request is unchanged.");
+        org.assertj.core.api.Assertions.assertThat(page.evaluate("() => String(window.mealRequestSubmissionCount)")).isEqualTo("0");
+        return this;
+    }
+
+    public WelcomePage shouldKeepTextWhenDictationFails(final String text) {
+        assertThat(elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want")).hasValue(text);
+        assertThat(page.locator("[data-dictation-status]")).hasText("We couldn’t transcribe that. Your typed request is unchanged.");
+        assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Start dictation")).isVisible();
+        org.assertj.core.api.Assertions.assertThat(page.evaluate("() => String(window.mealRequestSubmissionCount)")).isEqualTo("0");
+        return this;
+    }
+
+    public WelcomePage shouldShowUnavailableDictation() {
+        assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Dictation unavailable")).isDisabled();
+        assertThat(page.locator("[data-dictation-status]")).hasText("Dictation is unavailable in this browser. You can still type your request.");
+        return this;
+    }
+
     public RecommendationsPage submitMealRequest(final String request) {
         fillMealRequest(request);
         elementByRoleAndExactName(AriaRole.BUTTON, "Get meal ideas").click();

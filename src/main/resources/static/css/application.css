@@ -469,6 +469,23 @@ button {
     margin-top: 0;
 }
 
+.dictation-controls {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-top: 0.75rem;
+}
+
+.dictation-controls button,
+.dictation-controls p {
+    margin: 0;
+}
+
+.dictation-controls p {
+    color: var(--color-muted);
+}
+
 .secondary-action {
     background: var(--color-surface);
     border: 1px solid var(--color-brand);

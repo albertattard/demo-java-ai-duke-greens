@@ -28,7 +28,15 @@ public final class PlaywrightBrowserHarness implements BrowserHarness {
 
     @Override
     public void openDukeGreens(final BrowserConsumer<DukeGreens> consumer) throws Exception {
-        withPage(page -> consumer.accept(new DukeGreens(baseUrl, page)));
+        openDukeGreens(page -> { }, consumer);
+    }
+
+    @Override
+    public void openDukeGreens(final BrowserConsumer<Page> pageSetup, final BrowserConsumer<DukeGreens> consumer) throws Exception {
+        withPage(page -> {
+            pageSetup.accept(page);
+            consumer.accept(new DukeGreens(baseUrl, page));
+        });
     }
 
     private void withPage(final BrowserConsumer<Page> consumer) throws Exception {

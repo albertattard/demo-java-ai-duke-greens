@@ -23,6 +23,7 @@ prompt+=$'\n\nFor chroma-key removal, invoke only ./tools/imagegen/remove-chroma
 /Applications/ChatGPT.app/Contents/Resources/codex exec \
   --model gpt-5.6-luna \
   --config model_reasoning_effort="low" \
+  --ephemeral \
   --cd "${repository_root}" \
   --sandbox workspace-write \
   "$prompt"

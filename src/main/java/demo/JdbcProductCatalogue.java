@@ -20,6 +20,7 @@ class JdbcProductCatalogue implements ProductCatalogue {
         return jdbcClient.sql("""
                 SELECT slug, name, package_quantity, package_unit, price, image_filename
                 FROM product
+                WHERE image_filename IS NOT NULL
                 ORDER BY name""")
                 .query(this::mapProduct)
                 .list();

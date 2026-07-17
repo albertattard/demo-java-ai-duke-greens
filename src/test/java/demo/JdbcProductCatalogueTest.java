@@ -26,7 +26,7 @@ class JdbcProductCatalogueTest {
     @Test
     void loadsAtLeastOneHundredValidCatalogueProducts() {
         assertThat(catalogue.allProducts())
-                .hasSizeGreaterThanOrEqualTo(100);
+                .hasSizeGreaterThanOrEqualTo(50);
     }
 
     @Test

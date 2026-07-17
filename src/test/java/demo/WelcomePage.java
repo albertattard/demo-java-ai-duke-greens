@@ -88,7 +88,8 @@ public final class WelcomePage extends PageObject {
     }
 
     public WelcomePage shouldShowProduct(final String name, final String packageDetail, final String price) {
-        final Locator card = page.locator("[data-testid='product-card']").filter(new Locator.FilterOptions().setHasText(name));
+        final Locator card = elementByRoleAndExactName(AriaRole.HEADING, name)
+                .locator("xpath=ancestor::article[@data-testid='product-card']");
         assertThat(card).hasCount(1);
         assertThat(elementByRoleAndExactName(card, AriaRole.HEADING, name)).isVisible();
         assertThat(elementByTextAndExactName(card, packageDetail)).isVisible();

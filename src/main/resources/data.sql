@@ -22,7 +22,7 @@ INSERT INTO product (slug, name, package_quantity, package_unit, price, image_fi
   ('blueberries-250g',          'Blueberries',          250,  'g', 2.99, 'blueberries-250g.png'),
   ('borlotti-beans-400g',       'Borlotti beans',       400,  'g', 0.99, 'borlotti-beans-400g.png'),
   ('breadcrumbs-250g',          'Breadcrumbs',          250,  'g', 1.29, 'breadcrumbs-250g.png'),
-  ('breakfast-sausages-400g',   'Breakfast sausages',   400,  'g', 3.99, null),
+  ('breakfast-sausages-400g',   'Breakfast sausages',   400,  'g', 3.99, 'breakfast-sausages-400g.png'),
   ('broccoli-500g',             'Broccoli',             500,  'g', 2.29, 'broccoli-500g.png'),
   ('brown-rice-500g',           'Brown rice',           500,  'g', 1.79, 'brown-rice-500g.png'),
   ('brussels-sprouts-500g',     'Brussels sprouts',     500,  'g', 2.49, null),

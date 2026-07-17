@@ -2,6 +2,19 @@
 
 This document captures deferred work that is worth retaining but is not yet ready for implementation.
 
+## Feedback from initial demo review
+
+The following work was identified during the initial feedback review. Treat it as a backlog, not as a commitment to build a broader meal-planning product.
+
+- Improve recommendation-failure recovery so an unsuccessful result is intelligible, retains the visitor’s request, and makes clear what “Try again” will resubmit. Add deterministic regression coverage for the reported requests: “2 balanced dinners for 3 people, requiring less than an hour to prepare”; a party menu for eight; a “Sunday roast” or beef-roast request; and an unavailable follow-up such as “I want to make fresh focaccia too.”
+- Show each recommended meal’s recipe and preparation instructions.
+- Let a visitor add an individual catalogue product to the basket, remove an individual basket item, and add a product again by updating its quantity rather than creating a duplicate. This must preserve application authority over basket contents and quantities. Resolve the existing [basket-editing product decision](#basket-editing-product-decision) before implementation.
+- Expand the curated catalogue with essential products needed by the demonstrated requests, including salt, pepper, beef, and a suitable beef roast. Do not add drinks merely because a visitor asks about them unless drinks become an explicit demo-scope decision; the application should instead clearly state that they are not in the catalogue.
+- Review and add product images for newly added catalogue products, using the supplied private-label image batch only after verifying that each asset matches its product and is suitable for the demo.
+- Replace full-page refreshes with partial, reactive page updates without weakening the POST/Redirect/GET and explicit-retry guarantees described below.
+- Add dictation and voice input while keeping the conversation workflow independent of its input and output channels.
+- The requested “I already have olive oil” behaviour is already captured in [Pantry-aware meal coverage](#pantry-aware-meal-coverage); do not expose the action before quantity-aware coverage exists.
+
 ## Remaining conversational-shopping MVP capabilities
 
 The following visitor-facing commitments remain from the original MVP definition. They are deferred until a future change brief makes each slice implementation-ready.

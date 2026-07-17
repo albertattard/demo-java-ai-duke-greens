@@ -1,12 +1,11 @@
 package demo;
 
-import static java.util.Objects.requireNonNull;
+import module java.base;
 
 import static demo.Numbers.requireGreaterThanZero;
 import static demo.Strings.requireMatches;
 import static demo.Strings.requireNonBlank;
-
-import module java.base;
+import static java.util.Objects.requireNonNull;
 
 /// A sellable catalogue product. Its stable lowercase kebab-case slug is the
 /// public application reference used for model mapping and basket lines; names
@@ -17,7 +16,9 @@ record Product(
         int packageQuantity,
         MeasurementUnit packageUnit,
         BigDecimal price,
-        String imageFilename) {
+        String imageFilename) implements Comparable<Product> {
+
+    private static final Comparator<Product> NATURAL = Comparator.comparing(Product::name);
 
     Product {
         requireValidSlug(slug);
@@ -43,6 +44,11 @@ record Product(
         requireGreaterThanZero(packageCount, "The package count must be greater than 0");
         return packageUnit.toBaseUnits(BigDecimal.valueOf(packageQuantity))
                 .multiply(BigDecimal.valueOf(packageCount));
+    }
+
+    @Override
+    public int compareTo(final Product other) {
+        return NATURAL.compare(this, other);
     }
 
     static void requireValidSlug(final String slug) {

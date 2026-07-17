@@ -615,6 +615,18 @@ button {
     margin-top: 0;
 }
 
+.refinement-submit-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    justify-content: flex-end;
+}
+
+.refinement-submit-actions .dictation-controls {
+    margin-top: 0;
+}
+
 .thank-you-action {
     display: flex;
     justify-content: flex-end;

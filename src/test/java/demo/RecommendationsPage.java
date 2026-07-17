@@ -33,8 +33,16 @@ public final class RecommendationsPage extends PageObject {
     }
 
     public RecommendationsPage shouldProvideFollowUpDictation() {
-        assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Start dictation")).isVisible();
-        assertThat(page.locator("[data-dictation-target='follow-up'] [data-dictation-status]")).isHidden();
+        final Locator dictation = elementByRoleAndExactName(AriaRole.BUTTON, "Start dictation");
+        final Locator submit = elementByRoleAndExactName(AriaRole.BUTTON, "Send follow-up");
+        assertThat(dictation).isVisible();
+        assertThat(page.locator("#follow-up-dictation-status")).isHidden();
+        final Number dictationTop = (Number) dictation.evaluate("element => element.getBoundingClientRect().top");
+        final Number submitTop = (Number) submit.evaluate("element => element.getBoundingClientRect().top");
+        final Number dictationLeft = (Number) dictation.evaluate("element => element.getBoundingClientRect().left");
+        final Number submitLeft = (Number) submit.evaluate("element => element.getBoundingClientRect().left");
+        org.assertj.core.api.Assertions.assertThat(dictationTop.doubleValue()).isEqualTo(submitTop.doubleValue());
+        org.assertj.core.api.Assertions.assertThat(dictationLeft.doubleValue()).isLessThan(submitLeft.doubleValue());
         return this;
     }
 

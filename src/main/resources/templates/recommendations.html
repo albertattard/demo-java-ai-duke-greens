@@ -108,16 +108,18 @@
             <label class="visually-hidden" for="follow-up">Continue the conversation</label>
             <textarea id="follow-up" maxlength="300" name="followUp" th:text="${failedFollowUp}"></textarea>
             <p aria-live="polite" class="dictation-status" data-dictation-status hidden id="follow-up-dictation-status">Dictation is ready.</p>
-            <div class="dictation-controls" data-dictation data-dictation-status-id="follow-up-dictation-status" data-dictation-target="follow-up">
-                <button aria-controls="follow-up" aria-pressed="false" data-dictation-start type="button">Start dictation</button>
-                <button data-dictation-cancel hidden type="button">Cancel dictation</button>
-            </div>
         </form>
         <div class="refinement-actions" th:if="${recommendations != null and !resetConfirmationRequired}">
             <form method="post" th:action="@{/demo/recommendations/{conversationId}/reset(conversationId=${conversationId})}">
                 <button class="secondary-action" type="submit">Start over</button>
             </form>
-            <button form="follow-up-form" type="submit">Send follow-up</button>
+            <div class="refinement-submit-actions">
+                <div class="dictation-controls" data-dictation data-dictation-status-id="follow-up-dictation-status" data-dictation-target="follow-up">
+                    <button aria-controls="follow-up" aria-pressed="false" data-dictation-start type="button">Start dictation</button>
+                    <button data-dictation-cancel hidden type="button">Cancel dictation</button>
+                </div>
+                <button form="follow-up-form" type="submit">Send follow-up</button>
+            </div>
         </div>
         <p class="meal-request-error" role="alert" th:if="${followUpError}" th:text="${followUpError}">Describe what you’d like to change about the meal ideas.</p>
         <section aria-labelledby="reset-confirmation-heading" class="information-message" role="alert" th:if="${resetConfirmationRequired}">

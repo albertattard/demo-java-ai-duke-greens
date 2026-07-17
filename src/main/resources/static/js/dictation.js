@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const input = document.getElementById(controls.dataset.dictationTarget);
         const start = controls.querySelector("[data-dictation-start]");
         const cancel = controls.querySelector("[data-dictation-cancel]");
-        const status = controls.querySelector("[data-dictation-status]");
+        const status = document.getElementById(controls.dataset.dictationStatusId);
 
         if (input === null || start === null || cancel === null || status === null) {
             return;

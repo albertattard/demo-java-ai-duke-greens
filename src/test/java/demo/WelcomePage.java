@@ -77,7 +77,12 @@ public final class WelcomePage extends PageObject {
 
     public WelcomePage shouldShowCompletedDictation(final String transcript) {
         assertThat(elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want")).hasValue(transcript);
-        assertThat(page.locator("[data-dictation-status]")).hasText("Dictation complete. Review or amend the text before submitting.");
+        final Locator status = page.locator("[data-dictation-status]");
+        assertThat(status).hasText("Dictation complete. Review or amend the text before submitting.");
+        final Number inputBottom = (Number) elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want")
+                .evaluate("element => element.getBoundingClientRect().bottom");
+        final Number statusTop = (Number) status.evaluate("element => element.getBoundingClientRect().top");
+        org.assertj.core.api.Assertions.assertThat(statusTop.doubleValue()).isGreaterThan(inputBottom.doubleValue());
         org.assertj.core.api.Assertions.assertThat(page.evaluate("() => String(window.mealRequestSubmissionCount)")).isEqualTo("0");
         return this;
     }

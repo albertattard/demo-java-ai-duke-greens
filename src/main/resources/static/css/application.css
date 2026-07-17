@@ -489,13 +489,13 @@ button {
     margin-top: 0.75rem;
 }
 
-.dictation-controls button,
-.dictation-controls p {
+.dictation-controls button {
     margin: 0;
 }
 
-.dictation-controls p {
+.dictation-status {
     color: var(--color-muted);
+    margin: 0.5rem 0 0;
     max-width: 28rem;
 }
 

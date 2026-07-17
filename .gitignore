@@ -1,4 +1,5 @@
 .idea/
 .oca/
+.tools/
 target/
 **/.DS_Store

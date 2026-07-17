@@ -111,6 +111,23 @@ brew install imagemagick
 
 The script writes proportionally scaled, centred PNG files to `src/main/resources/static/images/300/`. It does not crop or enlarge source images.
 
+## Product-image transparency
+
+For a generated product image with a flat chroma-key background, use the project wrapper to create a transparent PNG:
+
+```shell
+./tools/imagegen/remove-chroma-key.sh \
+  --input tmp/imagegen/product-key.png \
+  --out assets/product-images/original/product.png \
+  --auto-key border \
+  --soft-matte \
+  --transparent-threshold 12 \
+  --opaque-threshold 220 \
+  --despill
+```
+
+On first use, the wrapper creates an ignored `.tools/imagegen-venv` environment and installs the dependencies listed in [`tools/imagegen/requirements.txt`](tools/imagegen/requirements.txt). It requires Python 3 and network access only when Pillow must be installed or updated.
+
 ## Live OpenAI integration check
 
 With the local API-key file configured, run the opt-in integration check:

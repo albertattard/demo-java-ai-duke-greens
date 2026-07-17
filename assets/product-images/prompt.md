@@ -1,4 +1,4 @@
-Using the images in the [original](assets/product-images/original/) directory as style references, use the [$imagegen](~/.codex/skills/.system/imagegen/SKILL.md) skill to create a new product image `[SLUG]` from the catalogue [data](src/main/resources/data.sql) that belongs to the exact same supermarket private-label range.
+Using the images in the [original](assets/product-images/original/) directory as style references, use the [$imagegen](/Users/aattard/.codex/skills/.system/imagegen/SKILL.md) skill to create a new product image from the next item in the catalogue [data](src/main/resources/data.sql) that does not have an image and belongs to the exact same supermarket private-label range.
 
 Maintain the same:
 - label proportions

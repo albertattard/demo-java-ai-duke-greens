@@ -34,7 +34,7 @@ public final class RecommendationsPage extends PageObject {
 
     public RecommendationsPage shouldProvideFollowUpDictation() {
         assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Start dictation")).isVisible();
-        assertThat(page.locator("[data-dictation-target='follow-up'] [data-dictation-status]")).hasText("Dictation is ready.");
+        assertThat(page.locator("[data-dictation-target='follow-up'] [data-dictation-status]")).isHidden();
         return this;
     }
 

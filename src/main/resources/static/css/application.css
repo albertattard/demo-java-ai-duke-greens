@@ -469,6 +469,18 @@ button {
     margin-top: 0;
 }
 
+.meal-request-submit-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    justify-content: flex-end;
+}
+
+.meal-request-submit-actions .dictation-controls {
+    margin-top: 0;
+}
+
 .dictation-controls {
     align-items: center;
     display: flex;
@@ -484,6 +496,7 @@ button {
 
 .dictation-controls p {
     color: var(--color-muted);
+    max-width: 28rem;
 }
 
 .secondary-action {

@@ -98,7 +98,7 @@ public final class WelcomePage extends PageObject {
     }
 
     public WelcomePage shouldShowUnavailableDictation() {
-        assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Dictation unavailable")).isDisabled();
+        assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Start dictation")).isHidden();
         assertThat(page.locator("[data-dictation-status]")).hasText("Dictation is unavailable in this browser. You can still type your request.");
         return this;
     }
@@ -133,6 +133,19 @@ public final class WelcomePage extends PageObject {
         assertThat(mealRequestInput).isVisible();
         assertThat(mealRequestInput).hasValue("");
         assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Get meal ideas")).isVisible();
+        return this;
+    }
+
+    WelcomePage shouldPlaceDictationBesideMealIdeas() {
+        final Locator dictation = elementByRoleAndExactName(AriaRole.BUTTON, "Start dictation");
+        final Locator submit = elementByRoleAndExactName(AriaRole.BUTTON, "Get meal ideas");
+        final Number dictationTop = (Number) dictation.evaluate("element => element.getBoundingClientRect().top");
+        final Number submitTop = (Number) submit.evaluate("element => element.getBoundingClientRect().top");
+        final Number dictationLeft = (Number) dictation.evaluate("element => element.getBoundingClientRect().left");
+        final Number submitLeft = (Number) submit.evaluate("element => element.getBoundingClientRect().left");
+
+        org.assertj.core.api.Assertions.assertThat(dictationTop.doubleValue()).isEqualTo(submitTop.doubleValue());
+        org.assertj.core.api.Assertions.assertThat(dictationLeft.doubleValue()).isLessThan(submitLeft.doubleValue());
         return this;
     }
 

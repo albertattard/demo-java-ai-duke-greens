@@ -19,18 +19,20 @@
         <form id="meal-request-form" method="post" th:action="@{/demo/meal-request}">
             <label for="meal-request">Describe the meals you want</label>
             <textarea id="meal-request" maxlength="300" name="mealRequest" placeholder="For example: three quick vegetarian dinners for one person." rows="5" th:text="${mealRequest}"></textarea>
-            <div class="dictation-controls" data-dictation data-dictation-target="meal-request">
-                <button aria-controls="meal-request" aria-pressed="false" data-dictation-start type="button">Start dictation</button>
-                <button data-dictation-cancel hidden type="button">Cancel dictation</button>
-                <p aria-live="polite" data-dictation-status>Dictation is ready.</p>
-            </div>
             <p aria-live="polite" class="validation-message" th:if="${validationMessage}" th:text="${validationMessage}"></p>
         </form>
         <div class="meal-request-actions">
             <form method="post" th:action="@{/demo/logout}">
                 <button class="secondary-action" type="submit">Log out</button>
             </form>
-            <button class="meal-request-submit" form="meal-request-form" type="submit">Get meal ideas</button>
+            <div class="meal-request-submit-actions">
+                <div class="dictation-controls" data-dictation data-dictation-target="meal-request">
+                    <button aria-controls="meal-request" aria-pressed="false" data-dictation-start type="button">Start dictation</button>
+                    <button data-dictation-cancel hidden type="button">Cancel dictation</button>
+                    <p aria-live="polite" data-dictation-status hidden>Dictation is ready.</p>
+                </div>
+                <button class="meal-request-submit" form="meal-request-form" type="submit">Get meal ideas</button>
+            </div>
         </div>
     </section>
     <section aria-labelledby="products-heading" class="products-panel">

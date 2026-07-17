@@ -12,9 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (SpeechRecognition === undefined) {
-            start.disabled = true;
-            start.textContent = "Dictation unavailable";
+            start.hidden = true;
             status.textContent = "Dictation is unavailable in this browser. You can still type your request.";
+            status.hidden = false;
             return;
         }
 
@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
             start.setAttribute("aria-pressed", "false");
             cancel.hidden = true;
             status.textContent = message;
+            status.hidden = false;
         };
 
         const setListening = () => {
@@ -36,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
             start.setAttribute("aria-pressed", "true");
             cancel.hidden = false;
             status.textContent = "Listening. Speak your request, then stop dictation when you are finished.";
+            status.hidden = false;
         };
 
         start.addEventListener("click", () => {

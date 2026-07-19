@@ -13,6 +13,7 @@ The following work was identified during the initial feedback review. Treat it a
 - Review and add product images for newly added catalogue products, using the supplied private-label image batch only after verifying that each asset matches its product and is suitable for the demo.
 - Replace full-page refreshes with partial, reactive page updates without weakening the POST/Redirect/GET and explicit-retry guarantees described below.
 - Add dictation and voice input while keeping the conversation workflow independent of its input and output channels.
+- Decide whether visitors should see any submitted feedback. Do not expose individual comments without an explicit retention, consent, moderation, and privacy policy; the current in-memory feedback store is unsuitable for persistent social proof. Consider anonymised aggregates only after those decisions are made.
 - The requested “I already have olive oil” behaviour is already captured in [Pantry-aware meal coverage](#pantry-aware-meal-coverage); do not expose the action before quantity-aware coverage exists.
 
 ## Deferred conversation slices
@@ -112,6 +113,8 @@ Do not regress the existing request and recovery contract while implementing the
 Let a visitor record that they already have a product at home, including its quantity and unit. Use this pantry quantity with basket quantities when calculating whether selected meals can be fulfilled. Do not present an “Already have this” action until that quantity-aware coverage calculation exists.
 
 ## Inventory-aware shopping
+
+Add a session-scoped demo availability scenario that lets a visitor mark catalogue products available or unavailable before requesting meal ideas. The application must exclude unavailable products from the catalogue supplied to the model and reject any unavailable product returned by the model. Clearly label the setting as applying only to the visitor’s browser session and show the excluded products with the recommendations, so it demonstrates constrained AI behaviour without implying shared, real-time store inventory. Do not add quantities, reservations, stock claims, substitutions, checkout blocking, or product-preference behaviour in this slice.
 
 Add product availability and stock validation before order completion, including unavailable-product handling and substitutions. Decide whether the initial source is local demonstrator-controlled stock data or an optional MCP-backed inventory service; neither source may become authoritative for catalogue products, prices, pack sizes, or basket contents. This capability includes the previously deferred real-time external stock data and presenter-controlled stock changes.
 

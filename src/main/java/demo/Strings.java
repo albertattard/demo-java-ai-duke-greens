@@ -19,6 +19,14 @@ final class Strings {
         }
     }
 
+    static String requireLengthBetween(final String value, int lowerBound, int upperBound, final String message) {
+        if (isLengthBetween(value, lowerBound, upperBound)) {
+            return value;
+        }
+
+        throw new IllegalArgumentException(message);
+    }
+
     static boolean isLengthBetween(final String value, int lowerBound, int upperBound) {
         if (lowerBound < 0 || lowerBound >= upperBound) {
             throw new IllegalArgumentException("Lower bound must be greater than 0 and less than upper bound");

@@ -632,6 +632,84 @@ button {
     justify-content: flex-end;
 }
 
+.feedback-form {
+    margin-top: 2rem;
+}
+
+.feedback-form fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.feedback-rating {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.feedback-rating-option {
+    align-items: center;
+    color: #8a9b8e;
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 2rem;
+    line-height: 1;
+    padding: 0.25rem;
+}
+
+.feedback-rating-option:hover {
+    color: #d98a00;
+}
+
+.feedback-rating:has(input[value="1"]:checked) .feedback-rating-option:nth-child(1) .feedback-star,
+.feedback-rating:has(input[value="2"]:checked) .feedback-rating-option:nth-child(-n + 2) .feedback-star,
+.feedback-rating:has(input[value="3"]:checked) .feedback-rating-option:nth-child(-n + 3) .feedback-star,
+.feedback-rating:has(input[value="4"]:checked) .feedback-rating-option:nth-child(-n + 4) .feedback-star,
+.feedback-rating:has(input[value="5"]:checked) .feedback-rating-option:nth-child(-n + 5) .feedback-star {
+    color: #d98a00;
+}
+
+.feedback-rating-option:has(input:focus-visible) {
+    outline: 3px solid var(--color-brand);
+    outline-offset: 0.125rem;
+}
+
+.thank-you-actions,
+.feedback-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+}
+
+.thank-you-actions {
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.thank-you-action,
+.feedback-actions .dictation-controls,
+.feedback-actions > button {
+    margin-top: 0;
+}
+
+.thank-you-action button {
+    margin-top: 0;
+}
+
+@media (width < 32rem) {
+
+    .thank-you-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .feedback-actions {
+        justify-content: flex-end;
+    }
+}
+
 .meal-suggestion-title-row {
     align-items: center;
     display: flex;

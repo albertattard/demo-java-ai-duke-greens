@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Feedback received | Duke Greens</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <section aria-labelledby="feedback-confirmation-heading" class="welcome-panel">
+        <p class="eyebrow">Feedback received</p>
+        <h1 id="feedback-confirmation-heading">Thank you for your feedback</h1>
+        <p>Your feedback has been saved.</p>
+        <form class="thank-you-action" method="get" th:action="@{/demo}">
+            <button type="submit">Return to welcome page</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

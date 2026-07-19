@@ -13,6 +13,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.MockMvcBuilderCustomiz
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -54,6 +55,9 @@ class MealRequestSessionMvcTest {
 
     @MockitoBean
     private MealSuggestionService mealSuggestionService;
+
+    @MockitoBean
+    private FeedbackRepository feedbackRepository;
 
     @Test
     void rendersProductImagesAndDecorativePlaceholdersOnTheWelcomePage() throws Exception {
@@ -690,6 +694,80 @@ class MealRequestSessionMvcTest {
 
         verify(mealSuggestionService).clearConversation(conversationId);
         verifyNoMoreInteractions(mealSuggestionService);
+    }
+
+    @Test
+    void savesOptionalPostOrderFeedbackOnlyAfterExplicitSubmission() throws Exception {
+        final MockHttpSession session = new MockHttpSession();
+        session.setAttribute("simulatedOrderCompletion", true);
+
+        mvc.perform(MockMvcRequestBuilders.get("/demo/thank-you").session(session))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("How would you rate this demo?")));
+        mvc.perform(MockMvcRequestBuilders.post("/demo/feedback").with(csrf()).session(session)
+                        .param("rating", "5")
+                        .param("comment", "The meal ideas were useful."))
+                .andExpect(redirectedUrl("/demo/feedback-confirmation"));
+        mvc.perform(MockMvcRequestBuilders.get("/demo/feedback-confirmation").session(session))
+                .andExpect(view().name("feedback-confirmation"))
+                .andExpect(header().string("Cache-Control", "no-store"));
+        mvc.perform(MockMvcRequestBuilders.get("/demo/feedback-confirmation").session(session))
+                .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"));
+
+        verify(feedbackRepository).save(new FeedbackSubmission(5, "The meal ideas were useful."));
+    }
+
+    @Test
+    void keepsTheFeedbackFormAvailableWhenItsRatingIsMissing() throws Exception {
+        final MockHttpSession session = new MockHttpSession();
+        session.setAttribute("simulatedOrderCompletion", true);
+
+        mvc.perform(MockMvcRequestBuilders.get("/demo/thank-you").session(session));
+        mvc.perform(MockMvcRequestBuilders.post("/demo/feedback").with(csrf()).session(session)
+                        .param("comment", "The meal ideas were useful."))
+                .andExpect(status().isOk())
+                .andExpect(view().name("thank-you"))
+                .andExpect(content().string(containsString("Choose a rating from one to five stars.")))
+                .andExpect(content().string(containsString("The meal ideas were useful.")));
+
+        verifyNoInteractions(feedbackRepository);
+    }
+
+    @Test
+    void savesFeedbackOnlyOnceForOneCompletedOrder() throws Exception {
+        final MockHttpSession session = new MockHttpSession();
+        session.setAttribute("simulatedOrderCompletion", true);
+
+        mvc.perform(MockMvcRequestBuilders.get("/demo/thank-you").session(session));
+        mvc.perform(MockMvcRequestBuilders.post("/demo/feedback").with(csrf()).session(session).param("rating", "5"))
+                .andExpect(redirectedUrl("/demo/feedback-confirmation"));
+        mvc.perform(MockMvcRequestBuilders.post("/demo/feedback").with(csrf()).session(session).param("rating", "5"))
+                .andExpect(redirectedUrl("/demo?notice=no-active-meal-request"));
+
+        verify(feedbackRepository).save(new FeedbackSubmission(5, null));
+    }
+
+    @Test
+    void restoresFeedbackSubmissionWhenSavingFails() throws Exception {
+        final MockHttpSession session = new MockHttpSession();
+        session.setAttribute("simulatedOrderCompletion", true);
+        doThrow(new DataAccessResourceFailureException("database unavailable"))
+                .doNothing()
+                .when(feedbackRepository).save(new FeedbackSubmission(5, "Clear and useful."));
+
+        mvc.perform(MockMvcRequestBuilders.get("/demo/thank-you").session(session));
+        mvc.perform(MockMvcRequestBuilders.post("/demo/feedback").with(csrf()).session(session)
+                        .param("rating", "5")
+                        .param("comment", "Clear and useful."))
+                .andExpect(status().isOk())
+                .andExpect(view().name("thank-you"))
+                .andExpect(content().string(containsString("We couldn’t save your feedback. Please try again.")));
+        mvc.perform(MockMvcRequestBuilders.post("/demo/feedback").with(csrf()).session(session)
+                        .param("rating", "5")
+                        .param("comment", "Clear and useful."))
+                .andExpect(redirectedUrl("/demo/feedback-confirmation"));
+
+        verify(feedbackRepository, times(2)).save(new FeedbackSubmission(5, "Clear and useful."));
     }
 
     @Test

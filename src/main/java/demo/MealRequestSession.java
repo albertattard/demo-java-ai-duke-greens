@@ -13,6 +13,8 @@ class MealRequestSession {
     private static final String MEAL_REQUEST_STATE = "mealRequestState";
     private static final String MEAL_CONVERSATION_ID = "mealConversationId";
     private static final String SIMULATED_ORDER_COMPLETION = "simulatedOrderCompletion";
+    private static final String FEEDBACK_SUBMISSION = "feedbackSubmission";
+    private static final String FEEDBACK_CONFIRMATION = "feedbackConfirmation";
     private static final String NO_ACTIVE_MEAL_REQUEST = "There is no active meal request to display.";
     private static final String NO_ACTIVE_MEAL_REQUEST_NOTICE = "no-active-meal-request";
     private static final String BASKET_UNAVAILABLE_NOTICE = "basket-unavailable";
@@ -73,6 +75,50 @@ class MealRequestSession {
         }
 
         session.removeAttribute(SIMULATED_ORDER_COMPLETION);
+        session.setAttribute(FEEDBACK_SUBMISSION, true);
+        return true;
+    }
+
+    boolean claimFeedbackSubmission(final HttpServletRequest request) {
+        final HttpSession session = request.getSession(false);
+        if (session == null) {
+            return false;
+        }
+
+        synchronized (session) {
+            if (!Boolean.TRUE.equals(session.getAttribute(FEEDBACK_SUBMISSION))) {
+                return false;
+            }
+
+            session.removeAttribute(FEEDBACK_SUBMISSION);
+            return true;
+        }
+    }
+
+    void restoreFeedbackSubmission(final HttpServletRequest request) {
+        final HttpSession session = request.getSession(false);
+        if (session != null) {
+            synchronized (session) {
+                session.setAttribute(FEEDBACK_SUBMISSION, true);
+            }
+        }
+    }
+
+    void completeFeedbackSubmission(final HttpServletRequest request) {
+        final HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.removeAttribute(FEEDBACK_SUBMISSION);
+            session.setAttribute(FEEDBACK_CONFIRMATION, true);
+        }
+    }
+
+    boolean consumeFeedbackConfirmation(final HttpServletRequest request) {
+        final HttpSession session = request.getSession(false);
+        if (session == null || !Boolean.TRUE.equals(session.getAttribute(FEEDBACK_CONFIRMATION))) {
+            return false;
+        }
+
+        session.removeAttribute(FEEDBACK_CONFIRMATION);
         return true;
     }
 

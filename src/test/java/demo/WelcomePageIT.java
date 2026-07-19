@@ -360,6 +360,29 @@ class WelcomePageIT {
                 .shouldShowInitialRequestState());
     }
 
+    @Test
+    void savesExplicitlySubmittedDictatedPostOrderFeedback() throws Exception {
+        final String request = "Suggest a pasta dinner";
+        when(mealSuggestionGenerator.suggest(request(request))).thenReturn(ModelMealRequestResponse.withSuggestions(new ModelMealSuggestions(List.of(
+                new ModelMealSuggestion("Pasta", 20, "A complete dinner.", 1,
+                        List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g")))))));
+
+        browser.openDukeGreens(this::installSpeechRecognition, dukeGreens -> dukeGreens.openWelcomePage()
+                .submitMealRequest(request)
+                .addMealToBasket(0)
+                .proceedToCheckout()
+                .completeSimulatedOrder()
+                .shouldPlaceThankYouActionsOnOneRow()
+                .startFeedbackDictation()
+                .receiveFeedbackDictation("The meal suggestions were practical.")
+                .stopFeedbackDictation()
+                .shouldKeepDictatedFeedbackEditable("The meal suggestions were practical.")
+                .submitFeedback(5)
+                .shouldConfirmFeedbackWasSaved());
+
+        verify(mealSuggestionGenerator).suggest(request(request));
+    }
+
     private static MealSuggestionGenerator.Request request(final String message) {
         return argThat(request -> request != null && request.request().equals(message));
     }

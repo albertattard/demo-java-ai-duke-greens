@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <title>Thank you | Duke Greens</title>
+    <script defer th:src="@{/js/dictation.js}"></script>
 </head>
 <body>
 <main layout:fragment="content">
@@ -11,9 +12,35 @@
         <p class="eyebrow">Simulated order complete</p>
         <h1 id="thank-you-heading">Thank you</h1>
         <p>Your simulated order is complete. No payment has been taken.</p>
-        <form class="thank-you-action" method="get" th:action="@{/demo}">
-            <button type="submit">Return to welcome page</button>
+        <form class="feedback-form" id="feedback-form" method="post" th:action="@{/demo/feedback}">
+            <fieldset>
+                <legend>How would you rate this demo?</legend>
+                <p>Optional feedback helps us improve Duke Greens.</p>
+                <div class="feedback-rating">
+                    <label class="feedback-rating-option" th:each="star : ${#numbers.sequence(1, 5)}" th:for="${'feedback-rating-' + star}">
+                        <input class="visually-hidden" name="rating" required th:checked="${rating == star.toString()}" th:id="${'feedback-rating-' + star}" th:value="${star}" type="radio">
+                        <span aria-hidden="true" class="feedback-star">★</span>
+                        <span class="visually-hidden" th:text="${star + ' star' + (star == 1 ? '' : 's')}">1 star</span>
+                    </label>
+                </div>
+            </fieldset>
+            <label for="feedback-comment">Comment <span>(optional)</span></label>
+            <textarea id="feedback-comment" maxlength="2000" name="comment" placeholder="Tell us what worked well or what could be better." rows="5" th:text="${comment}"></textarea>
+            <p aria-live="polite" class="dictation-status" data-dictation-status hidden id="feedback-dictation-status">Dictation is ready.</p>
+            <p aria-live="polite" class="validation-message" th:if="${validationMessage}" th:text="${validationMessage}"></p>
         </form>
+        <div class="thank-you-actions">
+            <form class="thank-you-action" method="get" th:action="@{/demo}">
+                <button class="secondary-action" type="submit">Return to welcome page</button>
+            </form>
+            <div class="feedback-actions">
+                <div class="dictation-controls" data-dictation data-dictation-status-id="feedback-dictation-status" data-dictation-target="feedback-comment">
+                    <button aria-controls="feedback-comment" aria-pressed="false" data-dictation-start type="button">Start dictation</button>
+                    <button data-dictation-cancel hidden type="button">Cancel dictation</button>
+                </div>
+                <button form="feedback-form" type="submit">Send feedback</button>
+            </div>
+        </div>
     </section>
 </main>
 </body>

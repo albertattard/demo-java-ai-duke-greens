@@ -113,7 +113,7 @@ INSERT INTO product (slug, name, package_quantity, package_unit, price, image_fi
   ('lasagne-sheets-500g',       'Lasagne sheets',       500,  'g', 2.29, 'lasagne-sheets-500g.png'),
   ('leeks-500g',                'Leeks',                500,  'g', 1.79, 'leeks-500g.png'),
   ('lemons-300g',               'Lemons',               300,  'g', 1.49, 'lemons-300g.png'),
-  ('lettuce-200g',              'Lettuce',              200,  'g', 1.29, null),
+  ('lettuce-200g',              'Lettuce',              200,  'g', 1.29, 'lettuce-200g.png'),
   ('limes-250g',                'Limes',                250,  'g', 1.49, null),
   ('mackerel-fillets-250g',     'Mackerel fillets',     250,  'g', 3.99, 'mackerel-fillets-250g.png'),
   ('mango-400g',                'Mango',                400,  'g', 2.49, null),

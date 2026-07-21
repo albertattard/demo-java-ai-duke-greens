@@ -61,6 +61,12 @@ Replace `~/.ssh/oracle_id_ed25519` with the path to the private key that matches
 ssh -i ~/.ssh/oracle_id_ed25519 "opc@$(terraform -chdir=infrastructure/terraform output -raw application_public_ip)"
 ```
 
+Retrieve the Duke Greens application’s most recent 1,000 log entries without first opening an interactive SSH session with:
+
+```shell
+ssh -i ~/.ssh/oracle_id_ed25519 "opc@$(terraform -chdir=infrastructure/terraform output -raw application_public_ip)" 'sudo journalctl --unit=duke-greens.service --lines=1000'
+```
+
 Follow the Duke Greens application’s live logs without first opening an interactive SSH session with:
 
 ```shell

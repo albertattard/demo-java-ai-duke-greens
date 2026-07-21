@@ -256,7 +256,7 @@ public final class RecommendationsPage extends PageObject {
     }
 
     RecommendationsPage shouldNotProvideMealRequestInput() {
-        assertThat(elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want")).isHidden();
+        assertThat(elementByRoleAndExactName(AriaRole.TEXTBOX, "Tell us what you would like to cook, and we will help plan your meals and groceries.")).isHidden();
         assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Get meal ideas")).isHidden();
         return this;
     }

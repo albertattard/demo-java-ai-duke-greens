@@ -11,13 +11,12 @@
     <section aria-labelledby="welcome-heading" class="welcome-panel">
         <p class="eyebrow">Next generation green supermarket</p>
         <h1 id="welcome-heading">Duke Greens</h1>
-        <p>Tell us what you would like to cook, and we will help plan your meals and groceries.</p>
         <section aria-live="polite" class="information-message" role="status" th:if="${informationMessage}">
             <h2>Meal request unavailable</h2>
             <p th:text="${informationMessage}"></p>
         </section>
         <form id="meal-request-form" method="post" th:action="@{/demo/meal-request}">
-            <label for="meal-request">Describe the meals you want</label>
+            <label for="meal-request">Tell us what you would like to cook, and we will help plan your meals and groceries.</label>
             <textarea id="meal-request" maxlength="300" name="mealRequest" placeholder="For example: three quick vegetarian dinners for one person." rows="5" th:text="${mealRequest}"></textarea>
             <p aria-live="polite" class="dictation-status" data-dictation-status hidden id="meal-request-dictation-status">Dictation is ready.</p>
             <p aria-live="polite" class="validation-message" th:if="${validationMessage}" th:text="${validationMessage}"></p>

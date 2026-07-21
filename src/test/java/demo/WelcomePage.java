@@ -33,7 +33,7 @@ public final class WelcomePage extends PageObject {
     }
 
     public WelcomePage shouldProvideMealRequestInput() {
-        final Locator mealRequestInput = elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want");
+        final Locator mealRequestInput = elementByRoleAndExactName(AriaRole.TEXTBOX, "Tell us what you would like to cook, and we will help plan your meals and groceries.");
         assertThat(mealRequestInput).isVisible();
         assertThat(mealRequestInput).hasAttribute("maxlength", "300");
         return this;
@@ -76,10 +76,10 @@ public final class WelcomePage extends PageObject {
     }
 
     public WelcomePage shouldShowCompletedDictation(final String transcript) {
-        assertThat(elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want")).hasValue(transcript);
+        assertThat(elementByRoleAndExactName(AriaRole.TEXTBOX, "Tell us what you would like to cook, and we will help plan your meals and groceries.")).hasValue(transcript);
         final Locator status = page.locator("[data-dictation-status]");
         assertThat(status).hasText("Dictation complete. Review or amend the text before submitting.");
-        final Number inputBottom = (Number) elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want")
+        final Number inputBottom = (Number) elementByRoleAndExactName(AriaRole.TEXTBOX, "Tell us what you would like to cook, and we will help plan your meals and groceries.")
                 .evaluate("element => element.getBoundingClientRect().bottom");
         final Number statusTop = (Number) status.evaluate("element => element.getBoundingClientRect().top");
         org.assertj.core.api.Assertions.assertThat(statusTop.doubleValue()).isGreaterThan(inputBottom.doubleValue());
@@ -88,14 +88,14 @@ public final class WelcomePage extends PageObject {
     }
 
     public WelcomePage shouldKeepTextWhenDictationIsCancelled(final String text) {
-        assertThat(elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want")).hasValue(text);
+        assertThat(elementByRoleAndExactName(AriaRole.TEXTBOX, "Tell us what you would like to cook, and we will help plan your meals and groceries.")).hasValue(text);
         assertThat(page.locator("[data-dictation-status]")).hasText("Dictation cancelled. Your typed request is unchanged.");
         org.assertj.core.api.Assertions.assertThat(page.evaluate("() => String(window.mealRequestSubmissionCount)")).isEqualTo("0");
         return this;
     }
 
     public WelcomePage shouldKeepTextWhenDictationFails(final String text) {
-        final Locator input = elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want");
+        final Locator input = elementByRoleAndExactName(AriaRole.TEXTBOX, "Tell us what you would like to cook, and we will help plan your meals and groceries.");
         final Locator status = page.locator("[data-dictation-status]");
         assertThat(input).hasValue(text);
         assertThat(status).hasText("Microphone access was not allowed. Check your browser permission and try again.");
@@ -139,7 +139,7 @@ public final class WelcomePage extends PageObject {
     }
 
     WelcomePage shouldShowInitialRequestState() {
-        final Locator mealRequestInput = elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want");
+        final Locator mealRequestInput = elementByRoleAndExactName(AriaRole.TEXTBOX, "Tell us what you would like to cook, and we will help plan your meals and groceries.");
         assertThat(mealRequestInput).isVisible();
         assertThat(mealRequestInput).hasValue("");
         assertThat(elementByRoleAndExactName(AriaRole.BUTTON, "Get meal ideas")).isVisible();
@@ -185,7 +185,7 @@ public final class WelcomePage extends PageObject {
     }
 
     private void fillMealRequest(final String request) {
-        elementByRoleAndExactName(AriaRole.TEXTBOX, "Describe the meals you want").fill(request);
+        elementByRoleAndExactName(AriaRole.TEXTBOX, "Tell us what you would like to cook, and we will help plan your meals and groceries.").fill(request);
     }
 
     private void open(final String path) {

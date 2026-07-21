@@ -14,7 +14,7 @@ import static demo.Strings.isLengthBetween;
 class MealSuggestionService {
 
     private static final int MINIMUM_MEAL_REQUEST_LENGTH = 1;
-    private static final int MAXIMUM_MEAL_REQUEST_LENGTH = 300;
+    private static final int MAXIMUM_MEAL_REQUEST_LENGTH = 1_000;
     private static final Logger LOGGER = LoggerFactory.getLogger(MealSuggestionService.class);
 
     private final MealSuggestionGenerator generator;

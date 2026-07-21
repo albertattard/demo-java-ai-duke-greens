@@ -55,6 +55,32 @@ class OpenAiMealSuggestionIT {
     }
 
     @Test
+    void handlesAnAcknowledgementOfAMealPlanClarification() {
+        final String conversationId = createConversationId();
+        final ModelMealRequestResponse clarification = generator.suggest(request(conversationId, """
+                I am trying to watch my calories. I would like some tasty high protein, lower calorie meal plans. \
+                I can't have any seafood ingredients. I do like greek yogurt for breakfast, steak for dinner, broccoli, \
+                taco salads, chicken skewers for lunch, cherries and grapes. I also like variety so I don't like to \
+                have the same meals too often"""));
+
+        assertThat(clarification.assistantMessage())
+                .describedAs("The reported meal-plan request receives a visitor-facing response")
+                .isNotBlank();
+
+        final ModelMealRequestResponse acknowledgement = generator.suggest(request(conversationId, "Yes please"));
+
+        assertThat(acknowledgement.assistantMessage())
+                .describedAs("An acknowledgement of the clarification receives a visitor-facing reply")
+                .isNotBlank();
+        assertThatCode(() -> mapper.map(new ModelMealSuggestions(acknowledgement.suggestions()), productCatalogue.allProducts()))
+                .describedAs("The acknowledgement response remains valid against the application catalogue contract")
+                .doesNotThrowAnyException();
+        assertThatCode(() -> mapper.map(new ModelMealSuggestions(clarification.suggestions()), productCatalogue.allProducts()))
+                .describedAs("The initial response remains valid against the application catalogue contract")
+                .doesNotThrowAnyException();
+    }
+
+    @Test
     void refineTheRecommendation() {
         final String conversationId = createConversationId();
         final ModelMealRequestResponse response1 = generator.suggest(request(conversationId, "Recommend one vegetarian meal I can cook in 30 minutes for four people."));
@@ -73,15 +99,19 @@ class OpenAiMealSuggestionIT {
         // chicken was recommended, then ask the model to recommend chicken if
         // it was not recommended, or pork if chicken was in the first
         // recommendation.
+        final Set<String> chickenProductSlugs = productCatalogue.allProducts().stream()
+                .filter(product -> product.name().toLowerCase(Locale.ROOT).contains("chicken"))
+                .map(Product::slug)
+                .collect(Collectors.toUnmodifiableSet());
         final boolean wasChickenRecommended = suggestion1.ingredients().stream()
                 .map(ModelIngredient::productSlug)
-                .anyMatch("chicken-breast-500g"::equals);
+                .anyMatch(chickenProductSlugs::contains);
         final String requestFor = wasChickenRecommended
                 ? "Pork"
                 : "Chicken";
-        final String expectedProductSlug = wasChickenRecommended
-                ? "pork-mince-500g"
-                : "chicken-breast-500g";
+        final Set<String> expectedProductSlugs = wasChickenRecommended
+                ? Set.of("pork-mince-500g")
+                : chickenProductSlugs;
 
         final ModelMealRequestResponse response2 = generator.suggest(request(conversationId, "They like " + requestFor));
 
@@ -97,7 +127,7 @@ class OpenAiMealSuggestionIT {
         assertThat(suggestion2.ingredients())
                 .describedAs("The follow-up recommendation reflects the visitor’s stated meat preference")
                 .extracting(ModelIngredient::productSlug)
-                .contains(expectedProductSlug);
+                .anyMatch(expectedProductSlugs::contains);
     }
 
     private MealSuggestionGenerator.Request request(final String message) {

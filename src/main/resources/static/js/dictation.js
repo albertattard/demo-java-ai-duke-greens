@@ -1,4 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll("[data-character-count]").forEach((counter) => {
+        const input = document.getElementById(counter.dataset.characterCountTarget);
+
+        if (input === null || input.maxLength < 0) {
+            return;
+        }
+
+        const update = () => {
+            counter.textContent = `${input.value.length.toLocaleString("en")} of ${input.maxLength.toLocaleString("en")} characters`;
+        };
+
+        input.addEventListener("input", update);
+        update();
+    });
+
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     document.querySelectorAll("[data-dictation]").forEach((controls) => {
@@ -63,12 +78,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (transcript !== "") {
                     input.value = transcript;
+                    input.dispatchEvent(new Event("input", { bubbles: true }));
                     receivedTranscript = true;
                 }
             };
 
             recognition.onerror = (event) => {
                 input.value = originalText;
+                input.dispatchEvent(new Event("input", { bubbles: true }));
                 const message = event.error === "not-allowed" || event.error === "service-not-allowed"
                     ? "Microphone access was not allowed. Check your browser permission and try again."
                     : "Dictation didn’t work. You can still type your request.";
@@ -84,6 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 recognition = undefined;
                 if (cancelled) {
                     input.value = originalText;
+                    input.dispatchEvent(new Event("input", { bubbles: true }));
                     setIdle("Dictation cancelled. Your typed request is unchanged.");
                 } else if (receivedTranscript) {
                     setIdle("Dictation complete. Review or amend the text before submitting.");

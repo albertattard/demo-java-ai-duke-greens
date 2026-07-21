@@ -68,6 +68,18 @@ class WelcomePageIT {
     }
 
     @Test
+    void countsTypedMealRequestCharactersUpToTheMaximum() throws Exception {
+        browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
+                .shouldShowMealRequestCharacterCount(0)
+                .enterMealRequest("Three quick vegetarian dinners")
+                .shouldShowMealRequestCharacterCount(30)
+                .enterMealRequest("x".repeat(1_000))
+                .shouldShowMealRequestCharacterCount(1_000));
+
+        verifyNoInteractions(mealSuggestionGenerator);
+    }
+
+    @Test
     void letsVisitorsDictateAndReviewAMealRequestWithoutSubmittingIt() throws Exception {
         browser.openDukeGreens(this::installSpeechRecognition, dukeGreens -> dukeGreens.openWelcomePage()
                 .startDictation()

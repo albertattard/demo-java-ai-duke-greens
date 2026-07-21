@@ -1,6 +1,7 @@
 package demo;
 
 import java.net.URI;
+import java.util.Locale;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
@@ -35,7 +36,9 @@ public final class WelcomePage extends PageObject {
     public WelcomePage shouldProvideMealRequestInput() {
         final Locator mealRequestInput = elementByRoleAndExactName(AriaRole.TEXTBOX, "Tell us what you would like to cook, and we will help plan your meals and groceries.");
         assertThat(mealRequestInput).isVisible();
-        assertThat(mealRequestInput).hasAttribute("maxlength", "300");
+        assertThat(mealRequestInput).hasAttribute("maxlength", "1000");
+        assertThat(mealRequestInput).hasAttribute("aria-describedby", "meal-request-character-count");
+        shouldShowMealRequestCharacterCount(0);
         return this;
     }
 
@@ -63,6 +66,22 @@ public final class WelcomePage extends PageObject {
         return this;
     }
 
+    public WelcomePage enterMealRequest(final String request) {
+        fillMealRequest(request);
+        return this;
+    }
+
+    public WelcomePage shouldShowMealRequestCharacterCount(final int count) {
+        final Locator counter = page.locator("[data-character-count]");
+        assertThat(counter).hasText(String.format(Locale.US, "%,d of 1,000 characters", count));
+        org.assertj.core.api.Assertions.assertThat(counter.evaluate("element => getComputedStyle(element).textAlign")).isEqualTo("right");
+        final Number counterFontSize = (Number) counter.evaluate("element => Number.parseFloat(getComputedStyle(element).fontSize)");
+        final Number textareaFontSize = (Number) elementByRoleAndExactName(AriaRole.TEXTBOX, "Tell us what you would like to cook, and we will help plan your meals and groceries.")
+                .evaluate("element => Number.parseFloat(getComputedStyle(element).fontSize)");
+        org.assertj.core.api.Assertions.assertThat(counterFontSize.doubleValue()).isLessThan(textareaFontSize.doubleValue());
+        return this;
+    }
+
     public WelcomePage failDictation(final String error) {
         page.evaluate("error => window.testSpeechRecognition.onerror({ error })", error);
         return this;
@@ -77,6 +96,7 @@ public final class WelcomePage extends PageObject {
 
     public WelcomePage shouldShowCompletedDictation(final String transcript) {
         assertThat(elementByRoleAndExactName(AriaRole.TEXTBOX, "Tell us what you would like to cook, and we will help plan your meals and groceries.")).hasValue(transcript);
+        shouldShowMealRequestCharacterCount(transcript.length());
         final Locator status = page.locator("[data-dictation-status]");
         assertThat(status).hasText("Dictation complete. Review or amend the text before submitting.");
         final Number inputBottom = (Number) elementByRoleAndExactName(AriaRole.TEXTBOX, "Tell us what you would like to cook, and we will help plan your meals and groceries.")

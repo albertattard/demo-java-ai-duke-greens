@@ -2,6 +2,34 @@
 
 This document captures deferred work that is worth retaining but is not yet ready for implementation.
 
+## Prior OpenAI clarification regression context
+
+The preceding brief is retained here at the user’s request. Its integration-test changes are included as supporting coverage in the active character-counter slice.
+
+### Outcome
+
+The live OpenAI integration suite reproduces the reported meal-planning clarification sequence so that an acknowledgement such as “Yes please” is a visible, diagnosable contract case.
+
+### Constraints
+
+- Change only focused integration-test coverage and the current-change brief; do not change the visitor flow, prompts, catalogue, or model configuration in this slice.
+- Use the reported preferences and a stable two-turn conversation ID.
+- Both model turns must return a non-blank assistant message and catalogue-mappable suggestions, whether the model returns recommendations or asks a clarification.
+- Keep the test opt-in under the existing `openai-integration` tag; normal verification must not call OpenAI.
+
+### Acceptance checks
+
+- `OpenAiMealSuggestionIT` covers the detailed initial meal-plan request followed by “Yes please”.
+- The test proves that the provider produces a complete structured response for both turns and that each response is valid against the catalogue contract.
+- The existing refinement assertion accepts any catalogue-valid chicken ingredient rather than one arbitrarily chosen chicken SKU.
+
+### Observed verification
+
+- Baseline opt-in integration verification found that the existing refinement test was too specific: the model returned the catalogue-valid `chicken-thighs-600g` rather than the test’s expected chicken-breast SKU.
+- The first version of the new test completed the visitor’s truncated sentence and incorrectly required a clarification. The live model then returned six catalogue-valid meal ideas; the test now uses the exact submitted message and validates both possible response shapes.
+- Running the corrected test reproduced a contract failure on the initial response: the model returned a duplicate product slug in one suggestion, which the application correctly rejects. The test sends the acknowledgement before asserting either mapping result so it always exercises the reported two-turn conversation.
+- The focused two-turn test subsequently passed. The complete opt-in integration class remains unstable: the existing refinement test observed a follow-up that changed the requested serving count from four to two.
+
 ## Feedback from initial demo review
 
 The following work was identified during the initial feedback review. Treat it as a backlog, not as a commitment to build a broader meal-planning product.

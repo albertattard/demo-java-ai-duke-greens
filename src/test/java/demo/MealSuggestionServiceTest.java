@@ -84,16 +84,16 @@ class MealSuggestionServiceTest {
 
     @Test
     void rejectsAnOverlongRequestWithoutLoadingTheCatalogueOrCallingTheModel() {
-        final MealRequestResult result = service.submit(new MealSuggestionService.Request(CONVERSATION_ID, "x".repeat(301)));
+        final MealRequestResult result = service.submit(new MealSuggestionService.Request(CONVERSATION_ID, "x".repeat(1_001)));
 
         assertThat(result)
-                .isEqualTo(new InvalidRequest("Describe your meal request in 300 characters or fewer."));
+                .isEqualTo(new InvalidRequest("Describe your meal request in 1000 characters or fewer."));
         verifyNoInteractions(generator, productCatalogue);
     }
 
     @Test
     void acceptsARequestAtTheMaximumLength() {
-        final String request = "x".repeat(300);
+        final String request = "x".repeat(1_000);
         final List<Product> catalogue = catalogue();
         final ModelMealSuggestions modelSuggestions = modelSuggestions("wholewheat-spaghetti-500g", "500", "g");
         when(productCatalogue.allProducts()).thenReturn(catalogue);

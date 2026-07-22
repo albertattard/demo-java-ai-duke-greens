@@ -44,6 +44,10 @@ The following work was identified during the initial feedback review. Treat it a
 - Decide whether visitors should see any submitted feedback. Do not expose individual comments without an explicit retention, consent, moderation, and privacy policy; the current in-memory feedback store is unsuitable for persistent social proof. Consider anonymised aggregates only after those decisions are made.
 - The requested “I already have olive oil” behaviour is already captured in [Pantry-aware meal coverage](#pantry-aware-meal-coverage); do not expose the action before quantity-aware coverage exists.
 
+## Explain Java’s role on the About page
+
+Add a concise architecture diagram to the About page that makes the demonstration’s “Java and AI” value proposition concrete: show the browser, Java application, AI provider, and application-controlled catalogue and basket data, including the validation boundary between model output and trusted business data. Accompany it with brief visitor-facing explanation of what this design lets an existing Java application do that a model-only integration does not. Keep it accurate to the deployed implementation; do not imply that Java is the only viable technology or add claims that are not demonstrated by the application.
+
 ## Deferred conversation slices
 
 The following agreed conversation work was moved from [the current brief](current.md) before starting voice work. It remains sequenced work, not a commitment to combine all of it into one change.

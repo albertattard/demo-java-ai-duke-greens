@@ -2,25 +2,26 @@
 
 ## Outcome
 
-A visitor can describe a detailed meal request of up to 1,000 characters and see a live character counter, so they can use the available space deliberately before asking for meal ideas.
+A visitor can write a follow-up of up to 1,000 characters and see the same live character counter as on the welcome page, so the conversational flow has a consistent, truthful limit and explains how to correct an overlong dictated request without losing it.
 
 ## Constraints
 
-- Enforce a 1,000-character limit consistently in the browser and server-side validation. The counter must report characters, not words, because characters are what the application limits.
-- The counter updates as the visitor types or dictation changes the textarea, starts at zero, and remains understandable to assistive technology without interrupting ordinary typing.
-- Keep the current request, dictation, and submission workflow intact. The visitor still explicitly submits before any meal ideas are requested.
-- Keep the existing OpenAI integration-test changes as focused coverage for the reported long meal-planning request. They remain opt-in and normal verification must not call OpenAI.
+- Change the follow-up textarea’s browser limit from 300 to 1,000 characters; its application service already validates the shared 1,000-character maximum.
+- Reuse the established accessible counter behaviour: it starts at zero, updates after typing and dictated text changes, and does not announce every keystroke. When text exceeds the maximum, it reports the current count and excess characters.
+- Preserve an overlong dictated value. When a visitor submits it, prevent submission without a browser-native dialog, retain the text, focus the textarea, and announce an associated application-owned correction message.
+- Keep the current conversation, dictation, and explicit follow-up submission workflow intact.
 
 ## Done when
 
-- The welcome-page meal-request textarea accepts up to 1,000 characters and rejects a longer submitted request with a clear validation message.
-- A visible live counter reports the current character count and maximum, including after dictated text is inserted.
-- Browser coverage proves the initial counter, typed update, dictated update, and 1,000-character boundary; server-side coverage proves the rejection boundary.
-- `OpenAiMealSuggestionIT` retains the detailed reported request and robust catalogue-valid assertions for both turns.
+- The follow-up textarea has a 1,000-character maximum and is associated with a visible “0 of 1,000 characters” counter.
+- Browser coverage proves the initial, typed, dictated, and 1,000-character-boundary counter states.
+- Browser coverage proves an overlong dictated follow-up remains available, is not submitted, and receives an accessible correction message.
+- MVC coverage proves a failed follow-up redisplays the 1,000-character field and its associated counter.
 
 ## Implementation and verification
 
-- Increased the welcome meal-request limit to 1,000 characters in the browser and the application service, including exact-boundary and over-limit validation coverage.
-- Added an accessible, visible character counter associated with the textarea. It updates after typing and after dictation inserts or restores text, without becoming a live-announcement region during ordinary typing. It is compact and right-aligned with the textarea.
-- Preserved the existing opt-in OpenAI clarification regression coverage as part of this slice.
+- Raised the follow-up textarea’s browser limit from 300 to 1,000 characters, matching the existing application-service validation.
+- Added the established accessible character counter to the follow-up field; the shared script updates it for typing and dictation changes, including an over-limit count and excess-character message.
+- Prevented overlong browser submissions with application-owned, associated alert feedback while retaining the entered text and focusing the field. The welcome and follow-up forms opt out of browser-native validation dialogs; server-side validation remains unchanged.
+- Added browser coverage for the initial, typed, exact-boundary, dictated, and overlong follow-up states, including a blocked submission, retained text, and corrective feedback; MVC coverage proves a failed follow-up redisplays the field and associated counter.
 - Verified with `./mvnw verify`.

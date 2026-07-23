@@ -510,7 +510,8 @@ class MealRequestSessionMvcTest {
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string(containsString("We couldn’t process that follow-up. Your current meal ideas are unchanged—edit your message and try again.")))
                 .andExpect(MockMvcResultMatchers.content().string(containsString("Lemon lentil pasta")))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("<textarea id=\"follow-up\" maxlength=\"300\" name=\"followUp\">" + failedFollowUp + "</textarea>")));
+                .andExpect(MockMvcResultMatchers.content().string(containsString("<textarea aria-describedby=\"follow-up-character-count follow-up-character-count-error\" id=\"follow-up\" maxlength=\"1000\" name=\"followUp\">" + failedFollowUp + "</textarea>")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("<p class=\"character-count\" data-character-count data-character-count-error-target=\"follow-up-character-count-error\" data-character-count-target=\"follow-up\" id=\"follow-up-character-count\">0 of 1,000 characters</p>")));
 
         mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/follow-up")
                         .with(csrf())

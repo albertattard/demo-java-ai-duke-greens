@@ -37,7 +37,7 @@ public final class WelcomePage extends PageObject {
         final Locator mealRequestInput = elementByRoleAndExactName(AriaRole.TEXTBOX, "Tell us what you would like to cook, and we will help plan your meals and groceries.");
         assertThat(mealRequestInput).isVisible();
         assertThat(mealRequestInput).hasAttribute("maxlength", "1000");
-        assertThat(mealRequestInput).hasAttribute("aria-describedby", "meal-request-character-count");
+        assertThat(mealRequestInput).hasAttribute("aria-describedby", "meal-request-character-count meal-request-character-count-error");
         shouldShowMealRequestCharacterCount(0);
         return this;
     }

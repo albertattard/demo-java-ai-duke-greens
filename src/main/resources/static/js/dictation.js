@@ -1,16 +1,38 @@
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll("[data-character-count]").forEach((counter) => {
         const input = document.getElementById(counter.dataset.characterCountTarget);
+        const error = document.getElementById(counter.dataset.characterCountErrorTarget);
+        const form = input?.form;
 
-        if (input === null || input.maxLength < 0) {
+        if (input === null || input.maxLength < 0 || error === null || form === null) {
             return;
         }
 
         const update = () => {
-            counter.textContent = `${input.value.length.toLocaleString("en")} of ${input.maxLength.toLocaleString("en")} characters`;
+            const excess = input.value.length - input.maxLength;
+            counter.textContent = `${input.value.length.toLocaleString("en")} of ${input.maxLength.toLocaleString("en")} characters${excess > 0 ? ` — ${excess.toLocaleString("en")} character${excess === 1 ? "" : "s"} too long` : ""}`;
+            if (excess > 0) {
+                input.setAttribute("aria-invalid", "true");
+            } else {
+                input.removeAttribute("aria-invalid");
+                error.hidden = true;
+                error.textContent = "";
+            }
         };
 
         input.addEventListener("input", update);
+        form.addEventListener("submit", (event) => {
+            const excess = input.value.length - input.maxLength;
+            if (excess <= 0) {
+                return;
+            }
+
+            event.preventDefault();
+            input.setAttribute("aria-invalid", "true");
+            error.textContent = `Your message is ${excess.toLocaleString("en")} character${excess === 1 ? "" : "s"} too long. Shorten it before sending.`;
+            error.hidden = false;
+            input.focus();
+        });
         update();
     });
 

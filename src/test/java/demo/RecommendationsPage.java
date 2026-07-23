@@ -1,5 +1,7 @@
 package demo;
 
+import java.util.Locale;
+
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
@@ -43,6 +45,64 @@ public final class RecommendationsPage extends PageObject {
         final Number submitLeft = (Number) submit.evaluate("element => element.getBoundingClientRect().left");
         org.assertj.core.api.Assertions.assertThat(dictationTop.doubleValue()).isEqualTo(submitTop.doubleValue());
         org.assertj.core.api.Assertions.assertThat(dictationLeft.doubleValue()).isLessThan(submitLeft.doubleValue());
+        return this;
+    }
+
+    public RecommendationsPage shouldShowFollowUpCharacterCount(final int count) {
+        final Locator input = elementByRoleAndExactName(AriaRole.TEXTBOX, "Continue the conversation");
+        final Locator counter = page.locator("#follow-up-character-count");
+        assertThat(input).hasAttribute("maxlength", "1000");
+        assertThat(input).hasAttribute("aria-describedby", "follow-up-character-count follow-up-character-count-error");
+        assertThat(counter).hasText(String.format(Locale.US, "%,d of 1,000 characters", count));
+        return this;
+    }
+
+    public RecommendationsPage shouldShowFollowUpCharacterCountExceededBy(final int excess) {
+        final Locator input = elementByRoleAndExactName(AriaRole.TEXTBOX, "Continue the conversation");
+        final Locator counter = page.locator("#follow-up-character-count");
+        assertThat(input).hasAttribute("aria-invalid", "true");
+        assertThat(counter).hasText("1,001 of 1,000 characters — " + excess + " character" + (excess == 1 ? "" : "s") + " too long");
+        return this;
+    }
+
+    public RecommendationsPage submitFollowUp() {
+        elementByRoleAndExactName(AriaRole.BUTTON, "Send follow-up").click();
+        return this;
+    }
+
+    public RecommendationsPage shouldShowFollowUpLengthValidation(final int excess) {
+        final Locator input = elementByRoleAndExactName(AriaRole.TEXTBOX, "Continue the conversation");
+        assertThat(page.locator("#follow-up-character-count-error")).hasText("Your message is " + excess + " character" + (excess == 1 ? "" : "s") + " too long. Shorten it before sending.");
+        org.assertj.core.api.Assertions.assertThat(input.evaluate("element => document.activeElement === element")).isEqualTo(true);
+        return this;
+    }
+
+    public RecommendationsPage shouldShowFollowUpValue(final String value) {
+        assertThat(elementByRoleAndExactName(AriaRole.TEXTBOX, "Continue the conversation")).hasValue(value);
+        return this;
+    }
+
+    public RecommendationsPage enterFollowUp(final String message) {
+        elementByRoleAndExactName(AriaRole.TEXTBOX, "Continue the conversation").fill(message);
+        return this;
+    }
+
+    public RecommendationsPage startFollowUpDictation() {
+        elementByRoleAndExactName(AriaRole.BUTTON, "Start dictation").click();
+        return this;
+    }
+
+    public RecommendationsPage stopFollowUpDictation() {
+        elementByRoleAndExactName(AriaRole.BUTTON, "Stop dictation").click();
+        return this;
+    }
+
+    public RecommendationsPage receiveFollowUpDictation(final String transcript) {
+        page.evaluate("""
+                transcript => window.testSpeechRecognition.onresult({
+                    results: [Object.assign([{ transcript }], { isFinal: true })]
+                })
+                """, transcript);
         return this;
     }
 

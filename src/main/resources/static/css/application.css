@@ -518,7 +518,8 @@ button {
 }
 
 .validation-message,
-.meal-request-error {
+.meal-request-error,
+.character-count-error {
     color: var(--color-danger);
     font-weight: 700;
 }

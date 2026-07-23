@@ -117,7 +117,37 @@ class WelcomePageIT {
 
         browser.openDukeGreens(this::installSpeechRecognition, dukeGreens -> dukeGreens.openWelcomePage()
                 .submitMealRequest(request)
-                .shouldProvideFollowUpDictation());
+                .shouldProvideFollowUpDictation()
+                .shouldShowFollowUpCharacterCount(0)
+                .enterFollowUp("Make it vegetarian")
+                .shouldShowFollowUpCharacterCount(18)
+                .enterFollowUp("x".repeat(1_000))
+                .shouldShowFollowUpCharacterCount(1_000)
+                .startFollowUpDictation()
+                .receiveFollowUpDictation("Make it faster")
+                .stopFollowUpDictation()
+                .shouldShowFollowUpCharacterCount(14));
+
+        verify(mealSuggestionGenerator).suggest(request(request));
+    }
+
+    @Test
+    void retainsAndExplainsAnOverlongDictatedFollowUp() throws Exception {
+        final String request = "Suggest a pasta dinner";
+        final String overlongFollowUp = "x".repeat(1_001);
+        when(mealSuggestionGenerator.suggest(request(request))).thenReturn(ModelMealRequestResponse.withSuggestions(new ModelMealSuggestions(List.of(
+                new ModelMealSuggestion("Pasta", 20, "A complete dinner.", 1,
+                        List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g")))))));
+
+        browser.openDukeGreens(this::installSpeechRecognition, dukeGreens -> dukeGreens.openWelcomePage()
+                .submitMealRequest(request)
+                .startFollowUpDictation()
+                .receiveFollowUpDictation(overlongFollowUp)
+                .stopFollowUpDictation()
+                .shouldShowFollowUpCharacterCountExceededBy(1)
+                .submitFollowUp()
+                .shouldShowFollowUpValue(overlongFollowUp)
+                .shouldShowFollowUpLengthValidation(1));
 
         verify(mealSuggestionGenerator).suggest(request(request));
     }

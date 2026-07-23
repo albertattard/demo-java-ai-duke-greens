@@ -2,26 +2,26 @@
 
 ## Outcome
 
-A visitor can write a follow-up of up to 1,000 characters and see the same live character counter as on the welcome page, so the conversational flow has a consistent, truthful limit and explains how to correct an overlong dictated request without losing it.
+A visitor whose meal-idea response contains an invalid catalogue ingredient receives valid, shop-ready meal ideas after one automatic correction attempt, without having to understand or repeat an AI formatting failure.
 
 ## Constraints
 
-- Change the follow-up textarea’s browser limit from 300 to 1,000 characters; its application service already validates the shared 1,000-character maximum.
-- Reuse the established accessible counter behaviour: it starts at zero, updates after typing and dictated text changes, and does not announce every keystroke. When text exceeds the maximum, it reports the current count and excess characters.
-- Preserve an overlong dictated value. When a visitor submits it, prevent submission without a browser-native dialog, retain the text, focus the textarea, and announce an associated application-owned correction message.
-- Keep the current conversation, dictation, and explicit follow-up submission workflow intact.
+- Keep the application catalogue authoritative. Never infer, rename, or fuzzy-match a model-supplied product slug; never expose an ingredient that cannot be mapped exactly to the catalogue snapshot supplied for that request.
+- Keep response mapping all-or-nothing. Do not show a partial set of suggestions when any suggestion is invalid, because the requested count and basket calculations must remain trustworthy.
+- On a mapping failure only, make at most one internal corrective generation attempt. It must identify the violated response constraints and ask for a complete replacement response based on the original visitor request and the same catalogue snapshot.
+- Validate the replacement response using the existing mapper. Do not weaken mapper validation or introduce automatic product substitution.
+- If the correction attempt also fails, retain the existing safe failed-request recovery state and its explicit visitor actions. Do not loop, silently retry in the background, or expose provider/model diagnostics to the visitor.
+- Preserve the current explicit-submission workflow, conversation isolation, and normal behaviour for provider, catalogue, and request-validation failures.
+- Record concise server-side diagnostics sufficient to distinguish the first mapping failure from correction-attempt failure, without logging visitor-facing recovery details as if they were valid suggestions.
 
 ## Done when
 
-- The follow-up textarea has a 1,000-character maximum and is associated with a visible “0 of 1,000 characters” counter.
-- Browser coverage proves the initial, typed, dictated, and 1,000-character-boundary counter states.
-- Browser coverage proves an overlong dictated follow-up remains available, is not submitted, and receives an accessible correction message.
-- MVC coverage proves a failed follow-up redisplays the 1,000-character field and its associated counter.
+- When an initial generated response contains an unknown catalogue slug or another mapper-detected invalid ingredient, the application sends one corrective request and displays the complete corrected response when it maps successfully.
+- The corrective request states the relevant validation failure and preserves the original visitor request and catalogue snapshot.
+- The application makes no more than two generation attempts for one submitted request, and a second invalid response reaches the existing retry/reset recovery page with no suggestions displayed.
+- Automated service coverage proves successful correction for an invalid product slug and invalid quantity, plus safe recovery when correction fails; controller coverage proves the successful corrected result is stored and displayed normally.
+- Normal successful requests still make exactly one generation call.
 
 ## Implementation and verification
 
-- Raised the follow-up textarea’s browser limit from 300 to 1,000 characters, matching the existing application-service validation.
-- Added the established accessible character counter to the follow-up field; the shared script updates it for typing and dictation changes, including an over-limit count and excess-character message.
-- Prevented overlong browser submissions with application-owned, associated alert feedback while retaining the entered text and focusing the field. The welcome and follow-up forms opt out of browser-native validation dialogs; server-side validation remains unchanged.
-- Added browser coverage for the initial, typed, exact-boundary, dictated, and overlong follow-up states, including a blocked submission, retained text, and corrective feedback; MVC coverage proves a failed follow-up redisplays the field and associated counter.
-- Verified with `./mvnw verify`.
+Not started.

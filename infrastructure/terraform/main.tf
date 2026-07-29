@@ -126,6 +126,10 @@ resource "oci_core_instance" "application" {
     memory_in_gbs = 6
   }
 
+  instance_options {
+    are_legacy_imds_endpoints_disabled = true
+  }
+
   create_vnic_details {
     assign_public_ip = true
     display_name     = local.application_name

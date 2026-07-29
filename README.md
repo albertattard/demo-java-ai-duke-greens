@@ -29,17 +29,17 @@ Run the unit-test and package build (this requires neither an OpenAI API key nor
 
 ## Browser-test setup
 
-The end-to-end test suite uses Playwright-managed Chromium rather than a system-installed browser. After Maven has downloaded the project dependencies, install its required Chromium binary once for the current user:
+The end-to-end test suite uses Playwright-managed browsers rather than system-installed browsers. After Maven has downloaded the project dependencies, install the required browser binaries once for the current user:
 
 ```shell
 ./mvnw exec:java \
   --errors \
   -Dexec.classpathScope=test \
   -Dexec.mainClass=com.microsoft.playwright.CLI \
-  -Dexec.args="install chromium"
+  -Dexec.args="install"
 ```
 
-The binary is cached outside the repository. Re-run this command after updating the Playwright dependency. It downloads a few hundred megabytes and requires network access.
+The binaries are cached outside the repository. Re-run this command after updating the Playwright dependency. It downloads several hundred megabytes and requires network access. [`tools/deploy.sh`](tools/deploy.sh) runs this command before its verification step.
 
 For live meal ideas, create `~/.openai/openai-api.yml`:
 

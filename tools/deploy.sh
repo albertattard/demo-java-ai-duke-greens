@@ -5,6 +5,13 @@ set -euo pipefail
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 cd "$repository_root"
+
+./mvnw exec:java \
+  --errors \
+  -Dexec.classpathScope=test \
+  -Dexec.mainClass=com.microsoft.playwright.CLI \
+  -Dexec.args="install"
+
 ./mvnw clean verify
 
 cd infrastructure/terraform

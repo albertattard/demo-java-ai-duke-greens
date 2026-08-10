@@ -73,18 +73,61 @@ class MealSuggestionService {
             return new FailedRequest(request.request);
         }
 
-        // Validate the complete model response all-or-nothing. A mapping
-        // failure exposes no partial suggestions; diagnostics remain
-        // server-side and the visitor receives the safe recovery state.
+        return mapOrCorrect(request, catalogue, response);
+    }
+
+    // Validate the complete model response all-or-nothing. A mapping failure
+    // exposes no partial suggestions. Exactly one correction is allowed, and
+    // diagnostics remain server-side.
+    private MealRequestResult mapOrCorrect(
+            final Request request,
+            final List<Product> catalogue,
+            final ModelMealRequestResponse response) {
         try {
-            final List<MappedMealSuggestion> suggestions = response.hasSuggestions()
-                    ? mapper.map(new ModelMealSuggestions(response.suggestions()), catalogue)
-                    : List.of();
-            return new SuccessfulMealSuggestions(response.assistantMessage(), suggestions);
+            return map(response, catalogue);
         } catch (final RuntimeException e) {
-            LOGGER.warn("The meal suggestion response could not be mapped to the catalogue. Suggestions: {}", response.suggestions(), e);
+            final String violatedConstraint = mappingFailureMessage(e);
+            LOGGER.warn("The initial meal suggestion response failed catalogue mapping; requesting one correction: {}", violatedConstraint);
+            return correct(request, catalogue, violatedConstraint);
+        }
+    }
+
+    private MealRequestResult correct(
+            final Request request,
+            final List<Product> catalogue,
+            final String violatedConstraint) {
+        final ModelMealRequestResponse correctedResponse;
+        try {
+            correctedResponse = generator.suggest(request.toGenerator(catalogue).correctionFor(violatedConstraint));
+        } catch (final RuntimeException e) {
+            LOGGER.error("The meal suggestion provider failed during correction", e);
             return new FailedRequest(request.request);
         }
+
+        if (correctedResponse == null) {
+            LOGGER.error("Cannot map corrected meal suggestions because the provider returned no response");
+            return new FailedRequest(request.request);
+        }
+
+        try {
+            return map(correctedResponse, catalogue);
+        } catch (final RuntimeException e) {
+            LOGGER.warn("The corrected meal suggestion response failed catalogue mapping: {}", e.getMessage());
+            return new FailedRequest(request.request);
+        }
+    }
+
+    private String mappingFailureMessage(final RuntimeException failure) {
+        return isBlank(failure.getMessage())
+                ? "The response contains an invalid meal suggestion."
+                : failure.getMessage();
+    }
+
+    private SuccessfulMealSuggestions map(final ModelMealRequestResponse response, final List<Product> catalogue) {
+        final List<MappedMealSuggestion> suggestions = response.hasSuggestions()
+                ? mapper.map(new ModelMealSuggestions(response.suggestions()), catalogue)
+                : List.of();
+        return new SuccessfulMealSuggestions(response.assistantMessage(), suggestions);
     }
 
     /// @param recommendations the meal ideas currently shown to the visitor

@@ -56,6 +56,22 @@ class MealSuggestionSystemMessageFormatterTest {
                         A simple meal""");
     }
 
+    @Test
+    void rendersTheFailedConstraintAndOriginalRequestForACorrection() {
+        final MealSuggestionGenerator.Request request = new MealSuggestionGenerator.Request(
+                randomRequestId(), "A quick pasta", List.of(PRODUCT_WHOLEWHEAT_SPAGHETTI))
+                .correctionFor("Every ingredient must name one distinct catalogue product");
+
+        assertThat(formatter.userMessage(request))
+                .containsSubsequence(
+                        "The previous response violated this response constraint:",
+                        "Every ingredient must name one distinct catalogue product",
+                        "Return a complete replacement response.",
+                        "Keep the original visitor request",
+                        "The visitor’s request:",
+                        "A quick pasta");
+    }
+
     private static MealSuggestionGenerator.Request request(final String request, final Product... catalogue) {
         return new MealSuggestionGenerator.Request(randomRequestId(), request, Arrays.asList(catalogue), Set.of(), Set.of());
     }

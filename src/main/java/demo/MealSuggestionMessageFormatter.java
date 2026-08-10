@@ -30,6 +30,12 @@ final class MealSuggestionMessageFormatter {
     String userMessage(final Request request) {
         final StringBuilder userMessage = new StringBuilder();
 
+        if (request.isCorrection()) {
+            userMessage.append("The previous response violated this response constraint:\n");
+            userMessage.append(request.correctionConstraint());
+            userMessage.append("\n\nReturn a complete replacement response. Keep the original visitor request and use only the authoritative catalogue supplied in the system message.\n\n");
+        }
+
         if (request.hasRecommendations()) {
             userMessage.append("The visitor is currently considering the following meal ideas:\n");
             userMessage.append(request.recommendations().stream()

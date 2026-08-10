@@ -24,4 +24,4 @@ A visitor whose meal-idea response contains an invalid catalogue ingredient rece
 
 ## Implementation and verification
 
-Not started.
+Implemented one corrective generation attempt after a catalogue-mapping failure. The corrective prompt preserves the original visitor request, catalogue snapshot, and response constraint that failed; provider, catalogue, and request-validation failures retain their existing recovery behaviour. Added service coverage for correction after an unknown product slug and invalid quantity, safe recovery after a second invalid response, and the one-call normal path; formatter coverage proves the replacement prompt carries the failed constraint and original request. Existing MVC coverage confirms successful suggestions are stored and displayed through the normal session-backed result flow. Baseline and final `./mvnw test` verification pass.

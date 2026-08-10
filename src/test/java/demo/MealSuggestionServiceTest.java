@@ -53,24 +53,94 @@ class MealSuggestionServiceTest {
                 .isEqualTo(new SuccessfulMealSuggestions("Here are some meal ideas.", mappedSuggestions));
         verify(generator).suggest(eq(generatorRequest));
         verify(mapper).map(eq(modelSuggestions), same(catalogue));
+        verifyNoMoreInteractions(generator);
     }
 
     @Test
-    void turnsProviderFailuresAndUnmappableResponsesIntoOneFriendlyFailureState() {
+    void turnsProviderFailuresIntoTheFriendlyFailureStateWithoutCorrection() {
         final List<Product> catalogue = catalogue();
-        final ModelMealSuggestions unmappableSuggestions = modelSuggestions("unknown", "100", "g");
         when(productCatalogue.allProducts()).thenReturn(catalogue);
         when(generator.suggest(anyRequest("Suggest a meal", catalogue)))
-                .thenThrow(new IllegalStateException("provider timeout"))
-                .thenReturn(ModelMealRequestResponse.withSuggestions(unmappableSuggestions));
-        when(mapper.map(eq(unmappableSuggestions), same(catalogue)))
-                .thenThrow(new IllegalArgumentException("unknown product"));
+                .thenThrow(new IllegalStateException("provider timeout"));
 
         assertThat(service.submit(new MealSuggestionService.Request(CONVERSATION_ID, "Suggest a meal")))
                 .isInstanceOf(FailedRequest.class);
+        verify(generator).suggest(anyRequest("Suggest a meal", catalogue));
+        verifyNoInteractions(mapper);
+    }
 
-        assertThat(service.submit(new MealSuggestionService.Request(CONVERSATION_ID, "Suggest a meal")))
-                .isInstanceOf(FailedRequest.class);
+    @Test
+    void correctsAnUnknownProductSlugUsingTheOriginalRequestAndCatalogueSnapshot() {
+        final String mealRequest = "Suggest a meal";
+        final List<Product> catalogue = catalogue();
+        final ModelMealSuggestions invalidSuggestions = modelSuggestions("unknown", "100", "g");
+        final ModelMealSuggestions correctedSuggestions = modelSuggestions("wholewheat-spaghetti-500g", "100", "g");
+        final List<MappedMealSuggestion> mappedSuggestions = mappedSuggestions(catalogue);
+        final MealSuggestionGenerator.Request initialRequest = anyRequest(mealRequest, catalogue);
+        final MealSuggestionGenerator.Request correctionRequest = initialRequest
+                .correctionFor("Every ingredient must name one distinct catalogue product");
+        when(productCatalogue.allProducts()).thenReturn(catalogue);
+        when(generator.suggest(initialRequest))
+                .thenReturn(ModelMealRequestResponse.withSuggestions(invalidSuggestions));
+        when(generator.suggest(correctionRequest))
+                .thenReturn(ModelMealRequestResponse.withSuggestions(correctedSuggestions));
+        when(mapper.map(invalidSuggestions, catalogue))
+                .thenThrow(new IllegalArgumentException("Every ingredient must name one distinct catalogue product"));
+        when(mapper.map(correctedSuggestions, catalogue)).thenReturn(mappedSuggestions);
+
+        assertThat(service.submit(new MealSuggestionService.Request(CONVERSATION_ID, mealRequest)))
+                .isEqualTo(new SuccessfulMealSuggestions("Here are some meal ideas.", mappedSuggestions));
+
+        verify(generator).suggest(initialRequest);
+        verify(generator).suggest(correctionRequest);
+        verify(mapper).map(invalidSuggestions, catalogue);
+        verify(mapper).map(correctedSuggestions, catalogue);
+        verifyNoMoreInteractions(generator, mapper);
+    }
+
+    @Test
+    void correctsAnInvalidQuantityOnce() {
+        final String mealRequest = "Suggest a meal";
+        final List<Product> catalogue = catalogue();
+        final ModelMealSuggestions invalidSuggestions = modelSuggestions("wholewheat-spaghetti-500g", "0", "g");
+        final ModelMealSuggestions correctedSuggestions = modelSuggestions("wholewheat-spaghetti-500g", "100", "g");
+        final MealSuggestionGenerator.Request initialRequest = anyRequest(mealRequest, catalogue);
+        final MealSuggestionGenerator.Request correctionRequest = initialRequest
+                .correctionFor("Ingredient quantities must be positive whole integers between 1 and 99999 (five 9s)");
+        when(productCatalogue.allProducts()).thenReturn(catalogue);
+        when(generator.suggest(initialRequest)).thenReturn(ModelMealRequestResponse.withSuggestions(invalidSuggestions));
+        when(generator.suggest(correctionRequest)).thenReturn(ModelMealRequestResponse.withSuggestions(correctedSuggestions));
+        when(mapper.map(invalidSuggestions, catalogue)).thenThrow(new IllegalArgumentException(correctionRequest.correctionConstraint()));
+        when(mapper.map(correctedSuggestions, catalogue)).thenReturn(mappedSuggestions(catalogue));
+
+        assertThat(service.submit(new MealSuggestionService.Request(CONVERSATION_ID, mealRequest)))
+                .isInstanceOf(SuccessfulMealSuggestions.class);
+
+        verify(generator).suggest(initialRequest);
+        verify(generator).suggest(correctionRequest);
+        verifyNoMoreInteractions(generator);
+    }
+
+    @Test
+    void returnsTheSafeFailureStateWhenTheCorrectionAlsoCannotBeMapped() {
+        final String mealRequest = "Suggest a meal";
+        final List<Product> catalogue = catalogue();
+        final ModelMealSuggestions invalidSuggestions = modelSuggestions("unknown", "100", "g");
+        final MealSuggestionGenerator.Request initialRequest = anyRequest(mealRequest, catalogue);
+        final MealSuggestionGenerator.Request correctionRequest = initialRequest
+                .correctionFor("Every ingredient must name one distinct catalogue product");
+        when(productCatalogue.allProducts()).thenReturn(catalogue);
+        when(generator.suggest(initialRequest)).thenReturn(ModelMealRequestResponse.withSuggestions(invalidSuggestions));
+        when(generator.suggest(correctionRequest)).thenReturn(ModelMealRequestResponse.withSuggestions(invalidSuggestions));
+        when(mapper.map(invalidSuggestions, catalogue))
+                .thenThrow(new IllegalArgumentException("Every ingredient must name one distinct catalogue product"));
+
+        assertThat(service.submit(new MealSuggestionService.Request(CONVERSATION_ID, mealRequest)))
+                .isEqualTo(new FailedRequest(mealRequest));
+
+        verify(generator).suggest(initialRequest);
+        verify(generator).suggest(correctionRequest);
+        verifyNoMoreInteractions(generator);
     }
 
     @Test

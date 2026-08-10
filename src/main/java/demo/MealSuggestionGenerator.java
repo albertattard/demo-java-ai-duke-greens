@@ -19,7 +19,8 @@ interface MealSuggestionGenerator {
             String request,
             List<Product> catalogue,
             Set<String> recommendations,
-            Set<String> selected) {
+            Set<String> selected,
+            String correctionConstraint) {
 
         public Request {
             requireNonBlank(conversationId, "The conversation ID must not be blank");
@@ -29,10 +30,15 @@ interface MealSuggestionGenerator {
             catalogue = List.copyOf(catalogue);
             recommendations = recommendations == null ? Set.of() : Set.copyOf(recommendations);
             selected = selected == null ? Set.of() : Set.copyOf(selected);
+            correctionConstraint = correctionConstraint == null ? "" : correctionConstraint;
+        }
+
+        Request(final String conversationId, final String request, final List<Product> catalogue, final Set<String> recommendations, final Set<String> selected) {
+            this(conversationId, request, catalogue, recommendations, selected, "");
         }
 
         Request(final String conversationId, final String request, final List<Product> catalogue) {
-            this(conversationId, request, catalogue, Set.of(), Set.of());
+            this(conversationId, request, catalogue, Set.of(), Set.of(), "");
         }
 
         boolean hasRecommendations() {
@@ -41,6 +47,14 @@ interface MealSuggestionGenerator {
 
         boolean hasSelected() {
             return !selected.isEmpty();
+        }
+
+        boolean isCorrection() {
+            return !correctionConstraint.isBlank();
+        }
+
+        Request correctionFor(final String violatedConstraint) {
+            return new Request(conversationId, request, catalogue, recommendations, selected, violatedConstraint);
         }
     }
 }

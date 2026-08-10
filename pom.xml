@@ -25,6 +25,7 @@
         <playwright.version>1.61.0</playwright.version>
         <mockito.version>5.23.0</mockito.version>
 
+        <license-maven-plugin.version>2.7.1</license-maven-plugin.version>
         <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
         <required.maven.version>3.6.3</required.maven.version>
     </properties>
@@ -119,6 +120,54 @@
                             <goal>integration-test</goal>
                             <goal>verify</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>${license-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>third-party-license-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>add-third-party</goal>
+                        </goals>
+                        <configuration>
+                            <failOnMissing>true</failOnMissing>
+                            <failOnBlacklist>true</failOnBlacklist>
+                            <includedLicenses>
+                                <includedLicense>Apache 2.0</includedLicense>
+                                <includedLicense>Apache-2.0</includedLicense>
+                                <includedLicense>Apache License 2.0</includedLicense>
+                                <includedLicense>Apache License Version 2.0</includedLicense>
+                                <includedLicense>Apache License, Version 2.0</includedLicense>
+                                <includedLicense>The Apache License, Version 2.0</includedLicense>
+                                <includedLicense>The Apache Software License, Version 2.0</includedLicense>
+                                <includedLicense>The Apache Software License, version 2.0</includedLicense>
+                                <includedLicense>MIT</includedLicense>
+                                <includedLicense>MIT-0</includedLicense>
+                                <includedLicense>MIT 1.1</includedLicense>
+                                <includedLicense>MIT License</includedLicense>
+                                <includedLicense>The MIT License</includedLicense>
+                                <!-- TODO: Confirm that we can use the following licenses -->
+                                <includedLicense>BSD licence</includedLicense>
+                                <includedLicense>BSD-2-Clause</includedLicense>
+                                <includedLicense>BSD-3-Clause</includedLicense>
+                                <includedLicense>The BSD License</includedLicense>
+                                <includedLicense>EDL 1.0</includedLicense>
+                                <includedLicense>Eclipse Distribution License - v 1.0</includedLicense>
+                                <includedLicense>EPL 2.0</includedLicense>
+                                <includedLicense>EPL-2.0</includedLicense>
+                                <includedLicense>Eclipse Public License v2.0</includedLicense>
+                                <includedLicense>Public Domain, per Creative Commons CC0</includedLicense>
+                                <includedLicense>MPL 1.1</includedLicense>
+                                <includedLicense>MPL 2.0</includedLicense>
+                                <includedLicense>GPL2 w/ CPE</includedLicense>
+                                <includedLicense>LGPL-2.1-only</includedLicense>
+                            </includedLicenses>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

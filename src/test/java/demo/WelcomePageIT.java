@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -270,10 +271,13 @@ class WelcomePageIT {
     @Test
     void showsTheRecoveryStateWithoutSuggestionsWhenTheModelReturnsAnUnknownProduct() throws Exception {
         final String request = "Suggest a vegetarian dinner";
+        final String violatedConstraint = "Every ingredient must name one distinct catalogue product";
         final ModelMealSuggestions unmappableSuggestions = new ModelMealSuggestions(List.of(
                 new ModelMealSuggestion("Unknown product dinner", 20, "A complete meal.", 1,
                         List.of(new ModelIngredient("unknown-product", "100", "g")))));
-        when(mealSuggestionGenerator.suggest(request(request)))
+        when(mealSuggestionGenerator.suggest(initialRequest(request)))
+                .thenReturn(ModelMealRequestResponse.withSuggestions(unmappableSuggestions));
+        when(mealSuggestionGenerator.suggest(correctionRequest(request, violatedConstraint)))
                 .thenReturn(ModelMealRequestResponse.withSuggestions(unmappableSuggestions));
 
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
@@ -283,7 +287,9 @@ class WelcomePageIT {
                 .reload()
                 .shouldOfferRetryAndReset());
 
-        verify(mealSuggestionGenerator).suggest(request(request));
+        verify(mealSuggestionGenerator).suggest(initialRequest(request));
+        verify(mealSuggestionGenerator).suggest(correctionRequest(request, violatedConstraint));
+        verifyNoMoreInteractions(mealSuggestionGenerator);
     }
 
     @Test
@@ -427,6 +433,15 @@ class WelcomePageIT {
 
     private static MealSuggestionGenerator.Request request(final String message) {
         return argThat(request -> request != null && request.request().equals(message));
+    }
+
+    private static MealSuggestionGenerator.Request initialRequest(final String message) {
+        return argThat(request -> request != null && request.request().equals(message) && !request.isCorrection());
+    }
+
+    private static MealSuggestionGenerator.Request correctionRequest(final String message, final String violatedConstraint) {
+        return argThat(request -> request != null && request.request().equals(message)
+                && request.isCorrection() && request.correctionConstraint().equals(violatedConstraint));
     }
 
     private void installSpeechRecognition(final Page page) {

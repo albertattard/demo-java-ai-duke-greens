@@ -2,26 +2,20 @@
 
 ## Outcome
 
-A visitor whose meal-idea response contains an invalid catalogue ingredient receives valid, shop-ready meal ideas after one automatic correction attempt, without having to understand or repeat an AI formatting failure.
+The end-to-end recovery test accurately proves that an invalid model response receives one internal correction attempt before the visitor sees the existing retry/reset recovery page.
 
 ## Constraints
 
-- Keep the application catalogue authoritative. Never infer, rename, or fuzzy-match a model-supplied product slug; never expose an ingredient that cannot be mapped exactly to the catalogue snapshot supplied for that request.
-- Keep response mapping all-or-nothing. Do not show a partial set of suggestions when any suggestion is invalid, because the requested count and basket calculations must remain trustworthy.
-- On a mapping failure only, make at most one internal corrective generation attempt. It must identify the violated response constraints and ask for a complete replacement response based on the original visitor request and the same catalogue snapshot.
-- Validate the replacement response using the existing mapper. Do not weaken mapper validation or introduce automatic product substitution.
-- If the correction attempt also fails, retain the existing safe failed-request recovery state and its explicit visitor actions. Do not loop, silently retry in the background, or expose provider/model diagnostics to the visitor.
-- Preserve the current explicit-submission workflow, conversation isolation, and normal behaviour for provider, catalogue, and request-validation failures.
-- Record concise server-side diagnostics sufficient to distinguish the first mapping failure from correction-attempt failure, without logging visitor-facing recovery details as if they were valid suggestions.
+- Change test coverage only; do not alter runtime correction, catalogue mapping, visitor flow, or provider behavior.
+- Verify the initial request and exactly one corrective request separately. The correction must retain the visitor request and identify the mapper constraint that failed.
+- Keep the existing assertion that no meal suggestions are displayed after a second invalid response.
 
 ## Done when
 
-- When an initial generated response contains an unknown catalogue slug or another mapper-detected invalid ingredient, the application sends one corrective request and displays the complete corrected response when it maps successfully.
-- The corrective request states the relevant validation failure and preserves the original visitor request and catalogue snapshot.
-- The application makes no more than two generation attempts for one submitted request, and a second invalid response reaches the existing retry/reset recovery page with no suggestions displayed.
-- Automated service coverage proves successful correction for an invalid product slug and invalid quantity, plus safe recovery when correction fails; controller coverage proves the successful corrected result is stored and displayed normally.
-- Normal successful requests still make exactly one generation call.
+- `WelcomePageIT.showsTheRecoveryStateWithoutSuggestionsWhenTheModelReturnsAnUnknownProduct` passes with the established correction flow.
+- The test proves one initial generation request and one correction request, instead of treating both as the same request.
+- The relevant end-to-end and full verification suites pass.
 
 ## Implementation and verification
 
-Implemented one corrective generation attempt after a catalogue-mapping failure. The corrective prompt preserves the original visitor request, catalogue snapshot, and response constraint that failed; provider, catalogue, and request-validation failures retain their existing recovery behaviour. Added service coverage for correction after an unknown product slug and invalid quantity, safe recovery after a second invalid response, and the one-call normal path; formatter coverage proves the replacement prompt carries the failed constraint and original request. Existing MVC coverage confirms successful suggestions are stored and displayed through the normal session-backed result flow. Baseline and final `./mvnw test` verification pass.
+Updated the recovery test to stub and verify the initial and corrective requests separately. It now proves that the correction carries the failed distinct-catalogue-product constraint, while preserving the existing recovery-page assertions after the second invalid response. `./mvnw test` passes with 115 tests, and `./mvnw verify -Dit.test=WelcomePageIT` passes with 115 unit/MVC tests and 25 browser tests.

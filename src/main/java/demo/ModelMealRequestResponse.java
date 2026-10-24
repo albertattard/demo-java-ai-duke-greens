@@ -3,7 +3,6 @@ package demo;
 import module java.base;
 
 import static demo.Collections.requireNonEmpty;
-import static demo.Collections.requireSizeBetween;
 import static demo.Numbers.requireGreaterThanZero;
 import static demo.Strings.requireNonBlank;
 import static java.util.Objects.requireNonNull;
@@ -15,7 +14,6 @@ record ModelMealRequestResponse(String assistantMessage,
         requireNonBlank(assistantMessage, "A response requires an assistant message");
         requireNonNull(suggestions, "A response must contain a suggestions list");
         suggestions = List.copyOf(suggestions);
-        requireSizeBetween(suggestions, 0, 7, "A response must contain between zero and seven suggestions");
     }
 
     static ModelMealRequestResponse withSuggestions(final ModelMealSuggestions suggestions) {
@@ -30,7 +28,7 @@ record ModelMealRequestResponse(String assistantMessage,
 record ModelMealSuggestions(List<ModelMealSuggestion> suggestions) implements Iterable<ModelMealSuggestion> {
 
     ModelMealSuggestions {
-        requireSizeBetween(suggestions, 0, 7, "A response must contain between zero and seven suggestions");
+        requireNonNull(suggestions, "A response must contain a suggestions list");
         suggestions = List.copyOf(suggestions);
     }
 

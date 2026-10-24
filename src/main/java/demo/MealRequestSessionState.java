@@ -2,7 +2,6 @@ package demo;
 
 import module java.base;
 
-import static demo.Collections.requireSizeBetween;
 import static demo.Strings.requireNonBlank;
 import static java.util.Objects.requireNonNull;
 
@@ -236,7 +235,7 @@ record MealResultSet(List<MappedMealSuggestion> suggestions, Set<Integer> dismis
                      boolean feedbackLocked) {
 
     MealResultSet {
-        requireSizeBetween(suggestions, 0, 7, "A response must contain between zero and seven suggestions");
+        requireNonNull(suggestions, "A response must contain a suggestions list");
 
         dismissedMealIndexes = Set.copyOf(dismissedMealIndexes);
         suggestions = List.copyOf(suggestions);

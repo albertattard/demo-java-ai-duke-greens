@@ -2,8 +2,8 @@ package demo;
 
 import module java.base;
 
-import static demo.Collections.requireSizeBetween;
 import static demo.Strings.requireNonBlank;
+import static java.util.Objects.requireNonNull;
 
 sealed interface MealRequestResult permits SuccessfulMealSuggestions, InvalidRequest, FailedRequest {}
 
@@ -12,7 +12,7 @@ record SuccessfulMealSuggestions(String assistantMessage,
 
     SuccessfulMealSuggestions {
         requireNonBlank(assistantMessage, "An assistant message is required");
-        requireSizeBetween(suggestions, 0, 7, "A response must contain between zero and seven suggestions");
+        requireNonNull(suggestions, "A response must contain a suggestions list");
 
         suggestions = List.copyOf(suggestions);
     }

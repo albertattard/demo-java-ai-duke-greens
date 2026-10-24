@@ -29,18 +29,19 @@ class ModelMealSuggestionsTest {
     }
 
     @Test
-    void rejectsMoreThanSevenSuggestions() {
+    void preservesEverySuggestionWhenThereAreMoreThanSeven() {
         final List<ModelMealSuggestion> suggestions = IntStream.range(0, 8)
                 .mapToObj(index -> new ModelMealSuggestion(
                         "Meal " + index,
                         20,
                         "A complete meal.",
                         1,
-                        List.of(new ModelIngredient("Ingredient", "1", "portion"))))
+                        List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g"))))
                 .toList();
 
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> new ModelMealSuggestions(suggestions));
+        assertThat(new ModelMealSuggestions(suggestions).suggestions()).containsExactlyElementsOf(suggestions);
+        assertThat(new ModelMealRequestResponse("Here are some meal ideas.", suggestions).suggestions())
+                .containsExactlyElementsOf(suggestions);
     }
 
     @Test

@@ -4,6 +4,8 @@
 
 Completed.
 
+The count-related requirements below describe the original slice and are superseded by [TASK-0007](TASK-0007-accept-valid-responses-above-the-prompt-meal-limit.md): seven remains a prompt instruction, while every otherwise-valid returned meal is accepted and displayed.
+
 ## Sources of truth
 
 - [MVP conversational shopping flow](../specs/SPEC-0001-mvp-conversational-shopping-flow.md), especially the included text conversation and visitor-flow steps 1–4.

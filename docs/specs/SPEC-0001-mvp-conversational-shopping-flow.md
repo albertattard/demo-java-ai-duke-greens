@@ -17,7 +17,7 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 - A single-page, text-based web conversation for one anonymous visitor.
 - Free-form requests for dinner ideas, including preferences such as household size, dietary preference, preparation time, and meal style.
 - A concise model-led clarification when the visitor’s request and relevant conversation context do not provide enough information to suggest useful meals.
-- AI-generated meal suggestions, each returned with structured ingredients and quantities. A valid assistant turn may instead provide clarification or guidance without meal suggestions. When it provides meal suggestions, it returns no more than seven.
+- AI-generated meal suggestions, each returned with structured ingredients and quantities. A valid assistant turn may instead provide clarification or guidance without meal suggestions. The system prompt instructs it to return no more than seven meal suggestions; the application accepts every otherwise-valid suggestion even when that instruction is exceeded.
 - Clickable selection of one or more recommended meal cards.
 - A visitor may ask for more or different meal ideas in the conversation before selection.
 - A virtual basket built from the selected recipes and matched to products in a curated catalogue.
@@ -62,9 +62,9 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 - The assistant generates meal candidates, but application data remains authoritative for products, prices, and package sizes.
 - A meal candidate must contain a name, preparation time, short explanation, servings, and structured ingredients with quantities before it can be validated or presented.
 - Each meal candidate represents one dinner for the requested household size.
-- A valid model response contains a non-blank assistant message and zero to seven complete, catalogue-mappable meal candidates. A zero-suggestion response may ask a clarification or guide the visitor back to meal preparation. An invalid non-empty response is not presented as a conversation turn or as partial recommendations.
+- A valid model response contains a non-blank assistant message and zero or more complete, catalogue-mappable meal candidates. The seven-meal limit is a system-prompt instruction, not an application validation rule; exceeding it alone must not cause rejection, correction, or truncation. A zero-suggestion response may ask a clarification or guide the visitor back to meal preparation. An invalid non-empty response is not presented as a conversation turn or as partial recommendations.
 - “Try again” is a distinct visitor action that resubmits the same original request. “Reset” clears the failed request and returns the visitor to the initial input state. Provider error details and partial meal suggestions are not shown.
-- The application presents the latest non-empty set of one to seven catalogue-mappable suggestions. A valid zero-suggestion response keeps the latest non-empty recommendations visible while the visitor continues the conversation.
+- The application presents every catalogue-mappable suggestion in the latest non-empty set, including sets larger than seven. A valid zero-suggestion response keeps the latest non-empty recommendations visible while the visitor continues the conversation.
 - The user can proceed with fewer selected meals than were requested.
 - Reset clears the conversation, displayed options, selections, basket, and completion state for the active browser session.
 
@@ -96,7 +96,7 @@ The MVP is complete when a visitor can complete this journey reliably in two to 
 
 The MVP satisfies this specification when all of the following are demonstrable:
 
-1. A visitor can submit a free-form meal request and receive one to seven AI-generated meal suggestions with structured ingredients and quantities, or a concise clarification when the model needs more context.
+1. A visitor can submit a free-form meal request and receive AI-generated meal suggestions with structured ingredients and quantities, or a concise clarification when the model needs more context. The system prompt requests no more than seven meals, but an otherwise-valid response with eight or more meals is accepted and displayed in full.
 2. The displayed options reflect supplied preferences for household size, dietary preference, and preparation time when the product catalogue supports them.
 3. Selecting meals creates a basket of catalogue products with package quantities.
 4. The visitor can request more or different suggestions before selection and continue the same visible conversation.

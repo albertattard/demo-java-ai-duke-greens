@@ -57,6 +57,27 @@ class WelcomePageIT {
     }
 
     @Test
+    void displaysAllMealsWhenTheModelReturnsMoreThanSevenAndRetainsThemOnRefresh() throws Exception {
+        final String request = "Suggest dinner ideas";
+        final List<ModelMealSuggestion> meals = IntStream.rangeClosed(1, 8)
+                .mapToObj(index -> new ModelMealSuggestion("Pasta dinner " + index, 20, "A complete dinner.", 1,
+                        List.of(new ModelIngredient("wholewheat-spaghetti-500g", "200", "g"))))
+                .toList();
+        when(mealSuggestionGenerator.suggest(request(request)))
+                .thenReturn(ModelMealRequestResponse.withSuggestions(new ModelMealSuggestions(meals)));
+
+        browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
+                .submitMealRequest(request)
+                .shouldShowSuggestions(8)
+                .shouldShowMealIdeas(meals.stream().map(ModelMealSuggestion::name).toArray(String[]::new))
+                .reload()
+                .shouldShowSuggestions(8)
+                .shouldShowMealIdeas(meals.stream().map(ModelMealSuggestion::name).toArray(String[]::new)));
+
+        verify(mealSuggestionGenerator).suggest(request(request));
+    }
+
+    @Test
     void presentsWelcomeMealRequestInputAndProducts() throws Exception {
         browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
                 .shouldShowWelcome()

@@ -21,6 +21,8 @@ class MealSuggestionSystemMessageFormatterTest {
         assertThat(formatter.systemMessage(request))
                 .contains("You are Duke Greens’ dinner-idea assistant.")
                 .contains("Guide the visitor towards meal preparation")
+                .contains("return one through seven suggestions")
+                .contains("Return exactly seven when the visitor requests more than seven")
                 .contains("treat a follow-up that adds or changes a preference as a refinement")
                 .contains("only when the visitor’s request and relevant conversation details together do not provide enough information")
                 .contains("do not answer unrelated questions.")

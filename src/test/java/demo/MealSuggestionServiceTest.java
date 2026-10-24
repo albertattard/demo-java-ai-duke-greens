@@ -231,13 +231,20 @@ class MealSuggestionServiceTest {
     }
 
     @Test
-    void successfulSuggestionsAllowUpToSevenMappedMeals() {
-        final MappedMealSuggestion suggestion = mappedSuggestions(catalogue()).getFirst();
+    void acceptsEveryValidMealWhenTheModelReturnsMoreThanSeven() {
+        final List<Product> catalogue = catalogue();
+        final ModelMealSuggestion suggestion = modelSuggestions("wholewheat-spaghetti-500g", "200", "g").suggestions().getFirst();
+        final ModelMealSuggestions eightMeals = new ModelMealSuggestions(java.util.Collections.nCopies(8, suggestion));
+        final List<MappedMealSuggestion> mappedMeals = java.util.Collections.nCopies(8, mappedSuggestions(catalogue).getFirst());
+        when(productCatalogue.allProducts()).thenReturn(catalogue);
+        when(generator.suggest(any(MealSuggestionGenerator.Request.class)))
+                .thenReturn(ModelMealRequestResponse.withSuggestions(eightMeals));
+        when(mapper.map(eightMeals, catalogue)).thenReturn(mappedMeals);
 
-        assertThatThrownBy(() -> new SuccessfulMealSuggestions("Here are some meal ideas.", List.of(
-                suggestion, suggestion, suggestion, suggestion, suggestion, suggestion, suggestion, suggestion)))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("A response must contain between zero and seven suggestions");
+        assertThat(service.submit(new MealSuggestionService.Request(CONVERSATION_ID, "Suggest dinners")))
+                .isEqualTo(new SuccessfulMealSuggestions("Here are some meal ideas.", mappedMeals));
+        verify(generator).suggest(any(MealSuggestionGenerator.Request.class));
+        verify(mapper).map(eightMeals, catalogue);
     }
 
     private static MealSuggestionGenerator.Request anyRequest(final String request, final List<Product> catalogue) {

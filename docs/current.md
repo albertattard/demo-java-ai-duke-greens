@@ -1,29 +1,29 @@
 # Current change
 
-## Outcome
+## Current slice
 
-Visitors see every otherwise-valid meal returned by the model, including responses with more than seven meals.
+Visitors can independently select the intended meal occurrence in the basket, including when separate responses contain identical recommendation sets.
 
 ## Constraints
 
-- Retain the system-prompt instruction to return no more than seven suggestions.
-- Remove application-side suggestion-count rejection without truncating responses or weakening other response and catalogue validation.
-- Preserve valid zero-suggestion turns and existing conversation, basket, and recovery behaviour.
-- Update the MVP specification and affected architecture documentation, and record delivery in TASK-0007.
-- Leave the earlier `.gitignore` change separate and untouched.
+- Use each result set’s actual list position for basket choice keys and selected state; retain the existing `setIndex:mealIndex` identifiers.
+- Preserve existing meal-selection and application-calculated basket behaviour.
+- Leave duplicate-meal policy and recommendation deduplication outside this slice.
 
 ## Done when
 
-- Deterministic tests prove that an eight-meal model response is mapped successfully and all eight meals are displayed and retained across refresh.
-- A focused test proves that the system prompt still instructs the model to return no more than seven meals.
-- Existing validation and conversation tests and the full verification suite pass without a live model call.
+- Deterministic regression coverage proves that identical result sets render distinct basket checkbox keys.
+- Selecting the later occurrence and submitting the basket retains that selection after reload, with the earlier occurrence unselected and correct basket quantities and totals.
+- Existing basket tests and the full verification suite pass without live OpenAI calls.
 
 ## Baseline
 
-`./mvnw test` passed with 115 tests before implementation.
+The working tree was clean before this slice. `./mvnw test` passed with 115 unit/MVC tests before implementation.
 
 ## Implementation and verification
 
-Removed the upper suggestion-count checks from model response records, mapped service results, and session result sets. Non-null lists, immutable copies, complete meal validation, catalogue mapping, and valid zero-suggestion turns remain supported. The system prompt is unchanged and its seven-meal instruction is covered by a focused assertion. The MVP specification, ADR-0003, deferred-work wording, and task index now distinguish prompt guidance from application validation; [TASK-0007](tasks/TASK-0007-accept-valid-responses-above-the-prompt-meal-limit.md) records delivery and supersedes TASK-0004’s original count rules.
+Basket choices now use each result set’s actual list position for both the meal key and selected state. Existing identifiers, filtering, selection submission, and basket calculations remain unchanged. The corresponding defect has been removed from [pending work](pending.md); duplicate-meal policy remains deferred.
 
-The new eight-meal service regression failed before implementation on the existing count check. Updated model-record coverage proves that every supplied suggestion is retained; service coverage proves acceptance without a corrective call caused by count; browser coverage proves that all eight distinct meal cards survive refresh without another model request. `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 ./mvnw verify` passed with 115 unit/MVC tests and 26 browser tests, including packaging and licence verification, without a live model call. Browser verification required execution outside the sandbox because macOS blocked Chromium process registration inside it. Reviewed the affected documentation and root README, checked local documentation links, and ran `git diff --check` successfully.
+The new MVC regression reproduced the defect before the fix: two identical sets both rendered the key `0:0`. It now verifies distinct rendered keys, selects `1:0` through the basket POST, and checks the reloaded selection state, basket quantity, total, and fulfilment without invoking the model.
+
+`PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 ./mvnw verify` passed with 116 unit/MVC tests and 26 browser tests, including packaging and licence verification, without a live OpenAI call. Browser verification required execution outside the sandbox because macOS blocked Chromium process registration inside it. A separate review using the review-current-changes skill found no material issues. Reviewed affected documentation and the root README; `git diff --check` passed.

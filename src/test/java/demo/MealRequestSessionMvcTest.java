@@ -615,6 +615,46 @@ class MealRequestSessionMvcTest {
     }
 
     @Test
+    void selectsTheLaterMealOccurrenceFromIdenticalResultSets() throws Exception {
+        final String conversationId = "active-conversation";
+        final Product lentils = product("red-lentils-500g");
+        final List<MappedMealSuggestion> suggestions = List.of(new MappedMealSuggestion(
+                "Lentil soup", 20, "A quick dinner.", 1,
+                List.of(new MappedProduct(lentils, 1)), lentils.price()));
+        final SuccessfulMealRequest initial = new SuccessfulMealRequest("Suggest a dinner", suggestions)
+                .appendFollowUp("Show another idea", "Here is an idea.", suggestions);
+        assertThat(initial.resultSets().get(0)).isEqualTo(initial.resultSets().get(1));
+        final MockHttpSession session = new MockHttpSession();
+        session.setAttribute("mealConversationId", conversationId);
+        session.setAttribute("mealRequestState", initial);
+        when(productCatalogue.allProducts()).thenReturn(List.of(lentils));
+
+        mvc.perform(MockMvcRequestBuilders.get("/demo/basket/" + conversationId).session(session))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("mealChoices", List.of(
+                        Map.of("key", "0:0", "name", "Lentil soup", "selected", false),
+                        Map.of("key", "1:0", "name", "Lentil soup", "selected", false))))
+                .andExpect(content().string(containsString("value=\"0:0\"")))
+                .andExpect(content().string(containsString("value=\"1:0\"")));
+
+        mvc.perform(MockMvcRequestBuilders.post("/demo/basket/" + conversationId)
+                        .with(csrf()).session(session).param("meal", "1:0"))
+                .andExpect(redirectedUrl("/demo/basket/" + conversationId));
+
+        mvc.perform(MockMvcRequestBuilders.get("/demo/basket/" + conversationId).session(session))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("mealChoices", List.of(
+                        Map.of("key", "0:0", "name", "Lentil soup", "selected", false),
+                        Map.of("key", "1:0", "name", "Lentil soup", "selected", true))))
+                .andExpect(model().attribute("basketTotal", Strings.formatPrice(lentils.price())))
+                .andExpect(model().attribute("basketFulfilsSelectedMeals", true));
+        final SuccessfulMealRequest updated = (SuccessfulMealRequest) session.getAttribute("mealRequestState");
+        assertThat(updated.selectedMealKeys()).containsExactly("1:0");
+        assertThat(updated.basket().quantities()).containsExactlyEntriesOf(Map.of(lentils.slug(), 1));
+        verifyNoInteractions(mealSuggestionService);
+    }
+
+    @Test
     void showsAnAuthoritativeBasketReviewForAPopulatedSuccessfulRequest() throws Exception {
         final Product lentils = product("red-lentils-500g");
         final Product spaghetti = new Product("wholewheat-spaghetti-500g", "Wholewheat spaghetti", 500, MeasurementUnit.GRAM, BigDecimal.valueOf(1.49));

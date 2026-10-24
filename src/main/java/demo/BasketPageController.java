@@ -35,13 +35,14 @@ class BasketPageController {
         response.setHeader("Cache-Control", "no-store");
         presentation.addTo(model, successful);
         model.addAttribute("conversationId", conversationId);
-        model.addAttribute("mealChoices", successful.resultSets().stream()
-                .flatMap(set -> IntStream.range(0, set.suggestions().size())
-                        .filter(index -> !set.dismissedMealIndexes().contains(index))
+        model.addAttribute("mealChoices", IntStream.range(0, successful.resultSets().size())
+                .boxed()
+                .flatMap(setIndex -> IntStream.range(0, successful.resultSets().get(setIndex).suggestions().size())
+                        .filter(index -> !successful.resultSets().get(setIndex).dismissedMealIndexes().contains(index))
                         .mapToObj(index -> Map.of(
-                                "key", SuccessfulMealRequest.key(successful.resultSets().indexOf(set), index),
-                                "name", set.suggestions().get(index).name(),
-                                "selected", successful.selected(successful.resultSets().indexOf(set), index))))
+                                "key", SuccessfulMealRequest.key(setIndex, index),
+                                "name", successful.resultSets().get(setIndex).suggestions().get(index).name(),
+                                "selected", successful.selected(setIndex, index))))
                 .toList());
         return "basket";
     }

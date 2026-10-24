@@ -1,144 +1,77 @@
 # Pending work
 
-This document captures deferred work that is worth retaining but is not yet ready for implementation.
+This document captures deferred work and unresolved decisions, not a commitment to build a broader meal-planning product. Reconciled against the repository implementation and automated coverage on 24 October 2026, including the [TASK-0007](tasks/TASK-0007-accept-valid-responses-above-the-prompt-meal-limit.md) changes. It does not establish a new delivery sequence; agree each slice in [the current brief](current.md) before implementation.
 
-## Prior OpenAI clarification regression context
+## Delivered behaviour to retain
 
-The preceding brief is retained here at the user’s request. Its integration-test changes are included as supporting coverage in the active character-counter slice.
+These capabilities are implemented and are no longer pending:
 
-### Outcome
+- Initial and follow-up requests accept non-blank text up to 1,000 characters. Typed and dictated input has a character counter; dictation is reviewed before explicit submission and typing remains available when speech recognition is unavailable. Browser coverage uses simulated recognition events, so real microphone and browser compatibility still require demonstration checks.
+- A successful initial request or follow-up adds the visitor prompt and assistant message to the visible transcript. A new non-empty response supplies the latest recommendations while selected meals remain accessible separately and in the basket. The individual “Not for me” action is absent.
+- A valid non-blank assistant message with zero suggestions is accepted for an initial request or follow-up. Follow-up guidance preserves the latest non-empty recommendations and basket, and the visitor can continue the conversation. These paths are covered by `MealRequestSessionMvcTest`; they are not a deferred clarification slice.
+- A failed follow-up keeps the existing application conversation state and shows an error with the attempted prompt in an editable textarea. An edited resend is covered by MVC tests. This does not establish that failed exchanges are excluded from Spring AI memory; that gap remains below.
+- Session-owned conversation IDs isolate visitor state. Start-over and simulated-order completion clear application conversation state and call the provider’s conversation cleanup; session destruction also calls cleanup. Controller/MVC and listener tests cover these paths.
+- Visitors can select and remove meals, review the application-calculated basket, proceed to a separate checkout page, and explicitly complete a simulated order. Completion is blocked when the basket does not fulfil selected meals. The completion page and optional explicitly submitted feedback are implemented; no external order or payment is created.
+- The system prompt requests no more than seven meals. The application accepts and displays every otherwise-valid returned meal without count-based rejection or truncation, as delivered in [TASK-0007](tasks/TASK-0007-accept-valid-responses-above-the-prompt-meal-limit.md). Deterministic coverage includes eight meals and a safe refresh.
+- A response that fails catalogue mapping receives exactly one internal correction attempt using the same request and catalogue snapshot. Provider-call failures do not trigger that correction. If correction fails, the application shows recovery without partial suggestions or provider details. “Try again” remains an explicit visitor resubmission; refreshing a result or recovery GET page does not invoke the model.
 
-The live OpenAI integration suite reproduces the reported meal-planning clarification sequence so that an acknowledgement such as “Yes please” is a visible, diagnosable contract case.
+The existing test suite passed with 115 unit/MVC tests and 26 browser tests during TASK-0007 verification. This documentation reconciliation did not rerun those suites or live OpenAI tests.
 
-### Constraints
+## Recommendation recovery and conversation gaps
 
-- Change only focused integration-test coverage and the current-change brief; do not change the visitor flow, prompts, catalogue, or model configuration in this slice.
-- Use the reported preferences and a stable two-turn conversation ID.
-- Both model turns must return a non-blank assistant message and catalogue-mappable suggestions, whether the model returns recommendations or asks a clarification.
-- Keep the test opt-in under the existing `openai-integration` tag; normal verification must not call OpenAI.
+- Improve initial-request failure recovery so the retained request is visible and editable and the visitor understands what “Try again” resubmits. The current recovery page offers retry/reset but does not display an editable original request. Keep existing editable follow-up recovery.
+- Add deterministic regression coverage for the reported requests: “2 balanced dinners for 3 people, requiring less than an hour to prepare”; a party menu for eight; a “Sunday roast” or beef-roast request; and an unavailable follow-up such as “I want to make fresh focaccia too.” Retain the bounded internal correction behaviour rather than reinstating a blanket ban on automatic correction.
+- Verify and, where necessary, enforce the intended boundary that a failed provider call or invalid response adds neither turn to Spring AI memory. Existing follow-up recovery tests prove unchanged application state, not provider-memory rollback. The current memory advisor runs around the provider call before application catalogue validation; do not assume those stores advance atomically.
+- Supply the complete latest non-empty recommendation set as follow-up context if that remains the intended contract. The explicit context currently contains recommendation and selected-meal names, with conversational history supplied through a 20-message Spring AI memory window. Richer guidance about selected meals remains deferred.
+- Reconcile exact-meal deduplication and selection identity with the intended recommendation/basket separation. Current selection keys use result-set positions; a structurally identical meal in a later set is not automatically excluded because an earlier copy is selected. Preserve selected meals and the authoritative basket while deciding the desired behaviour.
+- Retain the delivered zero-suggestion path for out-of-scope guidance. The earlier claim that an informational follow-up is silently discarded no longer describes the controller. If questions such as “Are these all vegetarian meals?” must receive authoritative answers, introduce application-controlled dietary metadata and derive those answers from it; model prose alone is insufficient.
+- Add privacy-safe observability for conversational result categories without recording visitor prompts or model output. Failure metrics are specified separately below.
+- Validate that the complete core journey can be demonstrated in two to three minutes with the curated catalogue. Automated flow coverage alone does not establish that timing or live-model reliability.
 
-### Acceptance checks
+## Conversation product decisions
 
-- `OpenAiMealSuggestionIT` covers the detailed initial meal-plan request followed by “Yes please”.
-- The test proves that the provider produces a complete structured response for both turns and that each response is valid against the catalogue contract.
-- The existing refinement assertion accepts any catalogue-valid chicken ingredient rather than one arbitrarily chosen chicken SKU.
+The following earlier proposals are not current implementation guarantees and need reconciliation with the accepted [MVP specification](specs/SPEC-0001-mvp-conversational-shopping-flow.md) before becoming a change brief:
 
-### Observed verification
+- Fixed clarification rules and defaults: the earlier backlog proposed asking only when both diet and maximum preparation time are absent, with defaults of no dietary restriction, 30 minutes, and one person. The current prompt instead asks when the combined request and conversation lack enough information. Decide whether any fixed defaults are still wanted.
+- Informal counts: the earlier proposal explicitly interpreted “a couple” as two and “a few” as three, with numeric counts taking precedence. The current specification leaves interpretation to the model, and the prompt defaults to one when no count is unambiguous. Decide whether to introduce a stronger contract and how to test it; do not treat prompt guidance as an application-enforced guarantee. Acceptance above seven is already delivered.
+- Repeated “Show more ideas”: free-text follow-ups exist, but a dedicated action preserving the requested count and excluding every previously shown meal name remains deferred. Decide whether that action is still useful alongside the conversational form.
+- Journey visibility: the recommendations page shows transcript, recommendations, and selected meals, with a separate basket and checkout. The earlier request to show all of these throughout the journey needs a concrete layout decision rather than being treated as wholly unimplemented.
 
-- Baseline opt-in integration verification found that the existing refinement test was too specific: the model returned the catalogue-valid `chicken-thighs-600g` rather than the test’s expected chicken-breast SKU.
-- The first version of the new test completed the visitor’s truncated sentence and incorrectly required a clarification. The live model then returned six catalogue-valid meal ideas; the test now uses the exact submitted message and validates both possible response shapes.
-- Running the corrected test reproduced a contract failure on the initial response: the model returned a duplicate product slug in one suggestion, which the application correctly rejects. The test sends the acknowledgement before asserting either mapping result so it always exercises the reported two-turn conversation.
-- The focused two-turn test subsequently passed. The complete opt-in integration class remains unstable: the existing refinement test observed a follow-up that changed the requested serving count from four to two.
+## Basket-editing product decision
 
-## Feedback from initial demo review
+Decide whether meal-selection editing remains the product direction or whether to restore the original review-only basket described by the specification and [product vision](product/vision.md). Current controls edit meal selection and recalculate the basket; they do not provide arbitrary product addition, product-line removal, or direct quantity editing. Do not conflate those capabilities.
 
-The following work was identified during the initial feedback review. Treat it as a backlog, not as a commitment to build a broader meal-planning product.
+If product-level editing is retained as a future goal, let a visitor add an individual catalogue product, remove an individual basket item, and add a product again by updating its quantity rather than creating a duplicate. Preserve application authority over products and quantities, and define how edits affect selected-meal fulfilment before implementation. Pantry support is a separate quantity-aware capability below.
 
-- Improve recommendation-failure recovery so an unsuccessful result is intelligible, retains the visitor’s request, and makes clear what “Try again” will resubmit. Add deterministic regression coverage for the reported requests: “2 balanced dinners for 3 people, requiring less than an hour to prepare”; a party menu for eight; a “Sunday roast” or beef-roast request; and an unavailable follow-up such as “I want to make fresh focaccia too.”
-- Show each recommended meal’s recipe and preparation instructions.
-- Let a visitor add an individual catalogue product to the basket, remove an individual basket item, and add a product again by updating its quantity rather than creating a duplicate. This must preserve application authority over basket contents and quantities. Resolve the existing [basket-editing product decision](#basket-editing-product-decision) before implementation.
-- Expand the curated catalogue with essential products needed by the demonstrated requests, including salt, pepper, beef, and a suitable beef roast. Do not add drinks merely because a visitor asks about them unless drinks become an explicit demo-scope decision; the application should instead clearly state that they are not in the catalogue.
-- Review and add product images for newly added catalogue products, using the supplied private-label image batch only after verifying that each asset matches its product and is suitable for the demo.
-- Replace full-page refreshes with partial, reactive page updates without weakening the POST/Redirect/GET and explicit-retry guarantees described below.
-- Add dictation and voice input while keeping the conversation workflow independent of its input and output channels.
-- Decide whether visitors should see any submitted feedback. Do not expose individual comments without an explicit retention, consent, moderation, and privacy policy; the current in-memory feedback store is unsuitable for persistent social proof. Consider anonymised aggregates only after those decisions are made.
-- The requested “I already have olive oil” behaviour is already captured in [Pantry-aware meal coverage](#pantry-aware-meal-coverage); do not expose the action before quantity-aware coverage exists.
+## Duplicate refinement result sets
+
+Harden basket meal-choice keys against structurally identical result sets. `BasketPageController` currently uses `resultSets().indexOf(set)` when constructing choice keys, so a later equal set receives the earlier set’s position. Use the actual result-set position and add deterministic coverage for repeated identical output. The issue does not require locked refinement sets. It is distinct from the product decision about whether identical meals should appear twice.
+
+## Recipes, catalogue, and images
+
+- Show each recommended meal’s recipe and preparation instructions; current meal cards display mapped ingredients and estimates, not cooking steps.
+- Reassess the remaining catalogue gaps for the demonstrated requests. Salt, black pepper, beef burgers, mince, steak, and strips are already seeded. A suitable beef-roast product is not present; adding it remains deferred. Do not add drinks merely because a visitor requests them unless drinks become an explicit scope decision; clearly state when products are outside the catalogue.
+- Review image coverage for remaining gaps and newly added products. The seeded beef products and black pepper already reference images; salt has no image. Use the supplied private-label image batch only after verifying that each asset matches its product and is suitable for the demo. A filename reference alone does not establish asset quality.
+
+## Presentation, voice, and feedback
+
+- Replace full-page navigation with partial, reactive updates without weakening POST/Redirect/GET, safe refresh, explicit visitor submission, or bounded internal correction.
+- Dictation already exists for initial requests, follow-ups, and optional feedback. Further voice interaction, such as spoken assistant responses, remains deferred; keep the business workflow independent of its input and output channels.
+- Decide whether visitors should see submitted feedback. Do not expose individual comments without an explicit retention, consent, moderation, and privacy policy. Feedback is stored through JDBC in the application’s local H2 database; no durable public-feedback policy is established. Consider anonymised aggregates only after those decisions are made.
 
 ## Explain Java’s role on the About page
 
-Add a concise architecture diagram to the About page that makes the demonstration’s “Java and AI” value proposition concrete: show the browser, Java application, AI provider, and application-controlled catalogue and basket data, including the validation boundary between model output and trusted business data. Accompany it with brief visitor-facing explanation of what this design lets an existing Java application do that a model-only integration does not. Keep it accurate to the deployed implementation; do not imply that Java is the only viable technology or add claims that are not demonstrated by the application.
+The About page already explains AI interpretation, Java validation, application-controlled business data, and human confirmation. Add the deferred concise architecture diagram showing browser, Java application, AI provider, catalogue and basket, and the validation boundary. Keep the explanation accurate to the deployed implementation; do not imply Java is the only viable technology or add claims the demonstration does not support.
 
-## Deferred conversation slices
+## Documentation alignment
 
-The following agreed conversation work was moved from [the current brief](current.md) before starting voice work. It remains sequenced work, not a commitment to combine all of it into one change.
+The [MVP specification](specs/SPEC-0001-mvp-conversational-shopping-flow.md) still states a 300-character request limit, excludes voice input, describes a review-only basket, and forbids automatic retries without distinguishing internal correction. The [product vision](product/vision.md) also describes voice as future work and the basket as review-only. Reconcile these documents with delivered behaviour and the basket decision above in a separately scoped documentation change. This backlog reconciliation does not silently resolve those product decisions or modify their source documents.
 
-### Overall outcome
+## Prior OpenAI clarification regression context
 
-Visitors can continue a meal-discovery conversation on the recommendations page. The page presents the latest actionable recommendations, meals already selected for the basket, and a chronological text conversation as distinct sections. The exact layout, labels, and styling of those sections remain fluid during the slice.
+Retained at the user’s earlier request as historical diagnostic context, not an active slice. `OpenAiMealSuggestionIT.handlesAnAcknowledgementOfAMealPlanClarification` already covers the reported detailed meal-plan request followed by “Yes please” in the same conversation; both responses require a non-blank assistant message and catalogue-mappable output, including valid zero-suggestion guidance. The refinement test accepts catalogue-valid chicken ingredients rather than requiring one chicken SKU. These tests remain opt-in under `openai-integration`; normal verification must not call OpenAI.
 
-### Constraints
-
-- Keep one active conversation per visitor session, isolated by its application-generated conversation ID. Use that ID for both Spring AI chat memory and the session-held UI transcript. Starting over, completing the simulated order, and session destruction must clear both stores.
-- A valid model response contains a non-blank visitor-facing assistant message and zero or more complete meal suggestions. The system prompt requests no more than seven; the application accepts every otherwise-valid returned meal. Zero suggestions may ask for clarification or decline an out-of-scope request; in either case the conversation remains open.
-- Store each valid exchange in both the UI transcript and Spring AI memory. The transcript contains only visitor prompts and assistant messages, never recommendation cards.
-- A failed provider call or invalid non-empty model response is not a conversation exchange. Show a recovery error in place of an assistant reply and prefill an editable textarea with the attempted prompt; the visitor may edit and resend it. Do not expose partial cards or store either turn until a valid response succeeds.
-- Map every suggested ingredient against the application-supplied catalogue snapshot using its exact application-owned product slug. Reject an invalid non-empty response as a whole. Product data, prices, stock, basket contents, and order state remain application-controlled.
-- On a follow-up, give the model the conversation history and the complete latest non-empty recommendation set. Continue the existing selected-meal context behaviour; richer prompt guidance about basket-backed meals is explicitly deferred.
-- A non-empty response becomes the latest recommendation set. Display every meal in that set except a meal exactly equal to one already represented in the basket section. Do not display unselected meals from older sets. A zero-suggestion response preserves the latest non-empty set, or shows no recommendations when none exists.
-- The basket section preserves the original cards for selected meals. It may therefore be the only place an exactly equal meal appears when the latest set repeats it. Keep the existing basket page and its behaviour unchanged for this slice; do not add recommendations-page removal controls yet.
-- Continue to allow one-click addition of a meal to the basket. Preserve explicit confirmation for completing the simulated order.
-- Remove the individual “Not for me” action; visitors express exclusions or replacements in a follow-up prompt.
-
-### Overall acceptance checks
-
-- A successful initial request adds the visitor prompt and non-blank assistant message to the conversation and displays its recommendations.
-- A successful follow-up appends both turns, replaces the latest recommendation set, and leaves selected basket meals visible in their own section.
-- The recommendations section contains only the latest non-empty set, excluding cards exactly equal to a basket-backed meal; it does not retain older unselected cards.
-- A valid zero-suggestion response appends both turns, keeps the existing recommendations and basket unchanged, and accepts a further free-text prompt.
-- A provider failure or invalid recommendation response shows editable recovery without adding a conversation turn or partial cards; an edited resend can become the next successful exchange.
-- The recommendations page shows no “Not for me” action. The existing basket page remains available and unchanged.
-- Starting over, successful simulated-order completion, and session destruction clear both the UI transcript and the Spring AI conversation memory.
-- Conversation IDs remain isolated between sessions.
-
-### Delivery plan
-
-1. Successful conversational follow-up: visitors can submit a follow-up, see a chronological transcript, and see only the latest recommendation set. Include the response-contract change needed to capture a non-blank assistant message, one generic follow-up form in place of refinement, and successful-turn storage in both UI state and Spring AI memory. Remove “Not for me”. Defer zero-suggestion and failure recovery behaviour.
-2. Selected-meal continuity: visitors retain selected meals while continuing the conversation. Render selected meal cards in their own basket section, exclude an exactly equal selected meal from the latest recommendations, preserve one-click addition, and keep the basket page unchanged. Make selected-meal identity independent of historical result-set indexes.
-3. Safe conversational recovery: permit valid zero-suggestion assistant responses, preserve the latest non-empty recommendations in that case, and provide editable recovery and resend for provider or invalid-response failures. Failed attempts must not add transcript turns, cards, or Spring AI memory.
-4. Conversation cleanup: clear UI transcript and Spring AI memory on start-over, successful simulated-order completion, and session destruction. Add focused coverage for cleanup and conversation-ID isolation.
-
-### Next deferred slice
-
-Visitors can continue a meal-preparation conversation when the model returns a clarification or other guidance without meal suggestions.
-
-Constraints:
-
-- This is best-effort model-directed behaviour; the application does not parse visitor text to decide whether it aligns with meal preparation or needs clarification.
-- A valid non-blank assistant message with zero suggestions is a conversational turn, whether initial or a follow-up. The model may use it to ask a clarification question or guide the visitor back to meal preparation.
-- Preserve the boundary between model conversation and application-controlled business data. Do not make catalogue, dietary, price, stock, basket, or order claims authoritative merely because the model states them.
-- Preserve the existing follow-up, recommendation, basket, and completion behaviour.
-
-Acceptance checks:
-
-- An initial or follow-up zero-suggestion response shows the assistant message in the transcript and permits another follow-up.
-- A follow-up zero-suggestion response preserves the latest non-empty recommendations and the basket.
-- A subsequent successful follow-up displays meal ideas in the same conversation.
-- Focused MVC and prompt coverage proves the behaviour.
-
-The recorded verification before deferral was:
-
-- `mvn test` — passed: 102 tests.
-- Focused MVC coverage verifies that valid zero-suggestion follow-ups retain the latest recommendations and basket while appending the assistant message to the transcript.
-- Prompt coverage verifies that the model uses existing conversation context for preference-only follow-ups and asks a clarification only when the combined context is insufficient.
-- OpenAI integration coverage verifies specified requests, unrelated-request guidance, and conversational refinement when run with an OpenAI credential; it was not run in this environment because no credential is configured.
-
-## Remaining conversational-shopping MVP capabilities
-
-The following visitor-facing commitments remain from the original MVP definition. They are deferred until a future change brief makes each slice implementation-ready.
-
-- Refine the meal-request conversation. Ask one concise follow-up question only when both dietary preference and maximum preparation time are absent. Where a preference is absent, apply the defaults of no dietary restriction, a 30-minute maximum preparation time, and a one-person household when household size is absent. The displayed meals must reflect supplied household-size, dietary, and preparation-time preferences when the catalogue supports them, and each candidate’s ingredient quantities must be for that household rather than being multiplied by servings again in the application.
-- Preserve the documented suggestion-count interpretation when refining the conversation: interpret “a couple” as two and “a few” as three; let an explicit numeric count take precedence; and default to one suggestion when the count is ambiguous or absent. Continue instructing the model to return no more than seven suggestions. Acceptance of otherwise-valid responses above seven is covered by [TASK-0007](tasks/TASK-0007-accept-valid-responses-above-the-prompt-meal-limit.md); deterministic coverage of the remaining count-interpretation rules is deferred.
-- Let the visitor request “Show more ideas” repeatedly before adding a meal to the basket. Each result must preserve the requested suggestion count and exclude every meal name shown earlier in that request.
-- Let the model answer a visitor’s conversational-shopping question, or ask a clarification needed to answer it, without recommending a meal. Such informational turns must remain visibly distinct from recommendations and must not make the model authoritative for catalogue products, prices, stock, or basket contents.
-- Keep the visible journey understandable to both the visitor and nearby observers by showing the conversation transcript, recommendations, selected meals, and basket throughout the flow.
-- Complete the demo flow with an explicit “Complete virtual order” action, a separate confirmation action, and a visible completion state that clearly says it is simulated and has not created a payment, delivery, or external order.
-- Validate that the complete core journey can be demonstrated in two to three minutes with the curated catalogue.
-
-### Follow-up out-of-scope recovery and observability
-
-When a visitor submits an informational follow-up such as “Are these all vegetarian meals?”, the current model instruction classifies it as out of scope. The follow-up controller currently redirects to the unchanged conversation without retaining the submitted text, showing an explanation, or writing a log entry, so the visitor experiences an apparent lost conversation. In the safe conversational-recovery slice, handle this result as a valid zero-suggestion assistant turn: preserve the latest non-empty recommendations and basket, append an explicit assistant decline or clarification to the transcript, and allow another free-text follow-up. Do not let the model make authoritative dietary-compliance claims. If answering vegetarian-status questions becomes a product requirement, introduce application-controlled dietary metadata and derive the answer from it. Add focused coverage for the POST/Redirect/GET flow, retained recommendation state, transcript outcome, and subsequent resend. Add privacy-safe observability that records the result category without logging visitor prompts or model output.
-
-### Basket-editing product decision
-
-Decide whether the editable basket remains the product direction or whether to restore the original review-only basket. The current change brief deliberately retains basket editing, while allowing simulated completion only when the basket fulfils the selected meals. Restoring review-only behaviour must be an explicit product decision rather than an accidental consequence of completing the original specification.
-
-### Duplicate refinement result sets
-
-Harden basket meal-choice keys against two structurally identical, locked refinement result sets. The current basket-page choice construction derives a result-set index by value lookup, so an identical later result set can receive the earlier set’s meal key and cannot be selected independently. Use the actual result-set position when constructing the keys, and add coverage for repeated identical refinement output. This is distinct from merely showing the same meal in two otherwise different result sets.
-
-### Already delivered MVP behaviour to retain
-
-Do not regress the existing request and recovery contract while implementing the remaining work: accept requests from 1 through 300 characters; validate complete catalogue-mappable candidates; present every valid suggestion returned by the model, including more than seven; keep the model instruction to return no more than seven suggestions; show no partial suggestions or provider details when a response is invalid; prevent automatic retries; make “Try again” an explicit resubmission; retain active state only in the browser session; and use POST/Redirect/GET so refreshing a result or recovery page does not repeat an AI request.
+Earlier live runs observed a duplicate product slug in one suggestion and a follow-up changing servings from four to two. The focused two-turn test subsequently passed, but that did not establish stable live-suite behaviour. The first test draft also completed the visitor’s submitted sentence and incorrectly required clarification; the current test uses the submitted request and permits either response shape. The remaining work is to evaluate live reliability, including preservation of requested servings, rather than recreate the tests. No live suite was run during this reconciliation.
 
 ## Pantry-aware meal coverage
 
@@ -146,11 +79,13 @@ Let a visitor record that they already have a product at home, including its qua
 
 ## Inventory-aware shopping
 
+Two previously recorded starting points remain unresolved: a visitor-session availability filter before generation, and presenter-controlled stock that blocks checkout. Choose the first observable outcome before agreeing a slice; these are distinct increments, not a single implementation-ready requirement.
+
 Add a session-scoped demo availability scenario that lets a visitor mark catalogue products available or unavailable before requesting meal ideas. The application must exclude unavailable products from the catalogue supplied to the model and reject any unavailable product returned by the model. Clearly label the setting as applying only to the visitor’s browser session and show the excluded products with the recommendations, so it demonstrates constrained AI behaviour without implying shared, real-time store inventory. Do not add quantities, reservations, stock claims, substitutions, checkout blocking, or product-preference behaviour in this slice.
 
 Add product availability and stock validation before order completion, including unavailable-product handling and substitutions. Decide whether the initial source is local demonstrator-controlled stock data or an optional MCP-backed inventory service; neither source may become authoritative for catalogue products, prices, pack sizes, or basket contents. This capability includes the previously deferred real-time external stock data and presenter-controlled stock changes.
 
-The first inventory slice must let a presenter explicitly change a product’s demonstrator-controlled stock state and let a visitor see when an unavailable product prevents checkout. Do not begin with an administration dashboard unless the minimal presenter control cannot demonstrate the behaviour. A later slice may replan or offer substitutions using application-validated availability.
+For the presenter-controlled checkout option, let a presenter explicitly change a product’s demonstrator-controlled stock state and let a visitor see when an unavailable product prevents checkout. Do not begin with an administration dashboard unless the minimal presenter control cannot demonstrate the behaviour. A later slice may replan or offer substitutions using application-validated availability.
 
 ## Allergy-aware meal suggestions
 

@@ -12,7 +12,7 @@ The application needs a response that is reliable enough to render and validate 
 
 ## Decision
 
-Use OpenAI through the Spring AI integration selected in [ADR-0001](ADR-0001-adopt-the-initial-technical-stack.md). Configure `gpt-5.4-mini` as the default model for [TASK-0004](../tasks/TASK-0004-fulfil-a-one-shot-meal-request-with-ai-generated-suggestions.md). The model identifier is an application property and may be changed without code changes after evaluation.
+Use OpenAI through the Spring AI integration selected in [ADR-0001](ADR-0001-adopt-the-initial-technical-stack.md). The initial model for [TASK-0004](../tasks/TASK-0004-fulfil-a-one-shot-meal-request-with-ai-generated-suggestions.md) was `gpt-5.4-mini`; the application default is now `gpt-6-luna`, with reasoning effort explicitly set to `none` to preserve the previous model’s default effort. Keep the existing Chat Completions endpoint and structured response contract. The model identifier is an application property and may be changed without code changes after evaluation.
 
 Request OpenAI JSON Schema structured output for a response represented by Java records. The response has a list of meal suggestions; each suggestion has:
 
@@ -30,8 +30,8 @@ The OpenAI API key is server-only configuration supplied through an environment 
 
 ## Consequences
 
-- `gpt-5.4-mini` is selected for lower latency and cost than OpenAI’s flagship models while retaining support for structured output. The current OpenAI model guide recommends smaller variants such as `gpt-5.4-mini` when latency and cost matter. [OpenAI model guide](https://developers.openai.com/api/docs/models/)
-- The response contract is explicit and testable, avoiding fragile extraction from a prose answer. OpenAI lists structured outputs as a supported feature of current GPT-5 models. [OpenAI model comparison](https://developers.openai.com/api/docs/models/compare)
+- `gpt-6-luna` is selected as a cost-conscious alternative to evaluate after live requests with `gpt-5.4-mini` repeatedly returned non-catalogue slugs. This choice does not establish improved catalogue accuracy; that remains an application-specific evaluation requirement. OpenAI lists Chat Completions and structured output as supported and permits `none` reasoning effort. [GPT-6 Luna model documentation](https://developers.openai.com/api/docs/models/gpt-6-luna)
+- The response contract is explicit and testable, avoiding fragile extraction from a prose answer. Structured output enforces the response shape; application validation still checks exact catalogue membership and ingredient constraints.
 - This slice can demonstrate live AI value without weakening the later rule that catalogue data, product mapping, prices, and basket totals are application-controlled.
 - The model’s interpretation of a requested quantity is not independently verifiable without introducing application-side natural-language parsing. Java validates the received response’s structure and catalogue mapping without imposing an upper suggestion-count bound. A model that exceeds the prompt instruction can therefore increase response size and rendering work.
 - The configured model should be evaluated against representative meal requests before a stand demonstration. If quality is insufficient, the model property can be changed without changing the response contract.

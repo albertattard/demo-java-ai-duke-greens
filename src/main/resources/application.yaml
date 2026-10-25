@@ -3,4 +3,5 @@ spring:
     openai:
       chat:
         options:
-          model: gpt-5.4-mini
+          model: gpt-6-luna
+          reasoning-effort: none

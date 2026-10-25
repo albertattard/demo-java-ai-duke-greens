@@ -87,7 +87,8 @@ class MealSuggestionService {
             return map(response, catalogue);
         } catch (final RuntimeException e) {
             final String violatedConstraint = mappingFailureMessage(e);
-            LOGGER.warn("The initial meal suggestion response failed catalogue mapping; requesting one correction: {}", violatedConstraint);
+            LOGGER.warn("The initial meal suggestion response failed catalogue mapping; conversationId={}; requesting one correction: {}; {}",
+                    request.conversationId(), violatedConstraint, mappingDiagnostic(e));
             return correct(request, catalogue, violatedConstraint);
         }
     }
@@ -112,9 +113,14 @@ class MealSuggestionService {
         try {
             return map(correctedResponse, catalogue);
         } catch (final RuntimeException e) {
-            LOGGER.warn("The corrected meal suggestion response failed catalogue mapping: {}", e.getMessage());
+            LOGGER.warn("The corrected meal suggestion response failed catalogue mapping; conversationId={}: {}; {}",
+                    request.conversationId(), e.getMessage(), mappingDiagnostic(e));
             return new FailedRequest(request.request);
         }
+    }
+
+    private String mappingDiagnostic(final RuntimeException failure) {
+        return failure instanceof CatalogueMappingException mappingFailure ? mappingFailure.diagnostic() : "";
     }
 
     private String mappingFailureMessage(final RuntimeException failure) {

@@ -22,17 +22,18 @@ class MealSuggestionMapper {
         final Map<String, Product> productsBySlug = products.stream()
                 .collect(Collectors.toUnmodifiableMap(Product::slug, Function.identity()));
 
-        final List<MappedMealSuggestion> mappedSuggestions = modelSuggestions.suggestions().stream()
-                .map(suggestion -> mapSuggestion(suggestion, productsBySlug))
+        final List<MappedMealSuggestion> mappedSuggestions = IntStream.range(0, modelSuggestions.suggestions().size())
+                .mapToObj(index -> mapSuggestion(modelSuggestions.suggestions().get(index), productsBySlug, index + 1))
                 .toList();
 
         return List.copyOf(mappedSuggestions);
     }
 
-    private MappedMealSuggestion mapSuggestion(final ModelMealSuggestion suggestion, final Map<String, Product> productsBySlug) {
+    private MappedMealSuggestion mapSuggestion(final ModelMealSuggestion suggestion, final Map<String, Product> productsBySlug,
+                                             final int mealIndex) {
         final Set<String> seenSlugs = new HashSet<>();
-        final List<MappedProduct> mappedProducts = suggestion.ingredients().stream()
-                .map(ingredient -> mapIngredient(ingredient, productsBySlug, seenSlugs))
+        final List<MappedProduct> mappedProducts = IntStream.range(0, suggestion.ingredients().size())
+                .mapToObj(index -> mapIngredient(suggestion.ingredients().get(index), productsBySlug, seenSlugs, mealIndex, index + 1))
                 .toList();
         final BigDecimal estimatedCost = mappedProducts.stream()
                 .map(mapped -> mapped.product().price().multiply(BigDecimal.valueOf(mapped.packageCount())))
@@ -44,10 +45,15 @@ class MealSuggestionMapper {
     private MappedProduct mapIngredient(
             final ModelIngredient ingredient,
             final Map<String, Product> productsBySlug,
-            final Set<String> seenSlugs) {
+            final Set<String> seenSlugs,
+            final int mealIndex,
+            final int ingredientIndex) {
         final Product product = productsBySlug.get(ingredient.productSlug());
-        if (product == null || !seenSlugs.add(ingredient.productSlug())) {
-            throw new IllegalArgumentException("Every ingredient must name one distinct catalogue product");
+        if (product == null) {
+            throw new CatalogueMappingException("unknown_slug", ingredient.productSlug(), mealIndex, ingredientIndex);
+        }
+        if (!seenSlugs.add(ingredient.productSlug())) {
+            throw new CatalogueMappingException("duplicate_slug", ingredient.productSlug(), mealIndex, ingredientIndex);
         }
         if (!ingredient.quantity().matches("[1-9][0-9]{0,4}")) {
             throw new IllegalArgumentException("Ingredient quantities must be positive whole integers between 1 and 99999 (five 9s)");

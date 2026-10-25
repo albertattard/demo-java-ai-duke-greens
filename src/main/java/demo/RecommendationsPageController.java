@@ -52,7 +52,9 @@ class RecommendationsPageController {
             }
             case FailedMealRequest failedRequest -> {
                 response.setHeader("Cache-Control", "no-store");
-                model.addAttribute("mealRequest", failedRequest.request());
+                if (!model.containsAttribute("mealRequest")) {
+                    model.addAttribute("mealRequest", failedRequest.request());
+                }
                 model.addAttribute("failed", true);
                 model.addAttribute("resetConfirmationRequired", false);
                 model.addAttribute("conversationId", conversationId);
@@ -69,6 +71,7 @@ class RecommendationsPageController {
     @PostMapping("/demo/recommendations/{conversationId}/retry")
     String retryMealRequest(
             @PathVariable final String conversationId,
+            @RequestParam(required = false) final String mealRequest,
             final HttpServletRequest request,
             final RedirectAttributes redirectAttributes) {
         if (!mealRequestSession.hasConversation(request, conversationId)) {
@@ -76,10 +79,15 @@ class RecommendationsPageController {
         }
 
         return switch (mealRequestSession.state(request)) {
-            case final FailedMealRequest failedRequest -> storeResultAndRedirect(
-                    failedRequest.request(),
-                    mealSuggestionService.submit(new MealSuggestionService.Request(conversationId, failedRequest.request())),
-                    request);
+            case FailedMealRequest _ -> {
+                final MealRequestResult result = mealSuggestionService.submit(new MealSuggestionService.Request(conversationId, mealRequest));
+                if (result instanceof InvalidRequest(String message)) {
+                    redirectAttributes.addFlashAttribute("mealRequest", mealRequest);
+                    redirectAttributes.addFlashAttribute("validationMessage", message);
+                    yield mealRequestSession.recommendationsRedirect(conversationId);
+                }
+                yield storeResultAndRedirect(mealRequest, result, request);
+            }
             case null, default -> mealRequestSession.initialRequestRedirect();
         };
     }

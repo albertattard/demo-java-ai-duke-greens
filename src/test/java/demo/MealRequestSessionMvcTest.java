@@ -340,11 +340,63 @@ class MealRequestSessionMvcTest {
         final List<MappedMealSuggestion> suggestions = List.of(new MappedMealSuggestion("Lemon lentil pasta", 25, "A quick dinner.", 1, List.of(new MappedProduct(product("red-lentils-500g"), 1)), BigDecimal.valueOf(1.69)));
         when(mealSuggestionService.submit(eq(new MealSuggestionService.Request(conversationId, mealRequest)))).thenReturn(new SuccessfulMealSuggestions("Here are some meal ideas.", suggestions));
 
-        mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/retry").with(csrf()).session(session))
+        mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/retry").with(csrf()).session(session).param("mealRequest", mealRequest))
                 .andExpect(redirectedUrlPattern("/demo/recommendations/*"))
                 .andExpect(request().sessionAttribute("mealRequestState", new SuccessfulMealRequest(mealRequest, suggestions)));
 
         verify(mealSuggestionService).submit(eq(new MealSuggestionService.Request(conversationId, mealRequest)));
+        verifyNoMoreInteractions(mealSuggestionService);
+    }
+
+    @Test
+    void validatesEditedRecoveryRequestsWithoutLosingTheAttemptedText() throws Exception {
+        final String conversationId = "active-conversation";
+        final MockHttpSession session = new MockHttpSession();
+        final FailedMealRequest original = new FailedMealRequest("Original request");
+        session.setAttribute("mealConversationId", conversationId);
+        session.setAttribute("mealRequestState", original);
+
+        for (final String attempted : List.of(" ", "x".repeat(1001))) {
+            final String message = attempted.isBlank() ? "Describe at least one meal you want."
+                    : "Describe your meal request in 1000 characters or fewer.";
+            when(mealSuggestionService.submit(eq(new MealSuggestionService.Request(conversationId, attempted))))
+                    .thenReturn(new InvalidRequest(message));
+            final MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/retry")
+                            .with(csrf()).session(session).param("mealRequest", attempted))
+                    .andExpect(redirectedUrl("/demo/recommendations/" + conversationId))
+                    .andExpect(request().sessionAttribute("mealRequestState", original))
+                    .andReturn();
+
+            mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/" + conversationId)
+                            .session(session).flashAttrs(result.getFlashMap()))
+                    .andExpect(model().attribute("mealRequest", attempted))
+                    .andExpect(MockMvcResultMatchers.content().string(containsString(message)))
+                    .andExpect(MockMvcResultMatchers.content().string(containsString(
+                            "rows=\"5\">" + attempted + "</textarea>")));
+        }
+        verify(mealSuggestionService, times(2)).submit(any(MealSuggestionService.Request.class));
+        verifyNoMoreInteractions(mealSuggestionService);
+    }
+
+    @Test
+    void retainsAnEditedRequestWhenRetryFailsAndRefreshDoesNotResubmit() throws Exception {
+        final String conversationId = "active-conversation";
+        final String edited = "A quicker vegetarian dinner";
+        final MockHttpSession session = new MockHttpSession();
+        session.setAttribute("mealConversationId", conversationId);
+        session.setAttribute("mealRequestState", new FailedMealRequest("Original request"));
+        when(mealSuggestionService.submit(eq(new MealSuggestionService.Request(conversationId, edited))))
+                .thenReturn(new FailedRequest(edited));
+
+        mvc.perform(MockMvcRequestBuilders.post("/demo/recommendations/" + conversationId + "/retry")
+                        .with(csrf()).session(session).param("mealRequest", edited))
+                .andExpect(redirectedUrl("/demo/recommendations/" + conversationId))
+                .andExpect(request().sessionAttribute("mealRequestState", new FailedMealRequest(edited)));
+        for (int refresh = 0; refresh < 2; refresh++) {
+            mvc.perform(MockMvcRequestBuilders.get("/demo/recommendations/" + conversationId).session(session))
+                    .andExpect(model().attribute("mealRequest", edited));
+        }
+        verify(mealSuggestionService).submit(eq(new MealSuggestionService.Request(conversationId, edited)));
         verifyNoMoreInteractions(mealSuggestionService);
     }
 

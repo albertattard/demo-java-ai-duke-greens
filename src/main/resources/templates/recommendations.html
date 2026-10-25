@@ -140,8 +140,13 @@
         </section>
         <section aria-labelledby="meal-request-error-heading" class="meal-request-error" role="alert" th:if="${failed}">
             <h2 id="meal-request-error-heading">We could not create meal ideas</h2>
-            <p>Please try your request again or reset and start over.</p>
-            <form method="post" th:action="@{/demo/recommendations/{conversationId}/retry(conversationId=${conversationId})}">
+            <p>You can edit your request below. “Try again” sends the text shown here to create meal ideas, or you can reset and start over.</p>
+            <form method="post" novalidate th:action="@{/demo/recommendations/{conversationId}/retry(conversationId=${conversationId})}">
+                <label for="retry-meal-request">Your meal request</label>
+                <textarea aria-describedby="retry-character-count retry-character-count-error retry-validation" id="retry-meal-request" maxlength="1000" name="mealRequest" rows="5" th:text="${mealRequest}"></textarea>
+                <p class="character-count" data-character-count data-character-count-error-target="retry-character-count-error" data-character-count-target="retry-meal-request" id="retry-character-count">0 of 1,000 characters</p>
+                <p class="character-count-error" data-character-count-error hidden id="retry-character-count-error" role="alert"></p>
+                <p class="validation-message" id="retry-validation" th:text="${validationMessage}"></p>
                 <button type="submit">Try again</button>
             </form>
             <form method="post" th:action="@{/demo/recommendations/{conversationId}/reset(conversationId=${conversationId})}">

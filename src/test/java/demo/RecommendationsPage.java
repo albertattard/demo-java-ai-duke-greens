@@ -131,6 +131,16 @@ public final class RecommendationsPage extends PageObject {
         return this;
     }
 
+    public RecommendationsPage shouldShowRecoveryRequest(final String request) {
+        assertThat(elementByRoleAndExactName(AriaRole.TEXTBOX, "Your meal request")).hasValue(request);
+        return this;
+    }
+
+    public RecommendationsPage editRecoveryRequest(final String request) {
+        elementByRoleAndExactName(AriaRole.TEXTBOX, "Your meal request").fill(request);
+        return this;
+    }
+
     public RecommendationsPage retryMealRequest() {
         elementByRoleAndExactName(AriaRole.BUTTON, "Try again").click();
         return this;

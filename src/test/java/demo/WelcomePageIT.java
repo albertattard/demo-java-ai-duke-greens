@@ -332,6 +332,34 @@ class WelcomePageIT {
     }
 
     @Test
+    void submitsTheEditedInitialRequestAfterFailureWithoutResubmittingOnRefresh() throws Exception {
+        final String original = "make it fail";
+        final String edited = "A quick tomato dinner for one";
+        when(mealSuggestionGenerator.suggest(request(original)))
+                .thenThrow(new IllegalStateException("simulated provider failure"));
+        when(mealSuggestionGenerator.suggest(request(edited)))
+                .thenReturn(ModelMealRequestResponse.withSuggestions(new ModelMealSuggestions(List.of(
+                        new ModelMealSuggestion("Tomato dinner", 20, "A quick dinner.", 1,
+                                List.of(new ModelIngredient("chopped-tomatoes-400g", "200", "g")))))));
+
+        browser.openDukeGreens(dukeGreens -> dukeGreens.openWelcomePage()
+                .submitMealRequest(original)
+                .shouldOfferRetryAndReset()
+                .shouldShowRecoveryRequest(original)
+                .reload()
+                .shouldShowRecoveryRequest(original)
+                .editRecoveryRequest(edited)
+                .retryMealRequest()
+                .shouldShowMealIdeas("Tomato dinner")
+                .reload()
+                .shouldShowMealIdeas("Tomato dinner"));
+
+        verify(mealSuggestionGenerator).suggest(request(original));
+        verify(mealSuggestionGenerator).suggest(request(edited));
+        verifyNoMoreInteractions(mealSuggestionGenerator);
+    }
+
+    @Test
     void resetsToTheInitialRequestStateAfterAModelFailure() throws Exception {
         when(mealSuggestionGenerator.suggest(request("make it fail")))
                 .thenThrow(new IllegalStateException("simulated provider failure"));

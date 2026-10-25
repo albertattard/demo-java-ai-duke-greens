@@ -13,6 +13,10 @@ The count-related requirements below describe the original slice and are superse
 - [TASK-0002: Present the welcome and request input](TASK-0002-present-welcome-and-request-input.md).
 - [ADR-0003: Use OpenAI structured output for initial meal suggestions](../adr/ADR-0003-use-openai-structured-output-for-initial-meal-suggestions.md).
 
+## Subsequent recovery change
+
+Initial-request recovery now allows editing before “Try again” submits the displayed text, as defined in the [current MVP specification](../specs/SPEC-0001-mvp-conversational-shopping-flow.md). This supersedes the same-original-request retry restriction below; safe refresh and explicit submission remain required.
+
 ## Outcome
 
 A visitor can make one non-empty free-form meal request and receive AI-generated meal suggestions that fulfil the requested number of meals up to a maximum of seven. Each suggestion shows its name, preparation time, a short explanation, servings, and structured ingredients with quantities and units.

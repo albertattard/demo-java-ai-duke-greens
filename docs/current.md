@@ -2,28 +2,29 @@
 
 ## Current slice
 
-Visitors can independently select the intended meal occurrence in the basket, including when separate responses contain identical recommendation sets.
+Visitors can see, edit, and explicitly resubmit their initial meal request after a failure.
 
 ## Constraints
 
-- Use each result set’s actual list position for basket choice keys and selected state; retain the existing `setIndex:mealIndex` identifiers.
-- Preserve existing meal-selection and application-calculated basket behaviour.
-- Leave duplicate-meal policy and recommendation deduplication outside this slice.
+- Use the existing request validation and session-owned recovery route, preserving POST/Redirect/GET and safe refresh.
+- Keep the single internal correction attempt, all-or-nothing validation, and hidden provider diagnostics unchanged.
+- Preserve follow-up recovery and existing conversation and basket behaviour. Provider-memory rollback is outside this slice.
 
 ## Done when
 
-- Deterministic regression coverage proves that identical result sets render distinct basket checkbox keys.
-- Selecting the later occurrence and submitting the basket retains that selection after reload, with the earlier occurrence unselected and correct basket quantities and totals.
-- Existing basket tests and the full verification suite pass without live OpenAI calls.
+- Initial recovery shows the retained request in a labelled editable textarea and explains what “Try again” submits.
+- Deterministic coverage proves failure → edit → successful resubmission, and unchanged-request retry still works.
+- Blank and overlong resubmissions show validation feedback and retain the attempted text without invoking the model.
+- Refreshing recovery or success pages makes no model call; relevant tests and full verification pass without live OpenAI calls.
 
 ## Baseline
 
-The working tree was clean before this slice. `./mvnw test` passed with 115 unit/MVC tests before implementation.
+The working tree was clean. `./mvnw test` passed with 116 unit/MVC tests before implementation.
 
 ## Implementation and verification
 
-Basket choices now use each result set’s actual list position for both the meal key and selected state. Existing identifiers, filtering, selection submission, and basket calculations remain unchanged. The corresponding defect has been removed from [pending work](pending.md); duplicate-meal policy remains deferred.
+Initial recovery now prefills a labelled textarea with the failed request and explains that “Try again” submits its displayed text. The retry POST validates that text through the existing service, redirects invalid edits back with feedback and their attempted text, and stores the edited request if generation fails again. Session ownership, CSRF, explicit submission, bounded internal correction, and follow-up recovery remain unchanged.
 
-The new MVC regression reproduced the defect before the fix: two identical sets both rendered the key `0:0`. It now verifies distinct rendered keys, selects `1:0` through the basket POST, and checks the reloaded selection state, basket quantity, total, and fulfilment without invoking the model.
+MVC coverage verifies blank and overlong edits preserve attempted text with validation feedback, and repeated generation failure retains the edited request across refreshes. Existing service tests verify those invalid inputs do not load the catalogue or call the model. Browser coverage proves initial failure → recovery refresh → edit → successful retry → result refresh, with exactly one generator call per explicit valid submission. Existing unchanged-request retry remains covered.
 
-`PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 ./mvnw verify` passed with 116 unit/MVC tests and 26 browser tests, including packaging and licence verification, without a live OpenAI call. Browser verification required execution outside the sandbox because macOS blocked Chromium process registration inside it. A separate review using the review-current-changes skill found no material issues. Reviewed affected documentation and the root README; `git diff --check` passed.
+`PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 ./mvnw verify` passed with 118 unit/MVC tests and 27 browser tests, packaging, and licence checks, without live OpenAI calls. Chromium ran outside the sandbox for macOS process registration. A separate review using the review-current-changes skill found no material issues. Reviewed the affected specification, task references, pending work, ADR, and root README; updated recovery documentation and historical task supersession notes within this slice. Existing unrelated documentation alignment remains tracked in [pending work](pending.md).

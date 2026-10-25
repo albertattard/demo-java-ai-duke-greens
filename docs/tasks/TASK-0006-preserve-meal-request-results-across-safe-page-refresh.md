@@ -10,6 +10,10 @@ Completed.
 - [TASK-0004: Fulfil a one-shot meal request with AI-generated suggestions](TASK-0004-fulfil-a-one-shot-meal-request-with-ai-generated-suggestions.md), for the existing request, recovery, retry, and reset behaviour.
 - [TASK-0005: Map meal ingredients to authoritative catalogue products](TASK-0005-map-meal-ingredients-to-authoritative-catalogue-products.md), for the displayed mapped-suggestion result state.
 
+## Subsequent recovery change
+
+Initial-request recovery now allows editing before “Try again” submits the displayed text, as defined in the [current MVP specification](../specs/SPEC-0001-mvp-conversational-shopping-flow.md). This supersedes the same-original-request retry restriction below; safe refresh and explicit submission remain required.
+
 ## Outcome
 
 A visitor can refresh a successful meal-suggestion page or a failed-request recovery page without a browser form-resubmission prompt or another AI request. The generated result or recovery state remains available only in that visitor’s active browser session.

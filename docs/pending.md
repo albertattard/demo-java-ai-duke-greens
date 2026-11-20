@@ -27,7 +27,6 @@ The existing test suite passed with 115 unit/MVC tests and 26 browser tests duri
 - Reconcile exact-meal deduplication and selection identity with the intended recommendation/basket separation. Current selection keys use result-set positions; a structurally identical meal in a later set is not automatically excluded because an earlier copy is selected. Preserve selected meals and the authoritative basket while deciding the desired behaviour.
 - Retain the delivered zero-suggestion path for out-of-scope guidance. The earlier claim that an informational follow-up is silently discarded no longer describes the controller. If questions such as “Are these all vegetarian meals?” must receive authoritative answers, introduce application-controlled dietary metadata and derive those answers from it; model prose alone is insufficient.
 - Add privacy-safe observability for conversational result categories without recording visitor prompts or model output. Failure metrics are specified separately below.
-- Validate that the complete core journey can be demonstrated in two to three minutes with the curated catalogue. Automated flow coverage alone does not establish that timing or live-model reliability.
 
 ## Conversation product decisions
 

@@ -11,3 +11,4 @@ This directory contains small, implementation-ready units of delivery work. Each
 - [`TASK-0005-map-meal-ingredients-to-authoritative-catalogue-products.md`](TASK-0005-map-meal-ingredients-to-authoritative-catalogue-products.md) makes meal suggestions demonstrably grounded in authoritative catalogue products and prices.
 - [`TASK-0006-preserve-meal-request-results-across-safe-page-refresh.md`](TASK-0006-preserve-meal-request-results-across-safe-page-refresh.md) makes meal-request results and recovery pages safe to refresh.
 - [`TASK-0007-accept-valid-responses-above-the-prompt-meal-limit.md`](TASK-0007-accept-valid-responses-above-the-prompt-meal-limit.md) accepts and displays every otherwise-valid meal while retaining the seven-meal prompt instruction.
+- [`TASK-0008-show-cooking-instructions-with-meal-suggestions.md`](TASK-0008-show-cooking-instructions-with-meal-suggestions.md) proposes generated cooking instructions that visitors can expand on meal cards.

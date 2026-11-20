@@ -1,7 +1,5 @@
 package demo;
 
-import java.util.UUID;
-
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -9,7 +7,7 @@ import org.springframework.test.context.support.TestPropertySourceUtils;
 
 public final class TestDemoAccess implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-    private static final String ACCESS_CODE = UUID.randomUUID().toString();
+    private static final String ACCESS_CODE = "491234567890";
 
     public static String accessCode() {
         return ACCESS_CODE;

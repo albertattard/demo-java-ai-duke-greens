@@ -53,7 +53,7 @@ duke-greens:
     access-code-hash: "a BCrypt hash from your secret manager"
 ```
 
-The access-code hash is required for every profile, including `mock`. Generate and store it in a secret manager or untracked local configuration; do not use the access code itself as the property value.
+The access-code hash is required for every profile, including `mock`. Generate the BCrypt hash from the phone number’s ASCII digits only, including any required country code, and store it in a secret manager or untracked local configuration; do not use the access code itself as the property value. The application removes all characters other than ASCII digits from submitted access codes before verification; it does not infer country codes.
 
 Start the local application with an explicit Spring configuration import:
 
